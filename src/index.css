@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 
 @theme {
   --color-primary: #ff0000;
@@ -164,4 +165,61 @@
 
 .animate-pulse-slow {
   animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Título Futurista Bruto */
+.diseno-futurista {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(3rem, 10vw, 120px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.85;
+  color: #ffffff;
+  font-style: italic;
+  transform: skewX(-5deg);
+  text-shadow:
+    2px 2px 0px #ff0000,
+    4px 4px 0px #000000;
+  letter-spacing: -2px;
+  margin: 0;
+  display: inline-block;
+}
+
+.sinteticos-rojo {
+  color: #ffffff;
+  text-shadow:
+    2px 2px 0px #ff0000,
+    4px 4px 0px #000000 !important;
+}
+
+@media (min-width: 1024px) {
+  .diseno-futurista {
+    letter-spacing: -5px;
+  }
+}
+
+.subtitulo-rojo {
+  font-family: 'Inter', sans-serif;
+  color: #ff0000;
+  letter-spacing: 8px;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.subtitulo-futurista {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(2rem, 6vw, 64px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.9;
+  color: #ffffff;
+  font-style: italic;
+  transform: skewX(-5deg);
+  text-shadow:
+    2px 2px 0px #ff0000,
+    4px 4px 0px #000000;
+  letter-spacing: -1px;
+  margin: 0;
+  display: inline-block;
 }

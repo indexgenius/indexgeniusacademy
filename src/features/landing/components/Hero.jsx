@@ -13,10 +13,10 @@ const Hero = () => {
             </div>
 
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="mb-8 relative z-10">
-                <h2 className="text-6xl lg:text-[140px] font-semibold tracking-tighter leading-tight uppercase mb-6">
+                <h1 className="diseno-futurista mb-6">
                     DOMINA LOS<br />
-                    <span className="text-red-gradient-text">SINTÉTICOS</span>
-                </h2>
+                    <span className="sinteticos-rojo">SINTÉTICOS</span>
+                </h1>
                 <p className="max-w-2xl mx-auto text-gray-400 font-medium uppercase tracking-widest text-sm lg:text-base leading-relaxed mb-10">
                     La Academia de trading más avanzada de Latinoamérica para índices Sintéticos. Señales en tiempo real, formación de alto nivel y una comunidad global de élite.
                 </p>
