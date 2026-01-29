@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ff0000;
+  --color-secondary: #c0c0c0;
+  --color-dark: #050505;
+  --color-card: #0f0f0f;
+
+  --font-space: "Oswald", sans-serif;
+  --font-inter: "Inter", sans-serif;
+
+  --background-image-silver-gradient: linear-gradient(135deg, #e0e0e0 0%, #808080 50%, #e0e0e0 100%);
+  --background-image-red-gradient: linear-gradient(135deg, #ff0000 0%, #990000 100%);
+
+  --shadow-red-glow: 0 0 20px rgba(255, 0, 0, 0.5);
+}
+
+@layer base {
+  body {
+    @apply bg-dark text-white font-space;
+  }
+
+  /* Force dark styles on native select elements */
+  select {
+    cursor: pointer;
+  }
+
+  option,
+  optgroup {
+    background-color: #0f0f0f;
+    color: white;
+    font-family: "Oswald", sans-serif;
+    padding: 10px;
+  }
+
+  select:focus {
+    outline: none;
+  }
+}
+
+@layer components {
+  .text-gradient-silver {
+    @apply bg-silver-gradient bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .btn-brutal {
+    @apply bg-red-gradient text-white px-6 py-3 rounded-none font-semibold italic uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-red-glow;
+  }
+
+  .text-red-gradient-text {
+    @apply bg-red-gradient bg-clip-text text-transparent;
+  }
+
+  .card-brutal {
+    @apply bg-card border border-white/10 p-6 rounded-none transition-all hover:border-red-600/50 hover:bg-black/40;
+  }
+
+  .tactical-select {
+    @apply appearance-none bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none cursor-pointer transition-all;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 3rem;
+  }
+
+  .tactical-select:hover {
+    @apply border-red-600/50 bg-white/10;
+  }
+
+  .tactical-select option {
+    @apply bg-[#050505] text-white p-4;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff0000;
+}
+
+/* Custom Scrollbar for dropdown */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 0, 0, 0.5);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 0, 0, 0.8);
+}
+
+/* Payment Methods Carousel Animation */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 60s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(1000%);
+  }
+}
+
+.animate-scan {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.5), transparent);
+  animation: scan 3s linear infinite;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  }
+
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 1);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}

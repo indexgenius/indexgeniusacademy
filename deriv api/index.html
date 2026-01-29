@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boom 1000 Real-Time Chart | Deriv API</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo-section">
+                <div class="pulse-icon"></div>
+                <h1>Boom 1000 <span class="index-label">Index</span></h1>
+            </div>
+            <div id="connection-status" class="status-badge connecting">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <main>
+            <div id="chart-card" class="glass-card">
+                <div class="price-header">
+                    <div class="current-price-container">
+                        <span class="price-label">LIVE PRICE</span>
+                        <div id="live-price" class="price-value">0.0000</div>
+                    </div>
+                    <div id="price-change" class="price-change neutral">
+                        0.00 (0.00%)
+                    </div>
+                </div>
+                <div id="chart-container"></div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="token-info">
+                <span class="label">Session:</span>
+                <span id="session-info" class="value">Demo-iconVRTC14067506</span>
+            </div>
+            <div class="api-status">
+                <span class="label">API Token:</span>
+                <span class="value">AdminRead (Active)</span>
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

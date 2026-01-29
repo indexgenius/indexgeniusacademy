@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/bull_head.png" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/bull_head.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&family=Oswald:wght@200..700&display=swap"
+    rel="stylesheet">
+
+  <!-- Primary Meta Tags -->
+  <title>Index Genius Academy - Trading Elite</title>
+  <meta name="title" content="Index Genius Academy - Trading Elite" />
+  <meta name="description" content="Elite Automated Trading Intelligence & Tactical Signals" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.indexgeniusacademy.com/" />
+  <meta property="og:title" content="Index Genius Academy - Trading Elite" />
+  <meta property="og:description" content="Elite Automated Trading Intelligence & Tactical Signals" />
+  <meta property="og:image" content="/share_image.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://www.indexgeniusacademy.com/" />
+  <meta property="twitter:title" content="Index Genius Academy - Trading Elite" />
+  <meta property="twitter:description" content="Elite Automated Trading Intelligence & Tactical Signals" />
+  <meta property="twitter:image" content="/share_image.png" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- OneSignal SDK (Official Setup) -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function (OneSignal) {
+      await OneSignal.init({
+        appId: "04046e2f-a035-4a88-9842-147cf501c938",
+        safari_web_id: "web.onesignal.auto.44737891-769a-4856-a052-0f3c94719003",
+        notifyButton: {
+          enable: true
+        },
+        allowLocalhostAsSecureOrigin: true
+      });
+
+      // Auto-tag users when they login
+      // This listens for user email stored in localStorage
+      let lastTaggedEmail = null; // Track the last email we tagged to avoid redundant calls
+
+      const checkAndTagUser = async () => {
+        const userEmail = localStorage.getItem('dn_academy_email');
+
+        // Only tag if we have an email AND it's different from the last one we tagged
+        if (userEmail && userEmail !== lastTaggedEmail) {
+          console.log('🏷️ [OneSignal] Tagging user with email:', userEmail);
+          try {
+            await OneSignal.User.addTag('email', userEmail);
+            lastTaggedEmail = userEmail; // Remember this email
+            console.log('✅ [OneSignal] User tagged successfully');
+          } catch (err) {
+            console.error('❌ [OneSignal] Failed to tag user:', err);
+          }
+        }
+      };
+
+      // Check immediately
+      checkAndTagUser();
+
+      // Also check when storage changes (e.g., after login)
+      window.addEventListener('storage', checkAndTagUser);
+
+      // Check periodically ALWAYS (every 5 seconds) to catch any email changes
+      setInterval(() => {
+        checkAndTagUser();
+      }, 5000); // Check every 5 seconds continuously
+
+      console.log('🔔 [OneSignal] Continuous email monitoring active');
+    });
+  </script>
+
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

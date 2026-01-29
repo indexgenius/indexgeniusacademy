@@ -1,0 +1,122 @@
+import React, { useState, useEffect } from 'react';
+import { Plus, Loader2 } from 'lucide-react';
+import { fetchPrice } from '../../utils/deriv';
+
+const DERIV_INDICES = [
+    { name: 'BOOM 1000', symbol: 'BOOM1000', type: 'BOOM', category: 'BOOM' },
+    { name: 'BOOM 900', symbol: 'BOOM900', type: 'BOOM', category: 'BOOM' },
+    { name: 'BOOM 600', symbol: 'BOOM600', type: 'BOOM', category: 'BOOM' },
+    { name: 'BOOM 500', symbol: 'BOOM500', type: 'BOOM', category: 'BOOM' },
+    { name: 'BOOM 300', symbol: 'BOOM300', type: 'BOOM', category: 'BOOM' },
+    { name: 'CRASH 1000', symbol: 'CRASH1000', type: 'CRASH', category: 'CRASH' },
+    { name: 'CRASH 900', symbol: 'CRASH900', type: 'CRASH', category: 'CRASH' },
+    { name: 'CRASH 600', symbol: 'CRASH600', type: 'CRASH', category: 'CRASH' },
+    { name: 'CRASH 500', symbol: 'CRASH500', type: 'CRASH', category: 'CRASH' },
+    { name: 'CRASH 300', symbol: 'CRASH300', type: 'CRASH', category: 'CRASH' },
+];
+
+const CATEGORIES = ['BOOM', 'CRASH'];
+
+const QuickBroadcaster = ({ broadcastSignal }) => {
+    const [selectedIndex, setSelectedIndex] = useState(DERIV_INDICES[0]);
+    const [prices, setPrices] = useState({});
+    const [loadingIndex, setLoadingIndex] = useState(null);
+    const [sl, setSl] = useState('');
+    const [tp, setTp] = useState('');
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [manualEntry, setManualEntry] = useState('');
+
+    const isManualInput = selectedIndex.symbol === 'BOOM300' || selectedIndex.symbol === 'CRASH300';
+
+    useEffect(() => {
+        const updateAllPrices = async () => {
+            const newPrices = { ...prices };
+            for (const idx of DERIV_INDICES) {
+                try {
+                    const price = await fetchPrice(idx.symbol);
+                    if (price) newPrices[idx.symbol] = price;
+                    await new Promise(r => setTimeout(r, 100));
+                } catch (e) { }
+            }
+            setPrices(newPrices);
+        };
+        updateAllPrices();
+        const interval = setInterval(updateAllPrices, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const sendSignal = async (action, idx) => {
+        setLoadingIndex(idx.name);
+        try {
+            let price = isManualInput && manualEntry ? manualEntry : await fetchPrice(idx.symbol).catch(() => "MARKET PRICE");
+
+            const isBoom = idx.type === 'BOOM';
+            const directionLabel = isBoom ? '🚀 COMPRA' : '❄️ VENTA';
+            const slText = sl ? ` | SL: ${sl}` : '';
+            const tpText = tp ? ` | TP: ${tp}` : '';
+
+            let msg = "";
+            if (action === 'MAIN') msg = `${directionLabel} ${idx.name} @ ${price}${slText}${tpText}`;
+            if (action === 'REENTRY') msg = `🔄 RE-ENTRADA ${idx.name} @ ${price}${slText}${tpText}`;
+            if (action === 'PE') msg = `📍 PUNTO DE ENTRADA ${idx.name} @ ${price}${slText}${tpText}`;
+
+            await broadcastSignal({
+                message: msg,
+                pair: idx.name,
+                type: idx.type,
+                status: 'ACTIVE',
+                symbol: idx.symbol,
+                entry: price,
+                sl: sl || '---',
+                tp: tp || '---'
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoadingIndex(null);
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-0 lg:gap-6">
+            <div className="flex items-center gap-3 border-b border-white/5 p-4 lg:pb-4 lg:px-0">
+                <div className="w-8 h-8 bg-red-600 flex items-center justify-center shadow-red-glow"><Plus className="text-white" size={16} /></div>
+                <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">INITIATE TACTICAL</span>
+            </div>
+
+            <div className="bg-black lg:bg-white/5 border-b lg:border border-white/10 p-4 lg:p-6 space-y-4 lg:space-y-6">
+                <div className="relative">
+                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1 block">TARGET PAIR</label>
+                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-white/5 p-3 text-white font-black tracking-wider uppercase border border-white/10 flex justify-between items-center transition-all">
+                        <span>{selectedIndex.name} {prices[selectedIndex.symbol] && <span className="text-green-500 ml-2">[{prices[selectedIndex.symbol]}]</span>}</span>
+                        <div className={`w-2 h-2 border-r-2 border-b-2 border-white/50 transform ${isDropdownOpen ? 'rotate-[225deg]' : 'rotate-45'}`}></div>
+                    </button>
+                    {isDropdownOpen && (
+                        <div className="absolute top-full left-0 w-full bg-[#0a0a0a] border border-white/20 z-50 max-h-60 overflow-auto">
+                            {DERIV_INDICES.map(idx => (
+                                <button key={idx.symbol} onClick={() => { setSelectedIndex(idx); setIsDropdownOpen(false); }} className="w-full p-3 text-left hover:bg-white/10 text-xs font-bold uppercase transition-all flex justify-between">
+                                    {idx.name} <span className="text-gray-500">{prices[idx.symbol]}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <input type="text" placeholder="SL PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none" value={sl} onChange={e => setSl(e.target.value)} />
+                    <input type="text" placeholder="TP PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none" value={tp} onChange={e => setTp(e.target.value)} />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                    {['MAIN', 'REENTRY', 'PE'].map(act => (
+                        <button key={act} disabled={loadingIndex === selectedIndex.name} onClick={() => sendSignal(act, selectedIndex)} className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${act === 'MAIN' ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                            {loadingIndex === selectedIndex.name ? <Loader2 className="animate-spin mx-auto" size={12} /> : (act === 'MAIN' ? (selectedIndex.type === 'BOOM' ? 'BUY' : 'SELL') : act)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default QuickBroadcaster;

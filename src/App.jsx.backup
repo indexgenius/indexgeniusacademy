@@ -1,0 +1,739 @@
+import React, { useState, useEffect } from 'react';
+import Sidebar from './components/Sidebar';
+import Dashboard from './components/Dashboard';
+import Groups from './components/Groups';
+import Announcements from './components/Announcements';
+import Profile from './components/Profile';
+import Academy from './components/Academy';
+import Templates from './components/Templates';
+import Admin from './components/Admin';
+import Landing from './components/Landing';
+import Login from './components/Login';
+import PendingApproval from './components/PendingApproval';
+import SubscriptionExpired from './components/SubscriptionExpired';
+import Charts from './components/Charts';
+import PaymentPortal from './components/PaymentPortal';
+import { Bell, Zap, Send, RefreshCcw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { db, auth, messaging } from './firebase';
+import { collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, setDoc, doc, updateDoc } from "firebase/firestore";
+import { getToken, onMessage } from "firebase/messaging";
+
+// Timestamp check moved inside component to prevent module-level crashes
+// window.APP_LOAD_TIME removed
+
+function App() {
+  // Capture load time safely inside the component lifecycle
+  const appLoadTimeRef = React.useRef(Date.now());
+
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [user, setUser] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationPermission, setNotificationPermission] = useState('default');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [customMsg, setCustomMsg] = useState('');
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [adblockDetected, setAdblockDetected] = useState(false);
+  const [fcmToken, setFcmToken] = useState(null);
+  const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
+
+  // Announcement listener for Sidebar badge
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const calculateUnread = (snapshot) => {
+      const saved = localStorage.getItem(`read_announcements_${user.uid}`);
+      const readIds = new Set(saved ? JSON.parse(saved) : []);
+      const announcements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const count = announcements.filter(a => !readIds.has(a.id)).length;
+      setUnreadAnnouncements(count);
+    };
+
+    const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+    let currentSnapshot = null;
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      currentSnapshot = snapshot;
+      calculateUnread(snapshot);
+    });
+
+    const handleStorageChange = () => {
+      if (currentSnapshot) calculateUnread(currentSnapshot);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [user?.uid]);
+
+  // PWA Update handling removed - OneSignal handles the SW
+
+
+  // 1. Notification Permission Sync
+  useEffect(() => {
+    if (window.OS_BLOCKED_BY_ADBLOCK) {
+      setAdblockDetected(true);
+    }
+
+    const checkPermission = () => {
+      if ('Notification' in window) {
+        setPushEnabled(Notification.permission === 'granted');
+      }
+    };
+
+    checkPermission();
+    // Re-check periodically or on focus
+    window.addEventListener('focus', checkPermission);
+    return () => window.removeEventListener('focus', checkPermission);
+  }, []);
+
+  useEffect(() => {
+    const checkStandalone = () => {
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+      setIsStandalone(isPWA);
+    };
+    checkStandalone();
+
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) setUser(JSON.parse(savedUser));
+  }, []);
+
+  // 2. Sync User Profile (Permissions)
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const unsubscribe = onSnapshot(doc(db, "users", user.uid), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        // Merge real-time data (like permissions) with local state
+        setUser(prev => ({ ...prev, ...data }));
+        // Optionally update localStorage to keep it fresh
+        localStorage.setItem('user', JSON.stringify({ ...user, ...data }));
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, "signals"),
+      orderBy("timestamp", "desc"),
+      limit(1)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const signalData = change.doc.data();
+          const signalTime = signalData.timestamp?.toMillis() || Date.now();
+          const now = Date.now();
+
+          // Only alert if the signal is STRICTLY new (created AFTER the app loaded)
+          // This prevents "spam" when refreshing the page, as we ignore recent-but-old signals
+          if (signalTime > appLoadTimeRef.current) {
+            triggerNotification(signalData);
+          }
+        }
+      });
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // --- NOTIFICATION LOGIC (LOCAL UI ONLY FOR NOW) ---
+  const triggerNotification = (signalData) => {
+    const msg = typeof signalData === 'string' ? signalData : signalData.message;
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification("IndexGeniusGOLD", {
+        body: msg,
+        icon: '/pwa-192x192.png',
+        vibrate: [200, 100, 200]
+      });
+    }
+
+    const signalTime = signalData.timestamp?.toMillis() || Date.now();
+    const newNotif = {
+      id: Date.now(),
+      msg: signalData.message,
+      data: signalData, // Pasamos todo el objeto para el UI rico
+      time: new Date(signalTime).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    };
+    setNotifications((prev) => [newNotif, ...prev].slice(0, 3));
+
+    setTimeout(() => {
+      setNotifications((prev) => prev.filter(n => n.id !== newNotif.id));
+    }, 12000);
+  };
+
+  // --- ONESIGNAL INTEGRATION ---
+  useEffect(() => {
+    if (!user?.uid) return;
+    if (window.OneSignalInitStarted) {
+      console.log("⚠️ [OneSignal] Already initializing, skipping...");
+      return;
+    }
+
+    window.OneSignalInitStarted = true;
+    console.log("🔔 [OneSignal] Starting initialization for user:", user.email);
+
+    // Check if SDK loaded
+    if (!window.OneSignal) {
+      console.error("❌ [OneSignal] SDK script not loaded! Check if /OneSignalSDK.page.js exists");
+      window.OneSignalInitStarted = false;
+      return;
+    }
+
+    const runOneSignal = async () => {
+      try {
+        // Wait for SDK to be ready (max 5s)
+        const sdkReady = await Promise.race([
+          new Promise((resolve) => {
+            window.OneSignal.push(() => resolve(true));
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("OneSignal SDK timeout")), 5000)
+          )
+        ]);
+
+        if (!sdkReady) {
+          console.error("❌ [OneSignal] SDK failed to initialize");
+          window.OneSignalInitStarted = false;
+          return;
+        }
+
+        await window.OneSignal.push(async (OneSignal) => {
+          if (OneSignal.initialized) {
+            console.log("✅ [OneSignal] Already initialized, updating user tags");
+            // Just update tags for new user
+            if (user && user.email) {
+              OneSignal.User.addTag("email", user.email);
+              OneSignal.User.addTag("status", user.status || "free");
+            }
+            return;
+          }
+
+          console.log("🔔 [OneSignal] Initializing SDK...");
+
+          await OneSignal.init({
+            appId: "04046e2f-a035-4a88-9842-147cf501c938",
+            allowLocalhostAsSecureOrigin: true,
+            serviceWorkerPath: "/OneSignalSDKWorker.js",
+            serviceWorkerParam: { scope: "/" },
+            promptOptions: {
+              slidedown: {
+                prompts: [
+                  {
+                    type: "push",
+                    autoPrompt: false,
+                    text: {
+                      actionMessage: "Recibe señales de trading en tiempo real, incluso con la app cerrada.",
+                      acceptButton: "ACTIVAR SEÑALES",
+                      cancelButton: "AHORA NO"
+                    }
+                  }
+                ]
+              }
+            }
+          });
+
+          OneSignal.initialized = true;
+          console.log("✅ [OneSignal] SDK initialized successfully");
+
+          // Check subscription status
+          const isPushSupported = await OneSignal.Notifications.isPushSupported();
+          const permission = await OneSignal.Notifications.permissionNative;
+
+          console.log("🔔 [OneSignal] Push supported:", isPushSupported);
+          console.log("🔔 [OneSignal] Permission:", permission);
+
+          if (isPushSupported && permission === 'default') {
+            console.log("🔔 [OneSignal] Showing Slidedown prompt in 2s...");
+            setTimeout(() => {
+              OneSignal.Slidedown.promptPush();
+            }, 2000);
+          } else if (permission === 'granted') {
+            console.log("✅ [OneSignal] Already subscribed!");
+            setPushEnabled(true);
+          } else {
+            console.log("⚠️ [OneSignal] Permission denied or unsupported");
+          }
+
+          // Tag User
+          if (user && user.email) {
+            console.log("🏷️ [OneSignal] Tagging user:", user.email);
+            OneSignal.User.addTag("email", user.email);
+            OneSignal.User.addTag("status", user.status || "free");
+          }
+
+          // Listen for Subscription Changes
+          OneSignal.User.PushSubscription.addEventListener("change", async (event) => {
+            if (event.current.id) {
+              console.log("💎 [OneSignal] Player ID:", event.current.id);
+              setFcmToken(event.current.id);
+              setPushEnabled(true);
+
+              if (auth.currentUser) {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                  oneSignalId: event.current.id,
+                  notificationsEnabled: true,
+                  lastTokenUpdate: serverTimestamp()
+                });
+                console.log("✅ [OneSignal] User token saved to Firestore");
+              }
+            }
+          });
+        });
+      } catch (error) {
+        console.error("❌ [OneSignal] Initialization failed:", error);
+        window.OneSignalInitStarted = false;
+      }
+    };
+
+    runOneSignal();
+
+    // Cleanup on unmount
+    return () => {
+      console.log("🧹 [OneSignal] Component unmounting");
+    };
+  }, [user?.uid]); // Only re-run if user ID changes, not entire user object
+
+
+  const setupNotifications = async () => {
+    console.log("🔔 [Setup] Triggering OneSignal prompt...");
+    try {
+      if (window.OneSignal) {
+        window.OneSignal.push(function () {
+          console.log("🔔 [Setup] Showing Slidedown...");
+          OneSignal.Slidedown.promptPush();
+        });
+      } else {
+        console.error("❌ [Setup] OneSignal SDK not loaded yet!");
+        // Fallback to native prompt
+        const permission = await Notification.requestPermission();
+        console.log("📱 [Setup] Native permission:", permission);
+      }
+    } catch (error) {
+      console.error("❌ [Setup] Error showing prompt:", error);
+    }
+  };
+
+  const rePromptPush = async () => {
+    console.log("🔔 [RePrompt] User clicked Bell button");
+    await setupNotifications();
+  };
+
+  const broadcastSignal = async (signalObj) => {
+    if (!signalObj) return;
+    try {
+      const payload = typeof signalObj === 'string'
+        ? { message: signalObj, timestamp: serverTimestamp(), sender: user.email }
+        : { ...signalObj, timestamp: serverTimestamp(), sender: user.email };
+
+      // 1. Save to Firestore for live feed (Only if not explicitly skipped)
+      if (!signalObj.skipSave) {
+        await addDoc(collection(db, "signals"), payload);
+      }
+
+
+      // 2. Trigger Pushify API via Vercel Backend (Absolute URL required for Firebase Hosting compatibility)
+      const notifyBody = typeof signalObj === 'string'
+        ? signalObj
+        : `${signalObj.message}${signalObj.entry && signalObj.entry !== '---' ? ` [PE: ${signalObj.entry}]` : ''}`;
+
+      // Get ID Token
+      const idToken = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+
+      if (!idToken) {
+        console.error("No authenticated user found for broadcast.");
+        return;
+      }
+
+      // Absolute URL needed because Firebase Hosting controls the domain, but Vercel handles the API
+      const TARGET_API_URL = 'https://ingenus-fx.vercel.app/api/broadcast';
+      console.log("📡 [Broadcast] Targeting API:", TARGET_API_URL); // DEBUG LOG
+
+      const response = await fetch(TARGET_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
+          title: "IndexGeniusGOLD - SIGNAL",
+          body: notifyBody,
+          data: payload
+        })
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        let errData = {};
+        try {
+          errData = JSON.parse(text);
+        } catch (e) {
+          console.error("Critical: API returned non-JSON response (HTML?). Possible hosting conflict.");
+          throw new Error(`Critical: Backend return HTML instead of JSON. Check Hosting/Rewrites.`);
+        }
+        console.error("Broadcast API Failed:", response.status, errData);
+        throw new Error(errData.details || errData.error || `Error ${response.status}`);
+      }
+
+      setCustomMsg('');
+    } catch (e) {
+      console.error("Error broadcasting: ", e);
+      throw e; // Re-throw so components can show alerts
+    }
+  };
+
+  const bulkBroadcast = async () => {
+    const bulkSignals = [
+      { message: "🚀 BOOM 1000 - SPIKE READY", pair: "BOOM 1000", type: "BOOM", status: "ACTIVE", entry: "12450.5", tp: "12465.0", sl: "12440.0" },
+      { message: "📉 CRASH 500 - RETRACEMENT", pair: "CRASH 500", type: "CRASH", status: "ACTIVE", entry: "8520.2", tp: "8505.0", sl: "8535.0" },
+      { message: "🔥 BOOM 500 - INSTANT BUY", pair: "BOOM 500", type: "BOOM", status: "ACTIVE", entry: "7820.5", tp: "7835.0", sl: "7810.0" },
+      { message: "❄️ CRASH 1000 - SELL NOW", pair: "CRASH 1000", type: "CRASH", status: "ACTIVE", entry: "11200.0", tp: "11180.0", sl: "11215.0" }
+    ];
+
+    try {
+      for (const signal of bulkSignals) {
+        await broadcastSignal(signal);
+      }
+      alert("BULK UPLOAD COMPLETE");
+    } catch (e) {
+      console.error("Error in bulk upload: ", e);
+    }
+  };
+
+  const handleLogin = async (firebaseUser) => {
+    // Standardize user object
+    const userData = {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      displayName: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+      photoURL: firebaseUser.photoURL || null,
+      provider: firebaseUser.providerData[0]?.providerId || 'password',
+      lastLogin: new Date().toISOString()
+    };
+
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setupNotifications(userData.email);
+
+    // Persist session to Firestore
+    try {
+      setDoc(doc(db, "users", userData.uid), userData, { merge: true });
+
+      // Check for Admin/Broadcast permissions
+      onSnapshot(doc(db, "users", userData.uid), (doc) => {
+        if (doc.exists()) {
+          const data = doc.data();
+          setUser(prev => ({ ...prev, ...data }));
+        }
+      });
+    } catch (e) {
+      console.error("Error saving user session:", e);
+    }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+  };
+
+  if (!isStandalone) return <Landing />;
+  if (!user) return <Login onLogin={handleLogin} />;
+
+  // --- PAYMENT GATE ---
+  if (user?.status === 'payment_required') {
+    return <PaymentPortal user={user} />;
+  }
+
+  // --- APPROVAL GATE ---
+  if (user?.status === 'pending' || user?.status === 'rejected') {
+    return <PendingApproval onLogout={handleLogout} status={user.status} />;
+  }
+
+  // --- SUBSCRIPTION EXPIRY GATE ---
+  const checkExpiry = () => {
+    if (user?.status === 'renewal_pending') return true;
+    if (user?.subscriptionEnd) {
+      // Handle Firestore Timestamp or Date object or String
+      const end = user.subscriptionEnd.toDate ? user.subscriptionEnd.toDate() : new Date(user.subscriptionEnd);
+      return end < new Date();
+    }
+    return false;
+  };
+
+  if (checkExpiry()) {
+    return <SubscriptionExpired user={user} onLogout={handleLogout} />;
+  }
+
+  const isAdmin = user.email === 'admin' || user.email === 'steven@ingenius.fx';
+
+  return (
+    <div className="flex bg-dark min-h-screen text-white font-space selection:bg-red-600 selection:text-white overflow-hidden">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onLogout={handleLogout}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        canBroadcast={isAdmin || user.canBroadcast}
+        unreadAnnouncements={unreadAnnouncements}
+      />
+
+      <main className="flex-1 lg:ml-64 min-h-screen relative overflow-y-auto">
+        <div className="fixed top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-red-600/5 blur-[150px] -z-10 pointer-events-none"></div>
+
+        <header
+          className="h-20 border-b border-white/5 sticky top-0 bg-dark/80 backdrop-blur-xl z-40 flex items-center justify-between px-6 lg:px-10"
+          style={{ WebkitBackdropFilter: 'blur(20px)' }}
+        >
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black tracking-[0.2em] text-red-600 uppercase italic leading-none mb-1">Status: Authorized (v5.8 - CDN RESTORE)</span>
+            <p className="text-xs font-bold text-white/50 uppercase truncate max-w-[120px] lg:max-w-none">{user.email}</p>
+          </div>
+
+          <div className="flex items-center gap-4 lg:gap-6">
+            {isAdmin && (
+              <div className="hidden sm:flex items-center gap-2 bg-white/5 p-1 border border-white/10 group">
+                <input
+                  type="text"
+                  value={customMsg}
+                  onChange={(e) => setCustomMsg(e.target.value)}
+                  placeholder="CUSTOM SIGNAL..."
+                  className="bg-transparent border-none outline-none text-[10px] font-bold px-3 py-1 w-32 uppercase tracking-widest placeholder:text-gray-600"
+                  onKeyDown={(e) => e.key === 'Enter' && broadcastSignal(customMsg)}
+                />
+                <button
+                  onClick={() => broadcastSignal(customMsg)}
+                  className="p-2 bg-red-600 hover:bg-white hover:text-red-600 transition-colors"
+                >
+                  <Send size={14} />
+                </button>
+              </div>
+            )}
+
+            {/* Signal Sync Status Indicator */}
+            <div className="hidden lg:flex flex-col items-end mr-2">
+              <span className="text-[7px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">DATA LINK STATUS</span>
+              <div className="flex items-center gap-2">
+                <div className={`w-1 h-1 rounded-full ${adblockDetected ? 'bg-orange-500 animate-pulse' : (pushEnabled ? 'bg-green-500 shadow-[0_0_5px_#22c55e]' : 'bg-red-600 animate-pulse shadow-[0_0_5px_#dc2626]')}`}></div>
+                <span className={`text-[9px] font-black tracking-widest ${adblockDetected ? 'text-orange-500' : (pushEnabled ? 'text-green-500' : 'text-red-600')}`}>
+                  {adblockDetected ? 'SHIELD ALERT' : (pushEnabled ? 'SECURE' : 'LINK DOWN')}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={rePromptPush}
+              className={`w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center border transition-all ${pushEnabled ? 'border-red-600/20 text-red-600/40' : 'border-yellow-500 text-yellow-500 shadow-yellow-glow animate-pulse'
+                }`}
+            >
+              <Bell size={20} className={pushEnabled ? '' : 'animate-bounce'} />
+            </button>
+
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="w-10 h-10 lg:w-12 lg:h-12 bg-red-gradient p-[1px] rotate-45 group relative shrink-0 lg:pointer-events-none"
+            >
+              <div className="w-full h-full bg-dark flex items-center justify-center -rotate-45 group-hover:bg-red-600 transition-colors">
+                <span className="font-black text-white">{user.email[0].toUpperCase()}</span>
+              </div>
+            </button>
+          </div>
+        </header>
+
+        {isAdmin && (
+          <div className="px-6 lg:px-10 pt-6 flex flex-wrap gap-3">
+            <button
+              onClick={() => broadcastSignal({
+                message: "🔥 COMPRA BOOM 1000 - SPIKE EXPECTED!",
+                pair: "BOOM 1000",
+                type: "BOOM",
+                status: "ACTIVE",
+                entry: "12450.5",
+                tp: "12465.0",
+                sl: "12440.0"
+              })}
+              className="px-6 py-2 bg-red-600/10 border border-red-600/50 text-red-600 text-[9px] font-black tracking-widest uppercase hover:bg-red-600 hover:text-white transition-all skew-x-[-10deg] shadow-red-glow"
+            >
+              TEST BOOM 1000
+            </button>
+            <button
+              onClick={() => broadcastSignal({
+                message: "⚡ REENTRADA BOOM 1000 - MANTENER!",
+                pair: "BOOM 1000",
+                type: "BOOM",
+                status: "ACTIVE",
+                entry: "12455.2",
+                tp: "12470.0",
+                sl: "12445.0"
+              })}
+              className="px-6 py-2 bg-white/5 border border-white/20 text-white text-[9px] font-black tracking-widest uppercase hover:bg-red-600 transition-all skew-x-[-10deg]"
+            >
+              TEST REENTRADA
+            </button>
+            <button
+              onClick={() => broadcastSignal({
+                message: "❄️ VENTA CRASH 500 - CONFIRMADA!",
+                pair: "CRASH 500",
+                type: "CRASH",
+                status: "ACTIVE",
+                entry: "8520.2",
+                tp: "8505.0",
+                sl: "8535.0"
+              })}
+              className="px-6 py-2 bg-blue-600/10 border border-blue-600/50 text-blue-500 text-[9px] font-black tracking-widest uppercase hover:bg-blue-600 hover:text-white transition-all skew-x-[-10deg]"
+            >
+              TEST CRASH 500
+            </button>
+            <button
+              onClick={bulkBroadcast}
+              className="px-6 py-2 bg-red-600 text-white text-[9px] font-black tracking-widest uppercase hover:bg-white hover:text-black transition-all skew-x-[-10deg] shadow-red-glow"
+            >
+              UPLOAD BULK SIGNALS
+            </button>
+          </div>
+        )}
+
+        <div className="fixed top-24 right-6 lg:right-10 z-[100] space-y-4 pointer-events-none">
+          <AnimatePresence>
+            {notifications.map(n => (
+              <motion.div
+                key={n.id}
+                initial={{ opacity: 0, x: 100, scale: 0.8 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 50, scale: 0.8 }}
+                className="bg-black/95 border-2 border-red-600 p-6 shadow-red-glow flex items-start gap-4 pointer-events-auto min-w-[320px] backdrop-blur-xl"
+                style={{ WebkitBackdropFilter: 'blur(16px)' }}
+              >
+                <div className="relative shrink-0">
+                  <Bell className="text-red-600 animate-bounce" size={24} />
+                  <div className="absolute -inset-2 bg-red-600/30 blur-xl rounded-full animate-pulse"></div>
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="text-[9px] font-black text-red-600 uppercase tracking-[0.2em]">
+                      {n.data?.type ? `${n.data.type} INTEL` : 'Live Signal'}
+                    </p>
+                    <p className="text-[8px] font-bold text-gray-500 uppercase">{n.time} UTC</p>
+                  </div>
+
+                  {/* Rich Content Overlay */}
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm font-black italic tracking-tighter uppercase text-white leading-tight">
+                      {n.data?.pair || n.msg}
+                    </p>
+                    {n.data?.entry && n.data?.entry !== '---' && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-red-600 uppercase">ENTRY:</span>
+                        <span className="text-[12px] font-black text-white">{n.data.entry}</span>
+                      </div>
+                    )}
+                    {n.data?.pair && <p className="text-[10px] font-bold text-gray-500 uppercase italic opacity-70">{n.msg}</p>}
+                  </div>
+
+                  <div className="mt-3 w-full h-1 bg-white/5">
+                    <motion.div
+                      initial={{ width: "100%" }}
+                      animate={{ width: "0%" }}
+                      transition={{ duration: 12, ease: "linear" }}
+                      className="h-full bg-red-600 shadow-[0_0_8px_#ff0000]"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        <div className="p-6 lg:p-10">
+          {activeTab === 'dashboard' && <Dashboard user={user} broadcastSignal={broadcastSignal} />}
+          {activeTab === 'announcements' && <Announcements user={user} />}
+          {activeTab === 'charts' && <Charts />}
+          {activeTab === 'academy' && <Academy user={user} />}
+          {activeTab === 'templates' && <Templates user={user} />}
+          {activeTab === 'admin' && (user?.canBroadcast || isAdmin) && <Admin user={user} broadcastSignal={broadcastSignal} />}
+          {activeTab === 'groups' && <Groups user={user} />}
+          {activeTab === 'profile' && <Profile user={user} />}
+        </div>
+
+        {/* Adblock Detected Overlay */}
+        {adblockDetected && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed inset-x-4 bottom-24 z-[110] bg-black/95 border-2 border-orange-600 p-6 backdrop-blur-2xl shadow-[0_0_30px_rgba(234,88,12,0.2)]"
+          >
+            <div className="flex items-start gap-4">
+              <div className="bg-orange-600 p-2 shrink-0">
+                <Zap size={24} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-black text-white uppercase italic tracking-tighter mb-1">DATA LINK BLOCKED BY SHIELD</h4>
+                <p className="text-[10px] text-gray-400 font-bold leading-relaxed uppercase">
+                  Un bloqueador de anuncios o navegador (Brave/uBlock) está interceptando la señal.<br />
+                  <span className="text-white">SOLUCIÓN TÁCTICA:</span> Desactiva el "Shield" o bloqueador para este sitio para recibir notificaciones y telemetría en tiempo real.
+                </p>
+              </div>
+              <button onClick={() => setAdblockDetected(false)} className="text-[10px] font-black text-gray-500 hover:text-white uppercase transition-colors">CERRAR</button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Notification Permission Prompt Overlay */}
+        {!pushEnabled && !adblockDetected && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="fixed inset-x-4 bottom-24 z-[110] bg-black/90 border-2 border-red-600 p-6 backdrop-blur-2xl shadow-red-glow"
+          >
+            <div className="flex items-start gap-4">
+              <div className="bg-red-600 p-2 shrink-0">
+                <Bell size={24} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-black text-white uppercase italic tracking-tighter mb-1">DATA LINK INACTIVE</h4>
+                <p className="text-[10px] text-gray-400 font-bold leading-relaxed uppercase">
+                  No has activado las notificaciones. No recibirás señales en tiempo real si la app está cerrada.<br />
+                  <span className="text-white">ACCION:</span> Haz clic en la campana superior para activar el enlace táctico.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* iOS Tactical Guidance Prompt */}
+        {isStandalone === false && /iPhone|iPad|iPod/.test(navigator.userAgent) && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-24 left-4 right-4 z-[100] bg-black border-2 border-red-600 p-6 shadow-red-glow animate-pulse-subtle"
+          >
+            <div className="flex items-start gap-4">
+              <div className="bg-red-600 p-2 shrink-0">
+                <Zap size={24} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-black text-white uppercase italic tracking-tighter mb-1">TACTICAL OVERRIDE REQUIRED</h4>
+                <p className="text-[10px] text-gray-400 font-bold leading-relaxed uppercase">
+                  Para recibir señales en iPhone: toca el botón <span className="text-white border border-white/20 px-1 rounded">compartir</span> y selecciona <span className="text-white font-black italic">"Añadir a pantalla de inicio"</span>. Luego abre la app desde tu pantalla.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default App;

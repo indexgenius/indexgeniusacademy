@@ -1,0 +1,276 @@
+import React, { useState, useEffect } from 'react';
+import { Search, ShieldCheck, Check, Trash2, StopCircle, Users } from 'lucide-react';
+import { db, auth } from '../../firebase';
+import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+
+const UserManagement = ({ adminUser }) => {
+    const [pendingUsers, setPendingUsers] = useState([]);
+    const [renewalUsers, setRenewalUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
+    const [userFilter, setUserFilter] = useState('');
+    const [editingUser, setEditingUser] = useState(null);
+    const [editExpiry, setEditExpiry] = useState('');
+
+    useEffect(() => {
+        const unsubPending = onSnapshot(query(collection(db, "users"), where("status", "==", "pending")), (snapshot) => {
+            setPendingUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
+        const unsubRenewal = onSnapshot(query(collection(db, "users"), where("status", "==", "renewal_pending")), (snapshot) => {
+            setRenewalUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
+        const unsubAll = onSnapshot(query(collection(db, "users"), where("status", "==", "approved")), (snapshot) => {
+            setAllUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
+        return () => {
+            unsubPending();
+            unsubRenewal();
+            unsubAll();
+        };
+    }, []);
+
+    const handleApprove = async (userDoc) => {
+        if (!confirm(`APPROVE ACCESS FOR ${userDoc.email}?`)) return;
+        try {
+            const now = new Date();
+            const expiry = new Date();
+            expiry.setDate(expiry.getDate() + 30);
+
+            await updateDoc(doc(db, "users", userDoc.id), {
+                status: 'approved',
+                subscriptionActive: true,
+                subscriptionStart: now,
+                subscriptionEnd: expiry,
+                approvedAt: serverTimestamp()
+            });
+
+            const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+            fetch('https://ingenus-fx.vercel.app/api/broadcast', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: "ACCESS GRANTED",
+                    body: "WELCOME TO INDEX GENIUS GOLD. YOUR ACCOUNT IS ACTIVE.",
+                    targetEmail: userDoc.email
+                })
+            }).catch(console.error);
+
+            alert("USER APPROVED & NOTIFIED");
+        } catch (e) {
+            alert("APPROVAL FAILED: " + e.message);
+        }
+    };
+
+    const handleReject = async (uid) => {
+        if (!confirm("DENY ACCESS? THIS CANNOT BE UNDONE EASILY.")) return;
+        try {
+            await updateDoc(doc(db, "users", uid), { status: 'rejected' });
+        } catch (e) {
+            alert("REJECTION FAILED: " + e.message);
+        }
+    };
+
+    const handleRenew = async (userDoc) => {
+        if (!confirm(`CONFIRM RENEWAL FOR ${userDoc.email}?`)) return;
+        try {
+            const now = new Date();
+            const expiry = new Date();
+            expiry.setDate(expiry.getDate() + 30);
+
+            await updateDoc(doc(db, "users", userDoc.id), {
+                status: 'approved',
+                subscriptionActive: true,
+                subscriptionStart: now,
+                subscriptionEnd: expiry,
+                renewedAt: serverTimestamp()
+            });
+
+            const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+            fetch('https://ingenus-fx.vercel.app/api/broadcast', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: "SUBSCRIPTION RENEWED",
+                    body: "YOUR TACTICAL ACCESS HAS BEEN EXTENDED FOR 30 DAYS.",
+                    targetEmail: userDoc.email
+                })
+            }).catch(console.error);
+
+            alert("RENEWAL SUCCESSFUL");
+        } catch (e) {
+            alert("RENEWAL FAILED: " + e.message);
+        }
+    };
+
+    const handleUpdateExpiry = async (e) => {
+        e.preventDefault();
+        if (!editingUser || !editExpiry) return;
+        try {
+            const expiryDate = new Date(editExpiry);
+            await updateDoc(doc(db, "users", editingUser.id), {
+                subscriptionEnd: expiryDate,
+                subscriptionActive: expiryDate > new Date()
+            });
+            alert("EXPIRY UPDATED");
+            setEditingUser(null);
+        } catch (e) {
+            alert("UPDATE FAILED: " + e.message);
+        }
+    };
+
+    const handleDeleteUser = async (uid) => {
+        if (!confirm("PERMANENTLY DELETE USER? THIS CANNOT BE UNDONE.")) return;
+        try {
+            await deleteDoc(doc(db, "users", uid));
+            alert("USER ELIMINATED FROM DATABASE");
+        } catch (e) {
+            alert("DELETION FAILED: " + e.message);
+        }
+    };
+
+    const filteredUsers = allUsers.filter(u =>
+        u.email?.toLowerCase().includes(userFilter.toLowerCase()) ||
+        u.displayName?.toLowerCase().includes(userFilter.toLowerCase())
+    ).slice(0, 10);
+
+    return (
+        <div className="max-w-2xl mx-auto space-y-8 pt-8">
+            {/* PENDING LIST */}
+            <div className="space-y-4 mb-8 border-b border-white/10 pb-8">
+                <h3 className="text-sm font-black text-yellow-500 uppercase tracking-widest animate-pulse">PENDING APPROVALS ({pendingUsers.length})</h3>
+                {pendingUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">NO PENDING REQUESTS</p>}
+                {pendingUsers.map(u => (
+                    <div key={u.id} className="bg-white/5 p-4 flex justify-between items-center border-l-2 border-yellow-500">
+                        <div>
+                            <p className="text-xs font-bold text-white uppercase">{u.email}</p>
+                            <p className="text-[9px] text-gray-500 uppercase tracking-wider">{u.displayName}</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={() => handleApprove(u)} className="px-4 py-2 bg-green-500/20 text-green-500 text-[10px] font-black border border-green-500/50 hover:bg-green-500 hover:text-black transition-all uppercase tracking-widest">ACCEPT</button>
+                            <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENY</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* RENEWAL LIST */}
+            <div className="space-y-4 mb-8 border-b border-white/10 pb-8">
+                <h3 className="text-sm font-black text-blue-500 uppercase tracking-widest animate-pulse">RENEWAL REQUESTS ({renewalUsers.length})</h3>
+                {renewalUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">NO RENEWAL REQUESTS</p>}
+                {renewalUsers.map(u => (
+                    <div key={u.id} className="bg-white/5 p-4 flex justify-between items-center border-l-2 border-blue-500">
+                        <div>
+                            <p className="text-xs font-bold text-white uppercase">{u.email}</p>
+                            <p className="text-[9px] text-gray-500 uppercase tracking-wider">REQUESTED RENEWAL</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={() => handleRenew(u)} className="px-4 py-2 bg-blue-500/20 text-blue-500 text-[10px] font-black border border-blue-500/50 hover:bg-blue-500 hover:text-black transition-all uppercase tracking-widest">RENEW 30 DAYS</button>
+                            <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENY</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="space-y-6">
+                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest">ADVANCED TACTICAL SEARCH</h3>
+                <div className="flex gap-2">
+                    <input
+                        value={userFilter}
+                        onChange={e => setUserFilter(e.target.value)}
+                        placeholder="FILTER BY EMAIL OR NAME..."
+                        className="flex-1 bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none placeholder:text-gray-600 focus:border-red-600 transition-colors"
+                    />
+                    <div className="p-4 bg-white/5 text-gray-600 border border-white/10">
+                        <Search size={20} />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    {filteredUsers.map(u => (
+                        <div key={u.id} className="bg-white/5 border border-white/10 p-4 group hover:bg-white/10 transition-all">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <p className="text-xs font-black text-white uppercase">{u.email}</p>
+                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{u.displayName || 'ANONYMOUS UNIT'}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${u.subscriptionActive ? 'bg-green-500 animate-pulse' : 'bg-red-600'}`}></div>
+                                    <span className="text-[8px] font-black text-gray-500 uppercase">
+                                        {u.subscriptionActive ? 'ACTIVE' : 'EXPIRED'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => {
+                                        setEditingUser(u);
+                                        if (u.subscriptionEnd) {
+                                            const date = u.subscriptionEnd.toMillis ? new Date(u.subscriptionEnd.toMillis()) : new Date(u.subscriptionEnd);
+                                            setEditExpiry(date.toISOString().split('T')[0]);
+                                        }
+                                    }}
+                                    className="px-3 py-1 bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest"
+                                >
+                                    EDIT ACCESS
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteUser(u.id)}
+                                    className="px-3 py-1 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest"
+                                >
+                                    DELETE
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        const current = u.canBroadcast;
+                                        await updateDoc(doc(db, "users", u.id), { canBroadcast: !current });
+                                        alert(`OPERATOR STATUS: ${!current ? 'ON' : 'OFF'}`);
+                                    }}
+                                    className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest border ${u.canBroadcast ? 'border-red-600 text-red-600' : 'border-white/20 text-white/40'}`}
+                                >
+                                    {u.canBroadcast ? 'DISABLE OPS' : 'ENABLE OPS'}
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {editingUser && (
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-6">
+                    <div className="bg-black border border-white/5 p-8 max-w-md w-full space-y-6 shadow-red-glow">
+                        <div className="flex justify-between items-start">
+                            <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">RE-CONFIGURE ACCESS</h3>
+                            <button onClick={() => setEditingUser(null)} className="text-gray-500 hover:text-white"><StopCircle /></button>
+                        </div>
+                        <p className="text-xs text-gray-500 font-bold uppercase">{editingUser.email}</p>
+                        <form onSubmit={handleUpdateExpiry} className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">EXPIRATION DATE</label>
+                                <input
+                                    type="date"
+                                    value={editExpiry}
+                                    onChange={e => setEditExpiry(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 p-4 text-white font-mono outline-none"
+                                />
+                            </div>
+                            <button className="w-full py-4 bg-red-600 text-white font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
+                                AUTHORIZE UPDATE
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default UserManagement;

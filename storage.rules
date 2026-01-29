@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // --- AVATARS / PROFILE IMAGES ---
+    match /avatars/{userId}/{allPaths=**} {
+      // Profiles are publicly viewable by authenticated users
+      allow read: if isAuthenticated();
+      // Only the account owner can upload/delete their avatar
+      allow write: if isOwner(userId);
+    }
+
+    // --- ACADEMY ASSETS (If stored here) ---
+    match /academy/{allPaths=**} {
+      allow read: if isAuthenticated();
+      // Only admins should write here (manually or via specialized tool)
+      allow write: if false; // Harden by default
+    }
+
+    // --- EMERGENCY FALLBACK ---
+    match /{allPaths=**} {
+        allow read, write: if false;
+    }
+  }
+}

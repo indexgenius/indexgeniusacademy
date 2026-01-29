@@ -1,0 +1,84 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- FUNCIONES DE SEGURIDAD ---
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email in ['admin', 'steven@ingenius.fx']
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true
+      );
+    }
+    
+    function isApproved() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
+    }
+
+    // --- REGLAS DE COLECCIONES ---
+
+    match /users/{userId} {
+      // Un usuario solo puede ver/editar SU perfil. Admins ven todos.
+      allow read, write: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
+    }
+
+    match /signals/{id} {
+      // Solo aprobados o admins ven las señales premium.
+      allow read: if isAdmin() || isApproved();
+      allow write: if isAdmin();
+    }
+
+    match /academy_videos/{id} {
+      // Solo aprobados o admins ven el contenido educativo.
+      allow read: if isAdmin() || isApproved();
+      allow write: if isAdmin();
+    }
+
+    match /groups/{groupId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+
+      match /messages/{msgId} {
+        // VULNERABILIDAD CORREGIDA: Antes cualquiera podía escribir. 
+        // Ahora solo los usuarios aprobados pueden participar en el chat.
+        allow read, write: if isAdmin() || isApproved();
+      }
+    }
+
+    match /access_codes/{codeId} {
+      // VULNERABILIDAD CRÍTICA CORREGIDA: 
+      // Antes 'allow read' permitía 'list' (ver todos los códigos).
+      // Ahora el usuario solo puede 'get' (validar un código que ya conoce).
+      allow get: if isAuthenticated();
+      allow list, write: if isAdmin();
+    }
+
+    match /announcements/{id} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /payment_methods/{id} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /promos/{id} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /notifications/{id} {
+      // Cualquiera puede crear un reporte de pago.
+      allow create: if isAuthenticated();
+      // SOLO el admin puede ver, marcar como leído o borrar reportes.
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
