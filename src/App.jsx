@@ -14,6 +14,7 @@ import Academy from './features/academy/AcademyPage';
 import Templates from './features/trading/TemplatesPage';
 import Charts from './features/trading/ChartsPage';
 import TradingHistory from './features/trading/HistoryPage';
+import MonthlyHistory from './features/trading/MonthlyHistory';
 
 // Access & Protection
 import PendingApproval from './features/access/PendingApproval';
@@ -170,6 +171,7 @@ function App() {
       {activeTab === 'announcements' && <Announcements user={user} />}
       {activeTab === 'charts' && <Charts />}
       {activeTab === 'trading-history' && <TradingHistory user={user} />}
+      {activeTab === 'monthly-history' && <MonthlyHistory />}
       {activeTab === 'academy' && <Academy user={user} />}
       {activeTab === 'templates' && <Templates user={user} />}
       {activeTab === 'admin' && (user?.canBroadcast || isAdmin) && <Admin user={user} broadcastSignal={broadcastSignal} />}

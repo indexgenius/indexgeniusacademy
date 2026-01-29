@@ -6,12 +6,13 @@ import { fetchPrice } from '../../utils/deriv';
 import TacticalSelect from '../../components/TacticalSelect';
 
 const SignalCenter = ({ broadcastSignal }) => {
+    const [broker, setBroker] = useState('DERIV');
     const [signalForm, setSignalForm] = useState({ pair: 'BOOM 1000', type: 'BUY', entry: '', tp: '', sl: '' });
     const [broadcasting, setBroadcasting] = useState(false);
     const [recentSignals, setRecentSignals] = useState([]);
     const [editingSignalId, setEditingSignalId] = useState(null);
 
-    const PAIR_OPTIONS = [
+    const PAIR_OPTIONS = broker === 'DERIV' ? [
         {
             label: "BOOM SERIES",
             options: [
@@ -32,6 +33,25 @@ const SignalCenter = ({ broadcastSignal }) => {
                 { value: "CRASH 300", label: "CRASH 300" },
             ]
         }
+    ] : [
+        {
+            label: "GAINX SERIES (VOLATILE)",
+            options: [
+                { value: "GainX 600", label: "GainX 600" },
+                { value: "GainX 800", label: "GainX 800" },
+                { value: "GainX 1000", label: "GainX 1000" },
+                { value: "GainX 1200", label: "GainX 1200" },
+            ]
+        },
+        {
+            label: "PAINX SERIES (VOLATILE)",
+            options: [
+                { value: "PainX 400", label: "PainX 400 (BEARISH)" },
+                { value: "PainX 600", label: "PainX 600" },
+                { value: "PainX 800", label: "PainX 800" },
+                { value: "PainX 1200", label: "PainX 1200" },
+            ]
+        }
     ];
 
     useEffect(() => {
@@ -43,7 +63,7 @@ const SignalCenter = ({ broadcastSignal }) => {
 
     // Price sync logic
     useEffect(() => {
-        if (!signalForm.pair) return;
+        if (!signalForm.pair || broker !== 'DERIV') return;
         let isMounted = true;
         const symbol = signalForm.pair.replace(/\s+/g, '');
         const updatePrice = async () => {
@@ -55,7 +75,7 @@ const SignalCenter = ({ broadcastSignal }) => {
         updatePrice();
         const interval = setInterval(updatePrice, 5000);
         return () => { isMounted = false; clearInterval(interval); };
-    }, [signalForm.pair]);
+    }, [signalForm.pair, broker]);
 
     const sendSignal = async (e) => {
         e.preventDefault();
@@ -66,33 +86,37 @@ const SignalCenter = ({ broadcastSignal }) => {
             message: `${msg} @ ${signalForm.entry}`,
             pair: signalForm.pair,
             symbol: signalForm.pair.replace(/\s+/g, ''),
-            type: signalForm.type === 'BUY' ? 'BOOM' : 'CRASH',
+            type: signalForm.type === 'BUY' ? (broker === 'DERIV' ? 'BOOM' : 'BUY') : (broker === 'DERIV' ? 'CRASH' : 'SELL'),
             status: 'ACTIVE',
             entry: signalForm.entry,
             tp: signalForm.tp,
-            sl: signalForm.sl
+            sl: signalForm.sl,
+            broker: broker
         });
-        setSignalForm({ pair: 'BOOM 1000', type: 'BUY', entry: '', tp: '', sl: '' });
+        setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1000', type: 'BUY', entry: '', tp: '', sl: '' });
         setEditingSignalId(null);
         setBroadcasting(false);
     };
 
     const quickSignal = async (pair, type) => {
         setBroadcasting(true);
-        const isBoom = type === 'BUY';
-        const msgPrefix = isBoom ? `🔥 COMPRA ${pair}` : `❄️ VENTA ${pair}`;
+        const isBuy = type === 'BUY';
+        const msgPrefix = isBuy ? `🔥 COMPRA ${pair}` : `❄️ VENTA ${pair}`;
         const symbol = pair.replace(/\s+/g, '');
         let realPrice = 'MARKET';
-        try { realPrice = await fetchPrice(symbol); } catch (err) { console.error(err); }
+        if (broker === 'DERIV') {
+            try { realPrice = await fetchPrice(symbol); } catch (err) { console.error(err); }
+        }
         await broadcastSignal({
             message: `${msgPrefix} @ ${realPrice} - ACCIÓN INMEDIATA!`,
             pair: pair,
             symbol: symbol,
-            type: isBoom ? 'BOOM' : 'CRASH',
+            type: isBuy ? (broker === 'DERIV' ? 'BOOM' : 'BUY') : (broker === 'DERIV' ? 'CRASH' : 'SELL'),
             status: 'ACTIVE',
             entry: realPrice,
             tp: 'OPEN',
-            sl: 'OPEN'
+            sl: 'OPEN',
+            broker: broker
         });
         setBroadcasting(false);
     };
@@ -105,10 +129,26 @@ const SignalCenter = ({ broadcastSignal }) => {
     return (
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 pt-6">
             <div className="xl:col-span-8 space-y-8">
+                {/* Broker Selector */}
+                <div className="flex gap-4 p-1 bg-black/40 border border-white/10 max-w-sm">
+                    <button
+                        onClick={() => { setBroker('DERIV'); setSignalForm(prev => ({ ...prev, pair: 'BOOM 1000' })); }}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white shadow-red-glow/20' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        DERIV PLATFORM
+                    </button>
+                    <button
+                        onClick={() => { setBroker('WELTRADE'); setSignalForm(prev => ({ ...prev, pair: 'GainX 1000' })); }}
+                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-blue-600 text-white shadow-blue-glow/20' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        WELTRADE GLOBAL
+                    </button>
+                </div>
+
                 <div className="bg-black/80 border border-white/5 p-6 backdrop-blur-md relative overflow-hidden">
                     <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-6 flex items-center gap-3 italic">
                         <div className="w-2 h-2 bg-red-600 animate-pulse"></div>
-                        {editingSignalId ? 'UPDATE BROADCAST CONFIG' : 'TACTICAL SIGNAL BUILDER'}
+                        {editingSignalId ? 'UPDATE BROADCAST CONFIG' : `${broker} SIGNAL BUILDER`}
                     </h3>
                     <form onSubmit={sendSignal} className="space-y-6 relative z-10">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -123,8 +163,8 @@ const SignalCenter = ({ broadcastSignal }) => {
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">OPERATION</label>
                                 <div className="flex gap-1 bg-black/40 p-1 border border-white/10">
-                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'BUY' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'BUY' ? 'bg-red-600 text-white' : 'text-gray-600 hover:text-white'}`}>BUY (BOOM)</button>
-                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'SELL' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'SELL' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-white'}`}>SELL (CRASH)</button>
+                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'BUY' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'BUY' ? 'bg-red-600 text-white' : 'text-gray-600 hover:text-white'}`}>{broker === 'DERIV' ? 'BUY (BOOM)' : 'BUY (LONG)'}</button>
+                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'SELL' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'SELL' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-white'}`}>{broker === 'DERIV' ? 'SELL (CRASH)' : 'SELL (SHORT)'}</button>
                                 </div>
                             </div>
                             <div className="space-y-1.5">
@@ -137,34 +177,49 @@ const SignalCenter = ({ broadcastSignal }) => {
                             <input placeholder="STOP LOSS" value={signalForm.sl} onChange={e => setSignalForm({ ...signalForm, sl: e.target.value })} className="w-full bg-white/5 border border-white/10 p-3 text-xs font-black text-white outline-none" />
                         </div>
                         <div className="flex gap-2">
-                            <button disabled={broadcasting} className="flex-1 py-5 bg-red-600 text-white font-black italic text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-4">
+                            <button disabled={broadcasting} className={`flex-1 py-5 text-white font-black italic text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-4 ${broker === 'DERIV' ? 'bg-red-600' : 'bg-blue-600'}`}>
                                 {broadcasting ? 'TRANSMITTING...' : (editingSignalId ? 'UPDATE BROADCAST' : 'EXECUTE BROADCAST')}
                                 {!broadcasting && <Rocket size={18} />}
                             </button>
                             {editingSignalId && (
-                                <button onClick={() => { setEditingSignalId(null); setSignalForm({ pair: 'BOOM 1000', type: 'BUY', entry: '', tp: '', sl: '' }); }} className="px-6 py-5 bg-white/5 border border-white/10 text-gray-500"><StopCircle /></button>
+                                <button onClick={() => { setEditingSignalId(null); setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1000', type: 'BUY', entry: '', tp: '', sl: '' }); }} className="px-6 py-5 bg-white/5 border border-white/10 text-gray-500"><StopCircle /></button>
                             )}
                         </div>
                     </form>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-red-950/20 border border-red-900/40 p-5">
-                        <p className="text-[10px] font-black text-red-600 uppercase mb-4 italic">BOOM TACTICAL ZONE</p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {['BOOM 1000', 'BOOM 900', 'BOOM 600', 'BOOM 500', 'BOOM 300'].map(p => (
-                                <button key={p} onClick={() => quickSignal(p, 'BUY')} className="py-4 bg-red-600/10 border border-red-600/20 text-xs font-black hover:bg-red-600 hover:text-white transition-all">{p.split(' ')[1]}</button>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="bg-blue-950/20 border border-blue-900/40 p-5">
-                        <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">CRASH TACTICAL ZONE</p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {['CRASH 1000', 'CRASH 900', 'CRASH 600', 'CRASH 500', 'CRASH 300'].map(p => (
-                                <button key={p} onClick={() => quickSignal(p, 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-xs font-black hover:bg-blue-600 hover:text-white transition-all">{p.split(' ')[1]}</button>
-                            ))}
-                        </div>
-                    </div>
+                    {broker === 'DERIV' ? (
+                        <>
+                            <div className="bg-red-950/20 border border-red-900/40 p-5">
+                                <p className="text-[10px] font-black text-red-600 uppercase mb-4 italic">BOOM TACTICAL ZONE</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['BOOM 1000', 'BOOM 900', 'BOOM 600', 'BOOM 500', 'BOOM 300'].map(p => (
+                                        <button key={p} onClick={() => quickSignal(p, 'BUY')} className="py-4 bg-red-600/10 border border-red-600/20 text-xs font-black hover:bg-red-600 hover:text-white transition-all">{p.split(' ')[1]}</button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="bg-blue-950/20 border border-blue-900/40 p-5">
+                                <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">CRASH TACTICAL ZONE</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['CRASH 1000', 'CRASH 900', 'CRASH 600', 'CRASH 500', 'CRASH 300'].map(p => (
+                                        <button key={p} onClick={() => quickSignal(p, 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-xs font-black hover:bg-blue-600 hover:text-white transition-all">{p.split(' ')[1]}</button>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="bg-blue-950/20 border border-blue-900/40 p-5 col-span-2">
+                                <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">WELTRADE QUICK ENTRY (GAINX/PAINX)</p>
+                                <div className="grid grid-cols-4 lg:grid-cols-6 gap-2">
+                                    {['GainX 600', 'GainX 800', 'GainX 1000', 'GainX 1200', 'PainX 400', 'PainX 600', 'PainX 800', 'PainX 1200'].map(p => (
+                                        <button key={p} onClick={() => quickSignal(p, p.startsWith('G') ? 'BUY' : 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-[9px] font-black hover:bg-blue-600 hover:text-white transition-all">{p}</button>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -185,9 +240,9 @@ const SignalCenter = ({ broadcastSignal }) => {
                                     <p className="text-[10px] font-bold text-gray-400 uppercase">ENTRY: <span className="text-white">{sig.entry}</span></p>
                                     <p className="text-[9px] text-gray-600 italic opacity-50">{sig.message}</p>
                                 </div>
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onClick={() => { setEditingSignalId(sig.id); setSignalForm({ pair: sig.pair, type: sig.type === 'BOOM' ? 'BUY' : 'SELL', entry: sig.entry || '', tp: sig.tp || '', sl: sig.sl || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-1.5 bg-white/5 text-gray-500 border border-white/10"><RefreshCw size={12} /></button>
-                                    <button onClick={() => deleteSignal(sig.id)} className="p-1.5 bg-white/5 text-gray-500 border border-white/10"><Trash2 size={12} /></button>
+                                <div className="flex gap-1 transition-all">
+                                    <button onClick={() => { setEditingSignalId(sig.id); setSignalForm({ pair: sig.pair, type: (sig.type === 'BOOM' || sig.type === 'BUY') ? 'BUY' : 'SELL', entry: sig.entry || '', tp: sig.tp || '', sl: sig.sl || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"><RefreshCw size={14} /></button>
+                                    <button onClick={() => deleteSignal(sig.id)} className="p-2 bg-white/5 hover:bg-red-600/20 text-gray-300 hover:text-red-500 border border-white/10 transition-colors"><Trash2 size={14} /></button>
                                 </div>
                             </div>
                         </div>

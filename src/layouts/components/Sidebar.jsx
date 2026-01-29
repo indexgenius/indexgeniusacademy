@@ -5,6 +5,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
         { id: 'dashboard', icon: LayoutDashboard, label: 'SIGNALS' },
         // { id: 'charts', icon: TrendingUp, label: 'CHARTS' }, // Hidden as requested
         { id: 'trading-history', icon: History, label: 'TRADING HISTORY' },
+        { id: 'monthly-history', icon: TrendingUp, label: 'MONTHLY HISTORY' },
         { id: 'academy', icon: GraduationCap, label: 'ACADEMY' },
         { id: 'templates', icon: FileCode, label: 'TEMPLATES' },
         ...(canBroadcast ? [{ id: 'admin', icon: Shield, label: 'ADMIN' }] : []),

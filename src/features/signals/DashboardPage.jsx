@@ -45,7 +45,7 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                             const exit = parseFloat(s.exitPrice);
                             if (!isNaN(entry) && !isNaN(exit)) {
                                 const diff = Math.abs(exit - entry);
-                                val = Math.round(s.status === 'WON' ? diff : -diff);
+                                val = Number((s.status === 'WON' ? diff : -diff).toFixed(2));
                             }
                         }
                         return sum + (val || 0);
