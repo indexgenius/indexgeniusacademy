@@ -6,7 +6,7 @@ import { db } from '../../firebase';
 import { fetchPrice } from '../../utils/deriv';
 import { signalService } from '../../services/signalService';
 
-const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, time, timestamp, user, broadcastSignal, exitPrice, broker }) => {
+const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, time, timestamp, user, broadcastSignal, exitPrice, broker, sender }) => {
     const [updating, setUpdating] = useState(false);
     const [isExpired, setIsExpired] = useState(false);
     const [manualSL, setManualSL] = useState('');
@@ -229,11 +229,21 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             </div>
 
             {/* Footer */}
-            <div className="mt-8 pt-6 border-t border-white/10 flex items-center gap-2 opacity-50 relative z-10">
-                <Clock size={12} className="text-red-600" />
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    {time || 'Unknown Time'}
-                </span>
+            <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between opacity-50 relative z-10">
+                <div className="flex items-center gap-2">
+                    <Clock size={12} className="text-red-600" />
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        {time || 'Unknown Time'}
+                    </span>
+                </div>
+                {sender && (
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+                        <span className="text-[8px] lg:text-[9px] font-bold text-gray-500 uppercase tracking-wider">
+                            BY: {sender.split('@')[0]}
+                        </span>
+                    </div>
+                )}
             </div>
 
             {/* Background Effects */}

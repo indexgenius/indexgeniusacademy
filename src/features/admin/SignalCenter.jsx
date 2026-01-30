@@ -264,7 +264,14 @@ const SignalCenter = ({ broadcastSignal }) => {
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-[9px] text-gray-600 italic opacity-50">{sig.message}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-[9px] text-gray-600 italic opacity-50">{sig.message}</p>
+                                        {sig.sender && (
+                                            <span className="text-[7px] font-bold text-gray-600 uppercase tracking-wider opacity-60">
+                                                • BY: {sig.sender.split('@')[0]}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex gap-1 transition-all ml-2">
                                     <button onClick={() => { setEditingSignalId(sig.id); setSignalForm({ pair: sig.pair, type: (sig.type === 'BOOM' || sig.type === 'BUY') ? 'BUY' : 'SELL', entry: sig.entry || '', tp: sig.tp || '', sl: sig.sl || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"><RefreshCw size={14} /></button>
