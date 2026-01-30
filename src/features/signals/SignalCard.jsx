@@ -67,7 +67,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             if (broadcastSignal) {
                 const isWin = newStatus === 'WON';
                 await broadcastSignal({
-                    title: 'IndexGeniusGOLD - SIGNAL',
+                    title: 'IndexGenius ACADEMY - SIGNAL',
                     message: `${pair} - ${isWin ? 'GANANCIAS' : 'SALIDA'} @ ${hitPrice}`,
                     pair: pair,
                     type: isWin ? 'WIN' : 'LOSS',

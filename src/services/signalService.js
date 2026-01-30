@@ -37,7 +37,7 @@ export const signalService = {
 
         const notifyTitle = typeof signalObj === 'object' && signalObj.title
             ? signalObj.title
-            : "IndexGeniusGOLD - SIGNAL";
+            : "IndexGenius ACADEMY - SIGNAL";
 
         // 3. Broadcast via Backend API
         return await broadcast({

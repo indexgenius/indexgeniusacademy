@@ -41,7 +41,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
                         </div>
                         <div>
                             <h1 className="text-lg lg:text-xl font-black italic tracking-tighter leading-none">
-                                IndexGenius<br /><span className="text-red-600">GOLD</span>
+                                IndexGenius<br /><span className="text-red-600">ACADEMY</span>
                             </h1>
                         </div>
                     </div>

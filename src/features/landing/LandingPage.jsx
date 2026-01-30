@@ -40,7 +40,7 @@ const LandingPage = () => {
 
             {/* Footer */}
             <footer className="p-10 border-t border-white/5 text-center text-[10px] font-bold text-gray-600 tracking-[0.5em] uppercase">
-                © 2026 IndexGeniusGOLD • GLOBAL TACTICAL NETWORK
+                © 2026 IndexGenius ACADEMY • GLOBAL TACTICAL NETWORK
             </footer>
         </div>
     );

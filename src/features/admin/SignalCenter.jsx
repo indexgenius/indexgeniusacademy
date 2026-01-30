@@ -83,7 +83,7 @@ const SignalCenter = ({ broadcastSignal }) => {
         const msg = signalForm.type === 'BUY' ? `🔥 COMPRA ${signalForm.pair}` : `❄️ VENTA ${signalForm.pair}`;
         await broadcastSignal({
             id: editingSignalId,
-            title: 'IndexGeniusGOLD - SIGNAL',
+            title: 'IndexGenius ACADEMY - SIGNAL',
             message: `${msg} @ ${signalForm.entry}`,
             pair: signalForm.pair,
             symbol: signalForm.pair.replace(/\s+/g, ''),
@@ -109,7 +109,7 @@ const SignalCenter = ({ broadcastSignal }) => {
             try { realPrice = await fetchPrice(symbol); } catch (err) { console.error(err); }
         }
         await broadcastSignal({
-            title: 'IndexGeniusGOLD - SIGNAL',
+            title: 'IndexGenius ACADEMY - SIGNAL',
             message: `${msgPrefix} @ ${realPrice} - ACCIÓN INMEDIATA!`,
             pair: pair,
             symbol: symbol,

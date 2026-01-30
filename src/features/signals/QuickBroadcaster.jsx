@@ -74,7 +74,7 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
             if (action === 'REENTRY') msg = `🔄 RE-ENTRADA ${idx.name} @ ${price}${slText}${tpText}`;
 
             await broadcastSignal({
-                title: 'IndexGeniusGOLD - SIGNAL',
+                title: 'IndexGenius ACADEMY - SIGNAL',
                 message: msg,
                 pair: idx.name,
                 type: idx.type,

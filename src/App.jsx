@@ -58,7 +58,7 @@ function App() {
     const msg = typeof signalData === 'string' ? signalData : signalData.message;
 
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification("IndexGeniusGOLD", {
+      new Notification("IndexGenius ACADEMY", {
         body: msg,
         icon: '/img/iconos/pwa-192x192.png',
         vibrate: [200, 100, 200]
