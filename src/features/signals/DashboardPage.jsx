@@ -18,8 +18,8 @@ const DashboardPage = ({ user, broadcastSignal }) => {
             setSignals(snapshot.docs.map(doc => {
                 const d = doc.data();
                 return {
-                    id: doc.id,
                     ...d,
+                    id: doc.id,
                     time: d.timestamp ? new Date(d.timestamp.toMillis()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'NOW'
                 };
             }));

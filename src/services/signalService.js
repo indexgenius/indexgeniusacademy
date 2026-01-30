@@ -16,6 +16,9 @@ export const signalService = {
             ? { message: signalObj, timestamp: serverTimestamp(), sender: userEmail }
             : { ...signalObj, timestamp: serverTimestamp(), sender: userEmail };
 
+        // Ensure we don't save a null 'id' field inside the document
+        if (payload.id === null) delete payload.id;
+
         // 1. Save to Firestore for live feed
         let signalId = signalObj.id;
         if (!signalObj.skipSave) {

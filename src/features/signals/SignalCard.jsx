@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, Ban, Loader2, Check, XCircle } from 'lucide-react';
+import { Clock, CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { fetchPrice } from '../../utils/deriv';
+import { signalService } from '../../services/signalService';
 
 const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, time, timestamp, user, broadcastSignal, exitPrice, broker }) => {
     const [updating, setUpdating] = useState(false);
@@ -11,7 +12,6 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
     const [manualSL, setManualSL] = useState('');
     const [manualTP, setManualTP] = useState('');
     const [manualEntryState, setManualEntryState] = useState(entry || '');
-    const [isSavingEntry, setIsSavingEntry] = useState(false);
 
     const isActive = status === 'ACTIVE';
     const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
@@ -34,18 +34,17 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
         try {
             let hitPrice = 'MARKET PRICE';
 
-            if (broker === 'WELTRADE') {
-                // Use manual values if provided, otherwise fallback to original tp/sl
+            const isManualAsset = broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300';
+
+            if (isManualAsset) {
                 hitPrice = newStatus === 'WON' ? (manualTP || tp) : (manualSL || sl);
-                if (!hitPrice || hitPrice === 'OPEN' || hitPrice === '---') hitPrice = 'MARKET PRICE';
+                if (!hitPrice || hitPrice === 'OPEN' || hitPrice === '---' || hitPrice === '--- ---') hitPrice = 'MARKET PRICE';
             } else if (symbol) {
                 hitPrice = await fetchPrice(symbol).catch(() => 'MARKET PRICE');
             }
 
             const signalRef = doc(db, "signals", id);
-
-            // If manualEntryState was changed, update it in DB first or use it for calculation
-            const finalEntry = broker === 'WELTRADE' ? manualEntryState : entry;
+            const finalEntry = (broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300') ? manualEntryState : entry;
 
             // Calculate Pips
             let pips = 0;
@@ -53,15 +52,14 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             const exitVal = parseFloat(hitPrice);
 
             if (!isNaN(entryVal) && !isNaN(exitVal)) {
-                // Absolute difference logic: WON = positive, LOST = negative
                 const diff = Math.abs(exitVal - entryVal);
                 pips = Number((newStatus === 'WON' ? diff : -diff).toFixed(2));
             }
 
             await updateDoc(signalRef, {
                 status: newStatus,
-                exitPrice: hitPrice,
-                entry: finalEntry, // Save the possibly edited entry price
+                exitPrice: hitPrice.toString(),
+                entry: finalEntry.toString(),
                 pips: pips,
                 closedAt: serverTimestamp()
             });
@@ -69,7 +67,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             if (broadcastSignal) {
                 const isWin = newStatus === 'WON';
                 await broadcastSignal({
-                    title: isWin ? '✅ TAKE PROFIT' : '⚠️ STOP LOSS',
+                    title: 'IndexGeniusGOLD - SIGNAL',
                     message: `${pair} - ${isWin ? 'GANANCIAS' : 'SALIDA'} @ ${hitPrice}`,
                     pair: pair,
                     type: isWin ? 'WIN' : 'LOSS',
@@ -79,7 +77,8 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                 });
             }
         } catch (e) {
-            console.error(e);
+            console.error("Error updating signal status:", e);
+            alert("Error al actualizar la señal: " + e.message);
         } finally {
             setUpdating(false);
         }
@@ -136,7 +135,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                 <div className="space-y-6">
                     <div>
                         <p className="text-[8px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">ENTRY POINT</p>
-                        {isActive && isAdmin && broker === 'WELTRADE' ? (
+                        {isActive && isAdmin && (broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300') ? (
                             <div className="flex flex-col gap-1">
                                 <input
                                     type="text"
@@ -174,7 +173,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                     {/* Admin Actions */}
                     {isAdmin && isActive && (
                         <div className="flex flex-col items-end gap-3 mt-4">
-                            {broker === 'WELTRADE' && (
+                            {(broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300') && (
                                 <div className="flex gap-2 mb-2">
                                     <div className="flex flex-col gap-1">
                                         <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">TP PRICE</label>

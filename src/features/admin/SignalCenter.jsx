@@ -56,7 +56,7 @@ const SignalCenter = ({ broadcastSignal }) => {
 
     useEffect(() => {
         const unsubSignals = onSnapshot(query(collection(db, "signals"), orderBy("timestamp", "desc")), (snapshot) => {
-            setRecentSignals(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).slice(0, 15));
+            setRecentSignals(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })).slice(0, 15));
         });
         return () => unsubSignals();
     }, []);
@@ -83,14 +83,15 @@ const SignalCenter = ({ broadcastSignal }) => {
         const msg = signalForm.type === 'BUY' ? `🔥 COMPRA ${signalForm.pair}` : `❄️ VENTA ${signalForm.pair}`;
         await broadcastSignal({
             id: editingSignalId,
+            title: 'IndexGeniusGOLD - SIGNAL',
             message: `${msg} @ ${signalForm.entry}`,
             pair: signalForm.pair,
             symbol: signalForm.pair.replace(/\s+/g, ''),
             type: signalForm.type === 'BUY' ? (broker === 'DERIV' ? 'BOOM' : 'BUY') : (broker === 'DERIV' ? 'CRASH' : 'SELL'),
             status: 'ACTIVE',
-            entry: signalForm.entry,
-            tp: signalForm.tp,
-            sl: signalForm.sl,
+            entry: signalForm.entry.toString(),
+            tp: signalForm.tp || '---',
+            sl: signalForm.sl || '---',
             broker: broker
         });
         setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1000', type: 'BUY', entry: '', tp: '', sl: '' });
@@ -108,12 +109,13 @@ const SignalCenter = ({ broadcastSignal }) => {
             try { realPrice = await fetchPrice(symbol); } catch (err) { console.error(err); }
         }
         await broadcastSignal({
+            title: 'IndexGeniusGOLD - SIGNAL',
             message: `${msgPrefix} @ ${realPrice} - ACCIÓN INMEDIATA!`,
             pair: pair,
             symbol: symbol,
             type: isBuy ? (broker === 'DERIV' ? 'BOOM' : 'BUY') : (broker === 'DERIV' ? 'CRASH' : 'SELL'),
             status: 'ACTIVE',
-            entry: realPrice,
+            entry: realPrice.toString(),
             tp: 'OPEN',
             sl: 'OPEN',
             broker: broker
@@ -122,8 +124,14 @@ const SignalCenter = ({ broadcastSignal }) => {
     };
 
     const deleteSignal = async (id) => {
-        if (!confirm('DELETE THIS SIGNAL?')) return;
-        await deleteDoc(doc(db, "signals", id));
+        if (!confirm('¿ESTÁS SEGURO DE ELIMINAR ESTA SEÑAL?')) return;
+        try {
+            await deleteDoc(doc(db, "signals", id));
+            // No alert needed if successful, the UI will update via snapshot
+        } catch (error) {
+            console.error("Error deleting signal:", error);
+            alert("Error al eliminar la señal: " + error.message);
+        }
     };
 
     return (

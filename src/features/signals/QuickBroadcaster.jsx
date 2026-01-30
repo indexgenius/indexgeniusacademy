@@ -59,8 +59,8 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
     const sendSignal = async (action, idx) => {
         setLoadingIndex(idx.name);
         try {
-            let price = 'MARKET PRICE';
-            if (broker === 'DERIV') {
+            let price = manualEntry || 'MARKET PRICE';
+            if (!manualEntry && broker === 'DERIV') {
                 price = await fetchPrice(idx.symbol).catch(() => "MARKET PRICE");
             }
 
@@ -72,15 +72,15 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
             let msg = "";
             if (action === 'MAIN') msg = `${directionLabel} ${idx.name} @ ${price}${slText}${tpText}`;
             if (action === 'REENTRY') msg = `🔄 RE-ENTRADA ${idx.name} @ ${price}${slText}${tpText}`;
-            if (action === 'PE') msg = `📍 PUNTO DE ENTRADA ${idx.name} @ ${price}${slText}${tpText}`;
 
             await broadcastSignal({
+                title: 'IndexGeniusGOLD - SIGNAL',
                 message: msg,
                 pair: idx.name,
                 type: idx.type,
                 status: 'ACTIVE',
                 symbol: idx.symbol,
-                entry: price,
+                entry: price.toString(),
                 sl: sl || '---',
                 tp: tp || '---',
                 broker: broker
@@ -134,13 +134,17 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
                     )}
                 </div>
 
+                <div className="grid grid-cols-1 gap-3">
+                    <input type="text" placeholder="ENTRY PRICE (OPTIONAL)" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none focus:border-blue-500 transition-colors" value={manualEntry} onChange={e => setManualEntry(e.target.value)} />
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                     <input type="text" placeholder="SL PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none" value={sl} onChange={e => setSl(e.target.value)} />
                     <input type="text" placeholder="TP PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none" value={tp} onChange={e => setTp(e.target.value)} />
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                    {['MAIN', 'REENTRY', 'PE'].map(act => (
+                <div className="grid grid-cols-2 gap-3">
+                    {['MAIN', 'REENTRY'].map(act => (
                         <button key={act} disabled={loadingIndex === selectedIndex.name} onClick={() => sendSignal(act, selectedIndex)} className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${act === 'MAIN' ? (broker === 'DERIV' ? 'bg-red-600' : 'bg-blue-600') + ' text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
                             {loadingIndex === selectedIndex.name ? <Loader2 className="animate-spin mx-auto" size={12} /> : (act === 'MAIN' ? (selectedIndex.type === 'BOOM' ? 'BUY' : 'SELL') : act)}
                         </button>
