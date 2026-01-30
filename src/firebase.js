@@ -4,13 +4,13 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBNZjJC1tc0LtT3y4DouPVkSZbCusW2w2I",
-    authDomain: "ingenius-f33a6.firebaseapp.com",
-    projectId: "ingenius-f33a6",
-    storageBucket: "ingenius-f33a6.firebasestorage.app",
-    messagingSenderId: "174110254614",
-    appId: "1:174110254614:web:26446b0790fc9fcf723737",
-    measurementId: "G-5LWJ345KWS"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 import { getMessaging } from "firebase/messaging";
