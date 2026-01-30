@@ -39,6 +39,7 @@ function App() {
   const [notifications, setNotifications] = useState([]);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [customMsg, setCustomMsg] = useState('');
+  const [reconnectTrigger, setReconnectTrigger] = useState(0);
 
   // 1. Auth & Profile
   const { user, login, logout } = useAuth();
@@ -48,6 +49,19 @@ function App() {
 
   // 2. Real-time Signals
   const { lastSignal } = useSignals(appLoadTimeRef.current);
+
+  // 2.5. Detect when app comes back from background (Android PWA fix)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('🔄 App visible - reconnecting all listeners...');
+        setReconnectTrigger(prev => prev + 1);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // 3. Signal Trigger
   useEffect(() => {
@@ -87,8 +101,10 @@ function App() {
       const readIds = new Set(saved ? JSON.parse(saved) : []);
       const count = snapshot.docs.filter(doc => !readIds.has(doc.id)).length;
       setUnreadAnnouncements(count);
+    }, (error) => {
+      console.error('❌ Announcements listener error:', error);
     });
-  }, [user?.uid]);
+  }, [user?.uid, reconnectTrigger]);
 
   const broadcastSignal = async (signalObj) => {
     try {
@@ -128,10 +144,12 @@ function App() {
           }
         }
       });
+    }, (error) => {
+      console.error('❌ Admin notifications listener error:', error);
     });
 
     return () => unsub();
-  }, [isAdmin]);
+  }, [isAdmin, reconnectTrigger]);
 
   // --- GATING LOGIC ---
   if (!isStandalone) return <Landing />;

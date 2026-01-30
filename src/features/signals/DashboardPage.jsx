@@ -9,8 +9,22 @@ const DashboardPage = ({ user, broadcastSignal }) => {
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ winRatio: 0, pipsToday: 0 });
+    const [reconnectTrigger, setReconnectTrigger] = useState(0);
 
     const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
+
+    // Detect when app comes back from background (Android PWA fix)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                console.log('🔄 Dashboard visible - reconnecting listeners...');
+                setReconnectTrigger(prev => prev + 1);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
 
     useEffect(() => {
         const qS = query(collection(db, "signals"), orderBy("timestamp", "desc"), limit(12));
@@ -24,6 +38,9 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                 };
             }));
             setLoading(false);
+        }, (error) => {
+            console.error('❌ Dashboard signals listener error:', error);
+            setTimeout(() => setReconnectTrigger(prev => prev + 1), 2000);
         });
 
         const qT = query(collection(db, "signals"), orderBy("closedAt", "desc"), limit(100));
@@ -56,10 +73,12 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                     pipsToday: Math.round(dailyPips)
                 });
             }
+        }, (error) => {
+            console.error('❌ Dashboard stats listener error:', error);
         });
 
         return () => { unsubS(); unsubT(); };
-    }, []);
+    }, [reconnectTrigger]); // Reconnect when trigger changes
 
     return (
         <div className="space-y-12 pb-20">
