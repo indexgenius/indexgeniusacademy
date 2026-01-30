@@ -237,7 +237,7 @@ const SignalCenter = ({ broadcastSignal }) => {
                     {recentSignals.map(sig => (
                         <div key={sig.id} className="bg-black/40 border border-white/5 p-4 group hover:border-red-600/30 transition-all">
                             <div className="flex justify-between items-start">
-                                <div>
+                                <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-1.5">
                                         <div className={`w-1 h-3 ${sig.type === 'BOOM' ? 'bg-red-600' : 'bg-blue-600'}`}></div>
                                         <span className="text-xs font-black text-white italic uppercase">{sig.pair}</span>
@@ -245,10 +245,28 @@ const SignalCenter = ({ broadcastSignal }) => {
                                             {sig.timestamp ? new Date(sig.timestamp.toMillis()).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'NOW'}
                                         </span>
                                     </div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase">ENTRY: <span className="text-white">{sig.entry}</span></p>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase">ENTRY: <span className="text-white">{sig.entry}</span></p>
+                                        {/* Status Badge */}
+                                        {sig.status === 'WON' && (
+                                            <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-green-600/20 text-green-400 border border-green-600/30">
+                                                WIN
+                                            </span>
+                                        )}
+                                        {sig.status === 'LOST' && (
+                                            <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-red-600/20 text-red-400 border border-red-600/30">
+                                                LOSS
+                                            </span>
+                                        )}
+                                        {sig.status === 'ACTIVE' && (
+                                            <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 animate-pulse">
+                                                ACTIVE
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-[9px] text-gray-600 italic opacity-50">{sig.message}</p>
                                 </div>
-                                <div className="flex gap-1 transition-all">
+                                <div className="flex gap-1 transition-all ml-2">
                                     <button onClick={() => { setEditingSignalId(sig.id); setSignalForm({ pair: sig.pair, type: (sig.type === 'BOOM' || sig.type === 'BUY') ? 'BUY' : 'SELL', entry: sig.entry || '', tp: sig.tp || '', sl: sig.sl || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"><RefreshCw size={14} /></button>
                                     <button onClick={() => deleteSignal(sig.id)} className="p-2 bg-white/5 hover:bg-red-600/20 text-gray-300 hover:text-red-500 border border-white/10 transition-colors"><Trash2 size={14} /></button>
                                 </div>
