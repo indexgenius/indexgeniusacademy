@@ -206,7 +206,9 @@ const PaymentPortal = ({ user, onLogout }) => {
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-10 h-10 bg-black flex items-center justify-center border border-white/5">
                                                             {pm.icon === 'binance' ? <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-8 h-8 object-contain" /> :
-                                                                pm.icon === 'usdt' ? <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-8 h-8 object-contain" /> : <CreditCard size={18} />}
+                                                                pm.icon === 'usdt' ? <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-8 h-8 object-contain" /> :
+                                                                    pm.icon === 'bitcoin' ? <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-8 h-8 object-contain" /> :
+                                                                        <CreditCard size={18} />}
                                                         </div>
                                                         <div>
                                                             <p className="text-[10px] font-black text-white uppercase">{pm.name}</p>

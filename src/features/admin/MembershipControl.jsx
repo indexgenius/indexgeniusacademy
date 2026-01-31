@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, orderBy, onSnapshot, updateDoc, doc, writeBatch, Timestamp } from 'firebase/firestore';
-import { Clock, Search, Calendar, UserCheck, AlertTriangle, Shield } from 'lucide-react';
+import { collection, query, orderBy, onSnapshot, updateDoc, doc, writeBatch, Timestamp, deleteDoc } from 'firebase/firestore';
+import { Clock, Search, Calendar, UserCheck, AlertTriangle, Shield, Trash2 } from 'lucide-react';
 
 const MembershipControl = () => {
     const [users, setUsers] = useState([]);
@@ -68,6 +68,19 @@ const MembershipControl = () => {
                 status: 'payment_required'
             });
             alert(`SUBSCRIPTION DEACTIVATED FOR ${userEmail}`);
+        } catch (error) {
+            console.error(error);
+            alert("Error: " + error.message);
+        }
+        setProcessing(false);
+    };
+
+    const deleteUser = async (userId, userEmail) => {
+        if (!confirm(`PERMANENTLY DELETE ${userEmail}? THIS CANNOT BE UNDONE. If the user joins again, they will start as a new unit.`)) return;
+        setProcessing(true);
+        try {
+            await deleteDoc(doc(db, "users", userId));
+            alert(`USER ${userEmail} ELIMINATED FROM SYSTEM`);
         } catch (error) {
             console.error(error);
             alert("Error: " + error.message);
@@ -227,87 +240,103 @@ const MembershipControl = () => {
                     />
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/10">
-                                <th className="p-3">OPERATOR</th>
-                                <th className="p-3">STATUS</th>
-                                <th className="p-3">EXPIRATION</th>
-                                <th className="p-3 text-right">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {filteredUsers.map(user => (
-                                <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
-                                    <td className="p-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center">
-                                                <UserCheck size={14} className="text-gray-400" />
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-white text-xs uppercase">{user.displayName || 'UNKNOWN'}</div>
-                                                <div className="text-[10px] text-gray-400">{user.email}</div>
-                                            </div>
+                <div className="space-y-4">
+                    {/* Header - Only Desktop */}
+                    <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/10">
+                        <div className="col-span-4">OPERATOR</div>
+                        <div className="col-span-2 text-center">STATUS</div>
+                        <div className="col-span-2 text-center">EXPIRATION</div>
+                        <div className="col-span-4 text-right">ACTIONS</div>
+                    </div>
+
+                    <div className="space-y-3">
+                        {filteredUsers.map(user => (
+                            <div key={user.id} className="bg-white/[0.02] lg:bg-transparent border border-white/5 lg:border-none p-4 lg:p-0 lg:px-6 lg:py-4 transition-colors grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                                {/* Operator Info */}
+                                <div className="lg:col-span-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
+                                            <UserCheck size={16} className="text-gray-400" />
                                         </div>
-                                    </td>
-                                    <td className="p-3">
-                                        <span className={`text-[9px] font-black px-2 py-1 border ${user.status === 'approved' ? 'border-green-500/30 text-green-500 bg-green-500/10' : 'border-red-600/30 text-red-600 bg-red-600/10'}`}>
-                                            {user.status || 'PENDING'}
-                                        </span>
-                                    </td>
-                                    <td className="p-3">
-                                        <div className={`font-bold text-xs uppercase ${getStatusColor(user)}`}>
+                                        <div>
+                                            <div className="font-bold text-white text-sm uppercase tracking-tight">{user.displayName || 'UNKNOWN'}</div>
+                                            <div className="text-[10px] text-gray-500 font-mono">{user.email}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Status */}
+                                <div className="lg:col-span-2 flex lg:justify-center items-center gap-3">
+                                    <span className="lg:hidden text-[8px] font-black text-gray-600 uppercase tracking-widest">STATUS:</span>
+                                    <span className={`text-[9px] font-black px-2 py-1 border ${user.status === 'approved' ? 'border-green-500/30 text-green-500 bg-green-500/10' : 'border-red-600/30 text-red-600 bg-red-600/10'}`}>
+                                        {user.status || 'PENDING'}
+                                    </span>
+                                </div>
+
+                                {/* Expiration */}
+                                <div className="lg:col-span-2 flex lg:flex-col lg:items-center justify-start gap-3">
+                                    <span className="lg:hidden text-[8px] font-black text-gray-600 uppercase tracking-widest">EXPIRATION:</span>
+                                    <div className="lg:text-center">
+                                        <div className={`font-black text-xs uppercase ${getStatusColor(user)}`}>
                                             {getDaysLeft(user)}
                                         </div>
-                                        <div className="text-[9px] text-gray-600 font-mono">
+                                        <div className="text-[9px] text-gray-600 font-mono mt-0.5">
                                             {user.subscriptionEnd?.toDate ? user.subscriptionEnd.toDate().toLocaleDateString() : 'NO DATA'}
                                         </div>
-                                    </td>
-                                    <td className="p-3 text-right">
-                                        <div className="flex flex-wrap items-center justify-end gap-2">
-                                            <button
-                                                onClick={() => extendMembership(user.id, user.email, user.subscriptionEnd, 3)}
-                                                className="px-2 py-1 lg:px-3 lg:py-1 bg-white/5 hover:bg-white/10 border border-white/10 text-[8px] lg:text-[9px] font-black text-white hover:text-green-400 transition-colors uppercase whitespace-nowrap"
-                                            >
-                                                +3 DAYS
-                                            </button>
-                                            <button
-                                                onClick={() => extendMembership(user.id, user.email, user.subscriptionEnd, 7)}
-                                                className="px-2 py-1 lg:px-3 lg:py-1 bg-white/5 hover:bg-white/10 border border-white/10 text-[8px] lg:text-[9px] font-black text-white hover:text-blue-400 transition-colors uppercase whitespace-nowrap"
-                                            >
-                                                +7 DAYS
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    const days = prompt("Enter days to add:", "30");
-                                                    if (days) extendMembership(user.id, user.email, user.subscriptionEnd, days);
-                                                }}
-                                                className="px-2 py-1 lg:px-3 lg:py-1 bg-white/5 hover:bg-white/10 border border-white/10 text-[8px] lg:text-[9px] font-black text-white hover:text-red-400 transition-colors uppercase whitespace-nowrap"
-                                            >
-                                                CUSTOM
-                                            </button>
-                                            <button
-                                                onClick={() => setLifetime(user.id, user.email)}
-                                                className="px-2 py-1 lg:px-3 lg:py-1 bg-purple-900/20 hover:bg-purple-900/40 border border-purple-500/30 text-[8px] lg:text-[9px] font-black text-purple-400 hover:text-purple-300 transition-colors uppercase whitespace-nowrap"
-                                            >
-                                                LIFETIME
-                                            </button>
-                                            <button
-                                                onClick={() => deactivateUser(user.id, user.email)}
-                                                className="px-2 py-1 lg:px-3 lg:py-1 bg-red-900/20 hover:bg-red-900/40 border border-red-600/30 text-[8px] lg:text-[9px] font-black text-red-500 hover:text-red-400 transition-colors uppercase whitespace-nowrap"
-                                            >
-                                                DEACTIVATE
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+
+                                {/* Actions Container - Stacked on mobile */}
+                                <div className="lg:col-span-4 pt-4 lg:pt-0 border-t border-white/5 lg:border-none">
+                                    <div className="flex flex-wrap items-center lg:justify-end gap-2">
+                                        <button
+                                            onClick={() => extendMembership(user.id, user.email, user.subscriptionEnd, 3)}
+                                            className="flex-1 lg:flex-none px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-black text-white hover:text-green-400 transition-colors uppercase whitespace-nowrap"
+                                        >
+                                            +3 DAYS
+                                        </button>
+                                        <button
+                                            onClick={() => extendMembership(user.id, user.email, user.subscriptionEnd, 7)}
+                                            className="flex-1 lg:flex-none px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-black text-white hover:text-blue-400 transition-colors uppercase whitespace-nowrap"
+                                        >
+                                            +7 DAYS
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const days = prompt("Enter days to add:", "30");
+                                                if (days) extendMembership(user.id, user.email, user.subscriptionEnd, days);
+                                            }}
+                                            className="flex-1 lg:flex-none px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-black text-white hover:text-red-400 transition-colors uppercase whitespace-nowrap"
+                                        >
+                                            CUSTOM
+                                        </button>
+                                        <button
+                                            onClick={() => setLifetime(user.id, user.email)}
+                                            className="flex-1 lg:flex-none px-3 py-2 bg-purple-900/20 hover:bg-purple-900/40 border border-purple-500/30 text-[9px] font-black text-purple-400 hover:text-purple-300 transition-colors uppercase whitespace-nowrap"
+                                        >
+                                            LIFETIME
+                                        </button>
+                                        <button
+                                            onClick={() => deactivateUser(user.id, user.email)}
+                                            className="flex-1 lg:flex-none px-3 py-2 bg-yellow-900/20 hover:bg-yellow-900/40 border border-yellow-600/30 text-[9px] font-black text-yellow-500 hover:text-yellow-400 transition-colors uppercase whitespace-nowrap"
+                                        >
+                                            DEACTIVATE
+                                        </button>
+                                        <button
+                                            onClick={() => deleteUser(user.id, user.email)}
+                                            className="flex-1 lg:flex-none px-3 py-2 bg-red-900/20 hover:bg-red-900/40 border border-red-600/30 text-[9px] font-black text-red-500 hover:text-red-400 transition-colors uppercase whitespace-nowrap flex items-center justify-center gap-1"
+                                        >
+                                            <Trash2 size={12} /> DELETE
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
                     {filteredUsers.length === 0 && (
-                        <div className="p-8 text-center text-gray-500 text-xs font-black uppercase tracking-widest">
-                            NO OPERATORS FOUND
+                        <div className="p-12 text-center text-gray-500 text-xs font-black uppercase tracking-widest border-2 border-dashed border-white/5 mt-4">
+                            NO OPERATORS FOUND IN SYSTEM
                         </div>
                     )}
                 </div>

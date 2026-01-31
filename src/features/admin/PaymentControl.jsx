@@ -29,6 +29,7 @@ const PaymentControl = () => {
         { value: 'binance', label: 'BINANCE LOGO' },
         { value: 'nequi', label: 'NEQUI LOGO' },
         { value: 'bancolombia', label: 'BANCOLOMBIA LOGO' },
+        { value: 'bitcoin', label: 'BITCOIN LOGO' },
     ];
 
     const handleSubmit = async (e) => {
@@ -109,7 +110,8 @@ const PaymentControl = () => {
                                         pm.icon === 'nequi' ? <img src="/img/metodos/logos/nequi-37254.png" className="w-8 h-8 object-contain" alt="NEQ" /> :
                                             pm.icon === 'binance' ? <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-8 h-8 object-contain" alt="BIN" /> :
                                                 pm.icon === 'usdt' ? <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-8 h-8 object-contain" alt="USD" /> :
-                                                    <Wallet size={16} className="text-gray-600" />}
+                                                    pm.icon === 'bitcoin' ? <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-8 h-8 object-contain" alt="BTC" /> :
+                                                        <Wallet size={16} className="text-gray-600" />}
                                 </div>
                                 <div>
                                     <span className="text-[8px] font-black text-red-600 uppercase tracking-[0.2em] mb-1 block">{pm.category}</span>
