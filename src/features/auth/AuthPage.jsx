@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Zap, Lock, User, ArrowRight, Chrome, Mail, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, googleProvider, db } from '../../firebase';
@@ -15,6 +15,13 @@ const AuthPage = ({ onLogin }) => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const hasRef = localStorage.getItem('referralCode');
+        if (hasRef && hasRef.length > 5 && hasRef !== '/') {
+            setIsLogin(false);
+        }
+    }, []); // Only check on mount
     const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -44,14 +51,22 @@ const AuthPage = ({ onLogin }) => {
                 userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
                 if (name) await updateProfile(userCredential.user, { displayName: name });
 
-                await setDoc(doc(db, "users", userCredential.user.uid), {
+                const referralCode = localStorage.getItem('referralCode');
+                const userData = {
                     email: normalizedEmail,
                     displayName: name,
                     status: 'payment_required',
                     role: 'user',
                     createdAt: serverTimestamp(),
                     subscriptionActive: false
-                });
+                };
+
+                if (referralCode) {
+                    userData.referredBy = referralCode;
+                }
+
+                await setDoc(doc(db, "users", userCredential.user.uid), userData);
+                localStorage.removeItem('referralCode');
             }
             await onLogin(userCredential.user);
         } catch (err) {

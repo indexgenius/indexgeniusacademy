@@ -15,6 +15,8 @@ import Templates from './features/trading/TemplatesPage';
 import Charts from './features/trading/ChartsPage';
 import TradingHistory from './features/trading/HistoryPage';
 import MonthlyHistory from './features/trading/MonthlyHistory';
+import Affiliate from './features/affiliate/AffiliateDashboard';
+import SupremeDashboard from './features/admin/SupremeDashboard';
 
 // Access & Protection
 import PendingApproval from './features/access/PendingApproval';
@@ -30,6 +32,7 @@ import { onSnapshot, query, orderBy, collection, limit } from "firebase/firestor
 import { useSignals } from './hooks/useSignals';
 import { useAuth } from './hooks/useAuth';
 import { usePWA } from './hooks/usePWA';
+import { useReferralTracker } from './hooks/useReferralTracker';
 import { signalService } from './services/signalService';
 import MainLayout from './layouts/MainLayout';
 
@@ -44,11 +47,19 @@ function App() {
   // 1. Auth & Profile
   const { user, login, logout } = useAuth();
 
+  // 1.5. Referral Tracking
+  useReferralTracker();
+
+
   // 2. PWA & Device Status
   const { isStandalone, pushEnabled, adblockDetected, rePromptPush } = usePWA();
 
+  const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
+  const isSupreme = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com';
+
   // 2. Real-time Signals
-  const { lastSignal } = useSignals(appLoadTimeRef.current);
+  const isAuthorized = user?.status === 'approved' || isAdmin;
+  const { lastSignal } = useSignals(appLoadTimeRef.current, isAuthorized);
 
   // 2.5. Detect when app comes back from background (Android PWA fix)
   useEffect(() => {
@@ -116,8 +127,6 @@ function App() {
     }
   };
 
-  const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
-
   // 4. Admin Notification Listener (New Payments)
   useEffect(() => {
     if (!isAdmin) return;
@@ -151,9 +160,26 @@ function App() {
     return () => unsub();
   }, [isAdmin, reconnectTrigger]);
 
+  const [showAuth, setShowAuth] = useState(false);
+
   // --- GATING LOGIC ---
-  if (!isStandalone) return <Landing />;
-  if (!user) return <Login onLogin={login} />;
+  // 1. If no user, handle Landing vs Login
+  if (!user) {
+    if (!isStandalone && !showAuth) {
+      return <Landing onShowAuth={() => setShowAuth(true)} />;
+    }
+    return <Login onLogin={(u) => {
+      login(u);
+      setShowAuth(false);
+      // If user is brand new (created just now or payment_required), 
+      // we might want to flag that they should see the guide
+      if (u.status === 'payment_required') {
+        localStorage.setItem('show_onboarding', 'true');
+      }
+    }} />;
+  }
+
+  // 2. If user exists, handle status gating
   if (user?.status === 'payment_required') return <PaymentPortal user={user} onLogout={logout} />;
   if (user?.status === 'pending' || user?.status === 'rejected') return <PendingApproval onLogout={logout} status={user.status} user={user} />;
 
@@ -192,6 +218,8 @@ function App() {
       {activeTab === 'monthly-history' && <MonthlyHistory />}
       {activeTab === 'academy' && <Academy user={user} />}
       {activeTab === 'templates' && <Templates user={user} />}
+      {activeTab === 'affiliate' && <Affiliate user={user} />}
+      {activeTab === 'supreme' && isSupreme && <SupremeDashboard user={user} />}
       {activeTab === 'admin' && (user?.canBroadcast || isAdmin) && <Admin user={user} broadcastSignal={broadcastSignal} />}
       {activeTab === 'groups' && <Groups user={user} />}
       {activeTab === 'profile' && <Profile user={user} />}

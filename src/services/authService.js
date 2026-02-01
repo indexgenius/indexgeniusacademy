@@ -24,12 +24,22 @@ export const authService = {
             userData.role = 'user';
             userData.createdAt = serverTimestamp();
             userData.subscriptionActive = false;
+
+            // Affiliate Attribution
+            const referralCode = localStorage.getItem('referralCode');
+            if (referralCode) {
+                userData.referredBy = referralCode;
+                console.log('✅ User attributed to affiliate:', referralCode);
+                // We keep it in localStorage in case the registration fails and they try again, 
+                // but usually we could clear it here. For now let's keep it until success.
+            }
         } else {
             const existingData = userSnap.data();
             if (existingData.status) userData.status = existingData.status;
         }
 
         await setDoc(userRef, userData, { merge: true });
+        localStorage.removeItem('referralCode');
         const finalUser = { ...userData, ...(userSnap.exists() ? userSnap.data() : {}) };
 
         // Side effects

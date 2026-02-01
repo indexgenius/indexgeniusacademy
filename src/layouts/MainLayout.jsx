@@ -20,7 +20,7 @@ const MainLayout = ({
     children
 }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx';
+    const isSupreme = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com';
 
     return (
         <div className="flex bg-dark min-h-screen text-white font-space selection:bg-red-600 selection:text-white overflow-x-hidden">
@@ -30,7 +30,8 @@ const MainLayout = ({
                 onLogout={onLogout}
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
-                canBroadcast={isAdmin || user?.canBroadcast}
+                canBroadcast={isSupreme || user?.canBroadcast}
+                isSupreme={isSupreme}
                 unreadAnnouncements={unreadAnnouncements}
             />
 
@@ -47,7 +48,7 @@ const MainLayout = ({
                     </div>
 
                     <div className="flex items-center gap-3 lg:gap-6">
-                        {isAdmin && (
+                        {isSupreme && (
                             <div className="hidden sm:flex items-center gap-2 bg-white/5 p-1 border border-white/10 group">
                                 <input
                                     type="text"

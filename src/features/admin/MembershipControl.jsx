@@ -260,7 +260,14 @@ const MembershipControl = () => {
                                         </div>
                                         <div>
                                             <div className="font-bold text-white text-sm uppercase tracking-tight">{user.displayName || 'UNKNOWN'}</div>
-                                            <div className="text-[10px] text-gray-500 font-mono">{user.email}</div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="text-[10px] text-gray-500 font-mono">{user.email}</div>
+                                                {user.referredBy && (
+                                                    <span className="text-[7px] font-black text-red-600 bg-red-600/5 px-2 py-0.5 border border-red-600/10 uppercase tracking-tighter">
+                                                        REF: {user.referredBy.substring(0, 8)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

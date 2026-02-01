@@ -3,6 +3,7 @@ import { CreditCard, Wallet, Smartphone, Landmark, Check, Copy, Phone, ShieldChe
 import { db } from '../../firebase';
 import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import InstallGuide from '../landing/components/InstallGuide';
 
 const PaymentPortal = ({ user, onLogout }) => {
     const [paymentMethods, setPaymentMethods] = useState([]);
@@ -11,6 +12,15 @@ const PaymentPortal = ({ user, onLogout }) => {
     const [loading, setLoading] = useState(false);
     const [brokerType, setBrokerType] = useState('universal'); // Single generic type
     const [step, setStep] = useState(1); // 1: Broker Selection, 2: Payment
+    const [showWelcome, setShowWelcome] = useState(false);
+    const [showGuide, setShowGuide] = useState(false);
+
+    useEffect(() => {
+        if (localStorage.getItem('show_onboarding') === 'true') {
+            setShowWelcome(true);
+            localStorage.removeItem('show_onboarding');
+        }
+    }, []);
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, "payment_methods"), (snapshot) => {
@@ -34,11 +44,9 @@ const PaymentPortal = ({ user, onLogout }) => {
         const message = `HOLA STEVEN. ACABO DE REALIZAR EL PAGO DE MI SUSCRIPCIÓN.\n\nVALOR: $${finalPrice} USD\nPLAN: ${planName}\nUSUARIO: ${userEmail}\n\nPOR FAVOR ACTIVA MI CUENTA.`;
         const waUrl = `https://wa.me/18292198071?text=${encodeURIComponent(message)}`;
 
-        // Open WhatsApp FIRST to ensure it triggers before any state change/unmount
         try {
             const newWindow = window.open(waUrl, '_blank');
             if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                // Pop-up blocker might have stopped it, but we continue with the process.
                 console.warn("Popup blocked or failed");
             }
         } catch (e) {
@@ -56,7 +64,6 @@ const PaymentPortal = ({ user, onLogout }) => {
                 timestamp: serverTimestamp()
             });
 
-            // Small delay to ensure the user perceives the action before the screen switches
             await new Promise(resolve => setTimeout(resolve, 1000));
 
             await updateDoc(doc(db, "users", user.uid), {
@@ -65,12 +72,11 @@ const PaymentPortal = ({ user, onLogout }) => {
                 paymentReported: true,
                 paymentReportedAt: serverTimestamp()
             });
-            // Component will likely unmount here as App.jsx switches to PendingApproval
         } catch (e) {
             console.error(e);
             alert("Error al procesar el reporte. Intenta de nuevo.");
         } finally {
-            if (loading) setLoading(false); // Only if component is still mounted (which it likely won't be)
+            if (loading) setLoading(false);
         }
     };
 
@@ -124,9 +130,17 @@ const PaymentPortal = ({ user, onLogout }) => {
                         </div>
                     </div>
 
-                    <button onClick={onLogout} className="relative z-10 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 hover:text-white transition-colors">
-                        ABORT SESSION [LOGOUT]
-                    </button>
+                    <div className="relative z-10 flex flex-col gap-4">
+                        <button
+                            onClick={() => setShowGuide(true)}
+                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] bg-black/20 p-3 border border-white/10 hover:bg-white hover:text-red-600 transition-all"
+                        >
+                            <Smartphone size={14} /> INSTALL APP [GUIDE]
+                        </button>
+                        <button onClick={onLogout} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 hover:text-white transition-colors">
+                            ABORT SESSION [LOGOUT]
+                        </button>
+                    </div>
                 </div>
 
                 {/* Right Panel: Content Section */}
@@ -148,7 +162,6 @@ const PaymentPortal = ({ user, onLogout }) => {
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-4">
-                                    {/* Universal Option */}
                                     <button
                                         className="p-8 border-2 border-red-600 bg-red-600/5 transition-all text-left flex flex-col justify-between min-h-[220px] relative overflow-hidden group cursor-default"
                                     >
@@ -298,6 +311,99 @@ const PaymentPortal = ({ user, onLogout }) => {
                     </AnimatePresence>
                 </div>
             </motion.div>
+
+            {/* NEW USER WELCOME OVERLAY */}
+            <AnimatePresence>
+                {showWelcome && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-black border-2 border-red-600 p-8 lg:p-12 max-w-2xl w-full text-center space-y-8 relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                                <Zap size={300} className="text-red-600" />
+                            </div>
+
+                            <div className="space-y-4 relative z-10">
+                                <div className="flex justify-center">
+                                    <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center animate-bounce shadow-red-glow">
+                                        <Check size={40} className="text-white" />
+                                    </div>
+                                </div>
+                                <h2 className="text-4xl lg:text-5xl font-black italic tracking-tighter text-white uppercase leading-none">
+                                    ¡REGISTRO <span className="text-red-600">EXITOSO!</span>
+                                </h2>
+                                <p className="text-[10px] font-black tracking-[0.4em] text-red-600 uppercase">PRÓXIMOS PASOS REQUERIDOS:</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                                <div className="bg-white/5 border border-white/10 p-6 space-y-3 text-left">
+                                    <Smartphone className="text-red-600" size={24} />
+                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">PASO 01</p>
+                                    <p className="text-xs font-bold leading-relaxed">INSTALA LA APP EN TU CELULAR PARA RECIBIR NOTIFICACIONES EN TIEMPO REAL.</p>
+                                    <button
+                                        onClick={() => {
+                                            setShowWelcome(false);
+                                            setShowGuide(true);
+                                        }}
+                                        className="text-[10px] font-black text-red-600 uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors"
+                                    >
+                                        VER GUÍA <ExternalLink size={12} />
+                                    </button>
+                                </div>
+                                <div className="bg-white/5 border border-white/10 p-6 space-y-3 text-left border-l-red-600">
+                                    <CreditCard className="text-red-600" size={24} />
+                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">PASO 02</p>
+                                    <p className="text-xs font-bold leading-relaxed">ACTIVA TU MEMBRESÍA REALIZANDO EL PAGO DE $25 USDT.</p>
+                                    <button
+                                        onClick={() => setShowWelcome(false)}
+                                        className="text-[10px] font-black text-white hover:text-red-600 uppercase tracking-widest flex items-center gap-2 transition-colors"
+                                    >
+                                        IR A PAGAR <ArrowRight size={12} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => setShowWelcome(false)}
+                                className="w-full py-5 bg-white text-black font-black uppercase tracking-[0.4em] italic text-xs hover:bg-red-600 hover:text-white transition-all skew-x-[-12deg] shadow-lg relative z-10"
+                            >
+                                CONTINUAR AL PORTAL
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* INSTALL GUIDE OVERLAY */}
+            <AnimatePresence>
+                {showGuide && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[110] bg-black overflow-y-auto p-4 lg:p-10"
+                    >
+                        <div className="max-w-5xl mx-auto space-y-8">
+                            <button
+                                onClick={() => setShowGuide(false)}
+                                className="text-[10px] font-black text-red-600 uppercase tracking-widest border border-red-600/30 px-6 py-3 hover:bg-red-600 hover:text-white transition-all sticky top-0 bg-black z-20"
+                            >
+                                ← CERRAR GUÍA Y VOLVER AL PAGO
+                            </button>
+                            <div className="bg-black/50 border border-white/10 p-0">
+                                <InstallGuide />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

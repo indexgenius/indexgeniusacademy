@@ -149,9 +149,25 @@ const UserManagement = ({ adminUser }) => {
                 {pendingUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">NO PENDING REQUESTS</p>}
                 {pendingUsers.map(u => (
                     <div key={u.id} className="bg-white/5 p-4 flex justify-between items-center border-l-2 border-yellow-500">
-                        <div>
-                            <p className="text-xs font-bold text-white uppercase">{u.email}</p>
-                            <p className="text-[9px] text-gray-500 uppercase tracking-wider">{u.displayName}</p>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                {u.photoURL ? (
+                                    <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                    <Users size={16} className="text-gray-600" />
+                                )}
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-white uppercase">{u.email}</p>
+                                <div className="flex items-center gap-2">
+                                    <p className="text-[9px] text-gray-500 uppercase tracking-wider">{u.displayName}</p>
+                                    {u.referredBy && (
+                                        <span className="text-[8px] font-black text-red-600 bg-red-600/10 px-2 py-0.5 border border-red-600/20 uppercase tracking-tighter">
+                                            REFERRED BY: {u.referredBy.substring(0, 8)}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                         <div className="flex gap-2">
                             <button onClick={() => handleApprove(u)} className="px-4 py-2 bg-green-500/20 text-green-500 text-[10px] font-black border border-green-500/50 hover:bg-green-500 hover:text-black transition-all uppercase tracking-widest">ACCEPT</button>
@@ -167,9 +183,18 @@ const UserManagement = ({ adminUser }) => {
                 {renewalUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">NO RENEWAL REQUESTS</p>}
                 {renewalUsers.map(u => (
                     <div key={u.id} className="bg-white/5 p-4 flex justify-between items-center border-l-2 border-blue-500">
-                        <div>
-                            <p className="text-xs font-bold text-white uppercase">{u.email}</p>
-                            <p className="text-[9px] text-gray-500 uppercase tracking-wider">REQUESTED RENEWAL</p>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                {u.photoURL ? (
+                                    <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                    <Users size={16} className="text-gray-600" />
+                                )}
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-white uppercase">{u.email}</p>
+                                <p className="text-[9px] text-gray-500 uppercase tracking-wider">REQUESTED RENEWAL</p>
+                            </div>
                         </div>
                         <div className="flex gap-2">
                             <button onClick={() => handleRenew(u)} className="px-4 py-2 bg-blue-500/20 text-blue-500 text-[10px] font-black border border-blue-500/50 hover:bg-blue-500 hover:text-black transition-all uppercase tracking-widest">RENEW 30 DAYS</button>
@@ -197,9 +222,18 @@ const UserManagement = ({ adminUser }) => {
                     {filteredUsers.map(u => (
                         <div key={u.id} className="bg-white/5 border border-white/10 p-4 group hover:bg-white/10 transition-all">
                             <div className="flex justify-between items-center mb-4">
-                                <div>
-                                    <p className="text-xs font-black text-white uppercase">{u.email}</p>
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{u.displayName || 'ANONYMOUS UNIT'}</p>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                        {u.photoURL ? (
+                                            <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <Users size={16} className="text-gray-600" />
+                                        )}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-black text-white uppercase truncate">{u.email}</p>
+                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest truncate">{u.displayName || 'ANONYMOUS UNIT'}</p>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${u.subscriptionActive ? 'bg-green-500 animate-pulse' : 'bg-red-600'}`}></div>

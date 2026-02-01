@@ -6,7 +6,7 @@ import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestor
  * Hook to listen for new signals in real-time
  * Handles reconnection when app comes back from background (Android PWA fix)
  */
-export const useSignals = (appLoadTime = Date.now()) => {
+export const useSignals = (appLoadTime = Date.now(), isApproved = false) => {
     const [lastSignal, setLastSignal] = useState(null);
     const [signals, setSignals] = useState([]);
     const [reconnectTrigger, setReconnectTrigger] = useState(0);
@@ -14,6 +14,7 @@ export const useSignals = (appLoadTime = Date.now()) => {
 
     // Detect when app comes back from background
     useEffect(() => {
+        if (!isApproved) return;
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 console.log('🔄 App visible - reconnecting Firebase listeners...');
@@ -24,9 +25,11 @@ export const useSignals = (appLoadTime = Date.now()) => {
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }, []);
+    }, [isApproved]);
 
     useEffect(() => {
+        if (!isApproved) return;
+
         const q = query(
             collection(db, "signals"),
             orderBy("timestamp", "desc"),

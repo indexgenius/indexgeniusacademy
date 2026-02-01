@@ -1,13 +1,14 @@
 import { LayoutDashboard, Users, User, Settings, LogOut, TrendingUp, Zap, Menu, X, FileCode, GraduationCap, Shield, Megaphone, History } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, unreadAnnouncements = 0 }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, isSupreme, unreadAnnouncements = 0 }) => {
     const menuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'SIGNALS' },
-        // { id: 'charts', icon: TrendingUp, label: 'CHARTS' }, // Hidden as requested
         { id: 'trading-history', icon: History, label: 'TRADING HISTORY' },
         { id: 'monthly-history', icon: TrendingUp, label: 'MONTHLY HISTORY' },
         { id: 'academy', icon: GraduationCap, label: 'ACADEMY' },
         { id: 'templates', icon: FileCode, label: 'TEMPLATES' },
+        { id: 'affiliate', icon: Users, label: 'AFFILIATE' },
+        ...(isSupreme ? [{ id: 'supreme', icon: Zap, label: 'SUPREME' }] : []),
         ...(canBroadcast ? [{ id: 'admin', icon: Shield, label: 'ADMIN' }] : []),
         { id: 'groups', icon: Users, label: 'GROUPS' },
         { id: 'announcements', icon: Megaphone, label: 'NEWS', count: unreadAnnouncements },

@@ -22,40 +22,45 @@ const HistoryPage = ({ user }) => {
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const closed = snapshot.docs
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+            const allClosed = snapshot.docs
                 .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(d => d.status === 'WON' || d.status === 'LOST');
+                .filter(d => (d.status === 'WON' || d.status === 'LOST') && d.closedAt);
 
-            setBattleLog(closed);
+            // Filter for CURRENT MONTH ONLY
+            const currentMonthClosed = allClosed.filter(s => s.closedAt?.toMillis() >= monthStart);
+            setBattleLog(currentMonthClosed);
 
-            if (closed.length > 0) {
-                const now = new Date();
-                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-
-                // 1. Total Win Rate
-                const totalWins = closed.filter(s => s.status === 'WON').length;
-                const totalWinRate = ((totalWins / closed.length) * 100).toFixed(1);
+            if (currentMonthClosed.length > 0) {
+                // 1. Monthly Win Rate (replaces total in this view)
+                const wins = currentMonthClosed.filter(s => s.status === 'WON').length;
+                const winRate = ((wins / currentMonthClosed.length) * 100).toFixed(1);
 
                 // 2. Daily Pips
-                const dailyPips = closed
+                const dailyPips = currentMonthClosed
                     .filter(s => s.closedAt?.toMillis() >= todayStart)
                     .reduce((sum, s) => sum + (s.pips || 0), 0);
 
-                // 3. Monthly Stats
-                const monthlySignals = closed.filter(s => s.closedAt?.toMillis() >= monthStart);
-                const monthlyPips = monthlySignals.reduce((sum, s) => sum + (s.pips || 0), 0);
-                const monthlyWins = monthlySignals.filter(s => s.status === 'WON').length;
-                const monthlyWinRate = monthlySignals.length > 0
-                    ? ((monthlyWins / monthlySignals.length) * 100).toFixed(1)
-                    : "0.0";
+                // 3. Monthly Pips
+                const monthlyPips = currentMonthClosed.reduce((sum, s) => sum + (s.pips || 0), 0);
 
                 setStats({
                     dailyPips: Math.round(dailyPips),
                     monthlyPips: Math.round(monthlyPips),
-                    totalWinRate: `${totalWinRate}%`,
-                    monthlyWinRate: `${monthlyWinRate}%`,
-                    totalOps: closed.length
+                    totalWinRate: `${winRate}%`,
+                    monthlyWinRate: `${winRate}%`,
+                    totalOps: currentMonthClosed.length
+                });
+            } else {
+                setStats({
+                    dailyPips: 0,
+                    monthlyPips: 0,
+                    totalWinRate: '100%',
+                    monthlyWinRate: '100%',
+                    totalOps: 0
                 });
             }
         });

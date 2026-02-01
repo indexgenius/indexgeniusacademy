@@ -64,10 +64,16 @@ const PendingApproval = ({ onLogout, status = 'pending', user }) => {
                         CONTACT COMMAND <MessageSquare size={16} />
                     </button>
                     <button
-                        onClick={onLogout}
+                        onClick={() => window.location.href = '/#install'}
                         className="flex-1 py-5 bg-white/5 border border-white/10 text-white font-black italic text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3"
                     >
-                        ABORT SESSION <LogOut size={16} />
+                        INSTALL APP <Smartphone size={16} />
+                    </button>
+                    <button
+                        onClick={onLogout}
+                        className="flex-1 py-5 bg-white/5 border border-white/10 text-white/40 font-black italic text-[9px] tracking-widest uppercase hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3"
+                    >
+                        LOGOUT <LogOut size={14} />
                     </button>
                 </div>
 

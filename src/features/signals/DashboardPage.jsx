@@ -43,20 +43,26 @@ const DashboardPage = ({ user, broadcastSignal }) => {
             setTimeout(() => setReconnectTrigger(prev => prev + 1), 2000);
         });
 
-        const qT = query(collection(db, "signals"), orderBy("closedAt", "desc"), limit(100));
+        const qT = query(collection(db, "signals"), orderBy("closedAt", "desc"), limit(200));
         const unsubT = onSnapshot(qT, (snapshot) => {
-            const closed = snapshot.docs.map(doc => doc.data()).filter(d => (d.status === 'WON' || d.status === 'LOST') && d.closedAt);
-            if (closed.length > 0) {
-                const wins = closed.filter(s => s.status === 'WON').length;
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
-                const todayStart = new Date();
-                todayStart.setHours(0, 0, 0, 0);
+            const allClosed = snapshot.docs.map(doc => doc.data()).filter(d => (d.status === 'WON' || d.status === 'LOST') && d.closedAt);
 
-                const dailyPips = closed
-                    .filter(s => s.closedAt?.toMillis() >= todayStart.getTime())
+            // Monthly Filter for Win Ratio
+            const monthlyClosed = allClosed.filter(s => s.closedAt?.toMillis() >= monthStart);
+
+            if (monthlyClosed.length > 0) {
+                const wins = monthlyClosed.filter(s => s.status === 'WON').length;
+                const winRatio = ((wins / monthlyClosed.length) * 100).toFixed(1);
+
+                // Daily Pips from all closed (today filter)
+                const dailyPips = allClosed
+                    .filter(s => s.closedAt?.toMillis() >= todayStart)
                     .reduce((sum, s) => {
                         let val = Number(s.pips);
-                        // Fallback if pips not saved in DB
                         if (isNaN(val) && s.entry && s.exitPrice) {
                             const entry = parseFloat(s.entry);
                             const exit = parseFloat(s.exitPrice);
@@ -69,8 +75,13 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                     }, 0);
 
                 setStats({
-                    winRatio: ((wins / closed.length) * 100).toFixed(1),
+                    winRatio,
                     pipsToday: Math.round(dailyPips)
+                });
+            } else {
+                setStats({
+                    winRatio: "100.0",
+                    pipsToday: 0
                 });
             }
         }, (error) => {
