@@ -39,7 +39,11 @@ export const signalService = {
             ? signalObj.title
             : "IndexGenius ACADEMY - SIGNAL";
 
-        // 3. Broadcast via Backend API
+        // 3. Broadcast via Backend API (Skip if silent)
+        if (signalObj.silent) {
+            return { success: true, silent: true, id: signalId };
+        }
+
         return await broadcast({
             title: notifyTitle,
             body: notifyBody,

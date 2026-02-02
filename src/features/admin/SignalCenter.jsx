@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Radio, RefreshCw, Rocket, StopCircle, TrendingDown, ChevronDown, Clock, Trash2 } from 'lucide-react';
 import { db } from '../../firebase';
-import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { fetchPrice } from '../../utils/deriv';
 import TacticalSelect from '../../components/TacticalSelect';
 
 const SignalCenter = ({ broadcastSignal }) => {
     const [broker, setBroker] = useState('DERIV');
-    const [signalForm, setSignalForm] = useState({ pair: 'BOOM 1000', type: 'BUY', entry: '', tp: '', sl: '' });
+    const [signalForm, setSignalForm] = useState({ pair: 'BOOM 1000', type: 'BUY', entry: '', tp: '', sl: '', exitPrice: '', pips: '' });
     const [broadcasting, setBroadcasting] = useState(false);
     const [recentSignals, setRecentSignals] = useState([]);
     const [editingSignalId, setEditingSignalId] = useState(null);
+    const [isHistorical, setIsHistorical] = useState(false);
+    const [historicalStatus, setHistoricalStatus] = useState('WON');
 
     const PAIR_OPTIONS = broker === 'DERIV' ? [
         {
@@ -88,14 +90,19 @@ const SignalCenter = ({ broadcastSignal }) => {
             pair: signalForm.pair,
             symbol: signalForm.pair.replace(/\s+/g, ''),
             type: signalForm.type === 'BUY' ? (broker === 'DERIV' ? 'BOOM' : 'BUY') : (broker === 'DERIV' ? 'CRASH' : 'SELL'),
-            status: 'ACTIVE',
+            status: isHistorical ? historicalStatus : 'ACTIVE',
             entry: signalForm.entry.toString(),
             tp: signalForm.tp || '---',
             sl: signalForm.sl || '---',
-            broker: broker
+            exitPrice: isHistorical ? signalForm.exitPrice.toString() : null,
+            pips: isHistorical ? (signalForm.pips || null) : null,
+            closedAt: isHistorical ? serverTimestamp() : null,
+            broker: broker,
+            silent: isHistorical
         });
-        setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1000', type: 'BUY', entry: '', tp: '', sl: '' });
+        setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1000', type: 'BUY', entry: '', tp: '', sl: '', exitPrice: '', pips: '' });
         setEditingSignalId(null);
+        setIsHistorical(false);
         setBroadcasting(false);
     };
 
@@ -141,13 +148,13 @@ const SignalCenter = ({ broadcastSignal }) => {
                 <div className="flex gap-4 p-1 bg-black/40 border border-white/10 max-w-sm">
                     <button
                         onClick={() => { setBroker('DERIV'); setSignalForm(prev => ({ ...prev, pair: 'BOOM 1000' })); }}
-                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white shadow-red-glow/20' : 'text-gray-500 hover:text-white'}`}
+                        className={`flex-1 py-4 lg:py-3 text-[11px] lg:text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white shadow-red-glow/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                     >
                         DERIV PLATFORM
                     </button>
                     <button
                         onClick={() => { setBroker('WELTRADE'); setSignalForm(prev => ({ ...prev, pair: 'GainX 1000' })); }}
-                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-blue-600 text-white shadow-blue-glow/20' : 'text-gray-500 hover:text-white'}`}
+                        className={`flex-1 py-4 lg:py-3 text-[11px] lg:text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-blue-600 text-white shadow-blue-glow/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                     >
                         WELTRADE GLOBAL
                     </button>
@@ -184,13 +191,82 @@ const SignalCenter = ({ broadcastSignal }) => {
                             <input placeholder="TAKE PROFIT" value={signalForm.tp} onChange={e => setSignalForm({ ...signalForm, tp: e.target.value })} className="w-full bg-white/5 border border-white/10 p-3 text-xs font-black text-white outline-none" />
                             <input placeholder="STOP LOSS" value={signalForm.sl} onChange={e => setSignalForm({ ...signalForm, sl: e.target.value })} className="w-full bg-white/5 border border-white/10 p-3 text-xs font-black text-white outline-none" />
                         </div>
+                        <div className="flex flex-col md:flex-row gap-4 items-center bg-white/5 border border-white/10 p-4">
+                            <div className="flex items-center gap-3 w-full md:w-auto">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={isHistorical}
+                                        onChange={(e) => setIsHistorical(e.target.checked)}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-600"></div>
+                                    <span className="ml-3 text-[10px] font-black text-white uppercase tracking-widest">MODO HISTORIAL (SILENCIOSO)</span>
+                                </label>
+                            </div>
+
+                            {isHistorical && (
+                                <div className="flex gap-2 w-full md:w-auto">
+                                    <button
+                                        type="button"
+                                        onClick={() => setHistoricalStatus('WON')}
+                                        className={`flex-1 md:flex-none px-6 py-4 lg:py-2 text-[10px] lg:text-[9px] font-black uppercase tracking-widest transition-all border-2 ${historicalStatus === 'WON' ? 'bg-green-600 text-white border-green-400' : 'bg-black/60 text-gray-400 border-white/10'}`}
+                                    >
+                                        GANADA (WON)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setHistoricalStatus('LOST')}
+                                        className={`flex-1 md:flex-none px-6 py-4 lg:py-2 text-[10px] lg:text-[9px] font-black uppercase tracking-widest transition-all border-2 ${historicalStatus === 'LOST' ? 'bg-red-600 text-white border-red-400' : 'bg-black/60 text-gray-400 border-white/10'}`}
+                                    >
+                                        PERDIDA (LOSS)
+                                    </button>
+                                </div>
+                            )}
+
+                            {isHistorical && (
+                                <p className="text-[9px] font-bold text-yellow-500 italic opacity-80 flex-1 text-right">
+                                    * ESTA SEÑAL NO ENVIARÁ NOTIFICACIONES PUSH
+                                </p>
+                            )}
+                        </div>
+
+                        {isHistorical && (
+                            <div className="bg-yellow-600/10 border border-yellow-600/20 p-4 space-y-3">
+                                <label className="text-[10px] font-black text-yellow-600 uppercase tracking-widest ml-1">DATOS DE CIERRE (MANDATORIO PARA PIPS)</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-bold text-gray-500 uppercase ml-1">PRECIO DE CIERRE (EXIT PRICE)</label>
+                                        <input
+                                            placeholder="EJ: 15828.62"
+                                            value={signalForm.exitPrice}
+                                            onChange={e => setSignalForm({ ...signalForm, exitPrice: e.target.value })}
+                                            className="w-full bg-black/40 border border-yellow-600/30 p-3 text-xs font-black text-white outline-none focus:border-yellow-600"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-bold text-gray-500 uppercase ml-1">PIPS MANUALES (OPCIONAL)</label>
+                                        <input
+                                            placeholder="EJ: 45"
+                                            value={signalForm.pips}
+                                            onChange={e => setSignalForm({ ...signalForm, pips: e.target.value })}
+                                            className="w-full bg-black/40 border border-yellow-600/30 p-3 text-xs font-black text-white outline-none focus:border-yellow-600"
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-[9px] text-gray-400 italic">
+                                    * Deja PIPS en blanco si quieres que el sistema los calcule usando el Precio de Entrada y el Precio de Cierre.
+                                </p>
+                            </div>
+                        )}
+
                         <div className="flex gap-2">
                             <button disabled={broadcasting} className={`flex-1 py-5 text-white font-black italic text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-4 ${broker === 'DERIV' ? 'bg-red-600' : 'bg-blue-600'}`}>
                                 {broadcasting ? 'TRANSMITTING...' : (editingSignalId ? 'UPDATE BROADCAST' : 'EXECUTE BROADCAST')}
                                 {!broadcasting && <Rocket size={18} />}
                             </button>
                             {editingSignalId && (
-                                <button onClick={() => { setEditingSignalId(null); setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1000', type: 'BUY', entry: '', tp: '', sl: '' }); }} className="px-6 py-5 bg-white/5 border border-white/10 text-gray-500"><StopCircle /></button>
+                                <button onClick={() => { setEditingSignalId(null); setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1000', type: 'BUY', entry: '', tp: '', sl: '', exitPrice: '', pips: '' }); }} className="px-6 py-5 bg-white/5 border border-white/10 text-gray-500"><StopCircle /></button>
                             )}
                         </div>
                     </form>
@@ -274,7 +350,20 @@ const SignalCenter = ({ broadcastSignal }) => {
                                     </div>
                                 </div>
                                 <div className="flex gap-1 transition-all ml-2">
-                                    <button onClick={() => { setEditingSignalId(sig.id); setSignalForm({ pair: sig.pair, type: (sig.type === 'BOOM' || sig.type === 'BUY') ? 'BUY' : 'SELL', entry: sig.entry || '', tp: sig.tp || '', sl: sig.sl || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"><RefreshCw size={14} /></button>
+                                    <button onClick={() => {
+                                        setEditingSignalId(sig.id);
+                                        setSignalForm({
+                                            pair: sig.pair,
+                                            type: (sig.type === 'BOOM' || sig.type === 'BUY') ? 'BUY' : 'SELL',
+                                            entry: sig.entry || '',
+                                            tp: sig.tp || '',
+                                            sl: sig.sl || '',
+                                            exitPrice: sig.exitPrice || '',
+                                            pips: sig.pips || ''
+                                        });
+                                        setIsHistorical(sig.status !== 'ACTIVE');
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }} className="p-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"><RefreshCw size={14} /></button>
                                     <button onClick={() => deleteSignal(sig.id)} className="p-2 bg-white/5 hover:bg-red-600/20 text-gray-300 hover:text-red-500 border border-white/10 transition-colors"><Trash2 size={14} /></button>
                                 </div>
                             </div>

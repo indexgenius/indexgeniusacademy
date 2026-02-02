@@ -62,8 +62,9 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                 const dailyPips = allClosed
                     .filter(s => s.closedAt?.toMillis() >= todayStart)
                     .reduce((sum, s) => {
-                        let val = Number(s.pips);
-                        if (isNaN(val) && s.entry && s.exitPrice) {
+                        let val = parseFloat(s.pips);
+                        // If pips field is missing/null, calculate from entry/exit
+                        if ((s.pips === undefined || s.pips === null || isNaN(val)) && s.entry && s.exitPrice) {
                             const entry = parseFloat(s.entry);
                             const exit = parseFloat(s.exitPrice);
                             if (!isNaN(entry) && !isNaN(exit)) {

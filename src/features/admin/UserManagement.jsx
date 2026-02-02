@@ -243,7 +243,7 @@ const UserManagement = ({ adminUser }) => {
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                            <div className="flex flex-wrap gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 mt-2 lg:mt-0">
                                 <button
                                     onClick={() => {
                                         setEditingUser(u);
@@ -252,13 +252,13 @@ const UserManagement = ({ adminUser }) => {
                                             setEditExpiry(date.toISOString().split('T')[0]);
                                         }
                                     }}
-                                    className="px-3 py-1 bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest"
+                                    className="px-4 py-3 lg:px-3 lg:py-1 bg-blue-600 text-white text-[10px] lg:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20"
                                 >
                                     EDIT ACCESS
                                 </button>
                                 <button
                                     onClick={() => handleDeleteUser(u.id)}
-                                    className="px-3 py-1 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest"
+                                    className="px-4 py-3 lg:px-3 lg:py-1 bg-red-600 text-white text-[10px] lg:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-red-600/20"
                                 >
                                     DELETE
                                 </button>
@@ -268,7 +268,7 @@ const UserManagement = ({ adminUser }) => {
                                         await updateDoc(doc(db, "users", u.id), { canBroadcast: !current });
                                         alert(`OPERATOR STATUS: ${!current ? 'ON' : 'OFF'}`);
                                     }}
-                                    className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest border ${u.canBroadcast ? 'border-red-600 text-red-600' : 'border-white/20 text-white/40'}`}
+                                    className={`px-4 py-3 lg:px-3 lg:py-1 text-[10px] lg:text-[9px] font-black uppercase tracking-widest border-2 ${u.canBroadcast ? 'border-red-600 text-red-600 bg-red-600/10' : 'border-white/20 text-white/40 bg-black/40'}`}
                                 >
                                     {u.canBroadcast ? 'DISABLE OPS' : 'ENABLE OPS'}
                                 </button>

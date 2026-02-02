@@ -42,10 +42,32 @@ const HistoryPage = ({ user }) => {
                 // 2. Daily Pips
                 const dailyPips = currentMonthClosed
                     .filter(s => s.closedAt?.toMillis() >= todayStart)
-                    .reduce((sum, s) => sum + (s.pips || 0), 0);
+                    .reduce((sum, s) => {
+                        let val = parseFloat(s.pips);
+                        if ((s.pips === undefined || s.pips === null || isNaN(val)) && s.entry && s.exitPrice) {
+                            const entry = parseFloat(s.entry);
+                            const exit = parseFloat(s.exitPrice);
+                            if (!isNaN(entry) && !isNaN(exit)) {
+                                const diff = Math.abs(exit - entry);
+                                val = Number((s.status === 'WON' ? diff : -diff).toFixed(2));
+                            }
+                        }
+                        return sum + (val || 0);
+                    }, 0);
 
                 // 3. Monthly Pips
-                const monthlyPips = currentMonthClosed.reduce((sum, s) => sum + (s.pips || 0), 0);
+                const monthlyPips = currentMonthClosed.reduce((sum, s) => {
+                    let val = parseFloat(s.pips);
+                    if ((s.pips === undefined || s.pips === null || isNaN(val)) && s.entry && s.exitPrice) {
+                        const entry = parseFloat(s.entry);
+                        const exit = parseFloat(s.exitPrice);
+                        if (!isNaN(entry) && !isNaN(exit)) {
+                            const diff = Math.abs(exit - entry);
+                            val = Number((s.status === 'WON' ? diff : -diff).toFixed(2));
+                        }
+                    }
+                    return sum + (val || 0);
+                }, 0);
 
                 setStats({
                     dailyPips: Math.round(dailyPips),
@@ -153,7 +175,17 @@ const HistoryPage = ({ user }) => {
                             {/* Pips Result */}
                             <div className="col-span-6 md:col-span-3 text-right mt-2 md:mt-0">
                                 <p className={`text-xl font-black italic tracking-tighter ${log.status === 'WON' ? 'text-green-500 drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]' : 'text-red-500 drop-shadow-[0_0_5px_rgba(220,38,38,0.5)]'}`}>
-                                    {log.status === 'WON' ? '+' : ''}{Math.abs(log.pips || 0)} <span className="text-[10px] text-gray-500 not-italic font-bold">PTS</span>
+                                    {(() => {
+                                        let val = parseFloat(log.pips);
+                                        if ((log.pips === undefined || log.pips === null || isNaN(val)) && log.entry && log.exitPrice) {
+                                            const entry = parseFloat(log.entry);
+                                            const exit = parseFloat(log.exitPrice);
+                                            if (!isNaN(entry) && !isNaN(exit)) {
+                                                val = Math.abs(exit - entry);
+                                            }
+                                        }
+                                        return (log.status === 'WON' ? '+' : '-') + Math.abs(val || 0).toFixed(1);
+                                    })()} <span className="text-[10px] text-gray-500 not-italic font-bold">PTS</span>
                                 </p>
                             </div>
                         </div>

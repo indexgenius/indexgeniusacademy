@@ -111,8 +111,8 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                         {pair || 'ASSET ERROR'}
                     </h3>
                     <div className="flex items-center gap-2 lg:gap-3">
-                        <span className="bg-[#00ff41] text-black text-[8px] lg:text-[10px] font-black uppercase px-2 py-0.5 tracking-widest leading-none">
-                            {type || 'SIGNAL'}
+                        <span className={`${(type === 'CRASH' || type === 'SELL') ? 'bg-red-600 text-white' : 'bg-[#00ff41] text-black'} text-[8px] lg:text-[10px] font-black uppercase px-2 py-0.5 tracking-widest leading-none`}>
+                            {(type === 'BOOM' || type === 'BUY') ? 'BUY' : (type === 'CRASH' || type === 'SELL' ? 'SELL' : type)}
                         </span>
                         <span className="text-gray-500 text-[8px] lg:text-[10px] font-black uppercase tracking-widest">
                             {timeframe || 'M1'} PERIOD

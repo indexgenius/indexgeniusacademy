@@ -32,7 +32,16 @@ const MonthlyHistory = () => {
                         total: 0,
                     };
                 }
-                months[key].pips += (sig.pips || 0);
+                let val = parseFloat(sig.pips);
+                if ((sig.pips === undefined || sig.pips === null || isNaN(val)) && sig.entry && sig.exitPrice) {
+                    const entry = parseFloat(sig.entry);
+                    const exit = parseFloat(sig.exitPrice);
+                    if (!isNaN(entry) && !isNaN(exit)) {
+                        const diff = Math.abs(exit - entry);
+                        val = sig.status === 'WON' ? diff : -diff;
+                    }
+                }
+                months[key].pips += (val || 0);
                 if (sig.status === 'WON') months[key].wins++;
                 months[key].total++;
             });
@@ -112,7 +121,17 @@ const MonthlyHistory = () => {
                                 </div>
                                 <div className="col-span-6 md:col-span-3 text-right">
                                     <p className={`text-xl font-black italic ${log.status === 'WON' ? 'text-green-500' : 'text-red-500'}`}>
-                                        {log.status === 'WON' ? '+' : ''}{log.pips || 0}
+                                        {(() => {
+                                            let val = parseFloat(log.pips);
+                                            if ((log.pips === undefined || log.pips === null || isNaN(val)) && log.entry && log.exitPrice) {
+                                                const entry = parseFloat(log.entry);
+                                                const exit = parseFloat(log.exitPrice);
+                                                if (!isNaN(entry) && !isNaN(exit)) {
+                                                    val = Math.abs(exit - entry);
+                                                }
+                                            }
+                                            return (log.status === 'WON' ? '+' : '-') + Math.abs(val || 0).toFixed(1);
+                                        })()}
                                     </p>
                                 </div>
                             </div>
