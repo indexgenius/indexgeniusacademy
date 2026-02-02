@@ -20,15 +20,30 @@ export const usePWA = () => {
     }, []);
 
     const rePromptPush = async () => {
-        if (!window.OneSignal) return alert("Cargando sistema...");
+        if (!window.OneSignal) return alert("Cargando sistema de señales...");
+
         try {
-            if (Notification.permission === 'default') {
-                const perm = await Notification.requestPermission();
-                if (perm === 'granted') setPushEnabled(true);
+            const permission = Notification.permission;
+
+            if (permission === 'denied') {
+                alert("🔴 SEÑAL BLOQUEADA: Has bloqueado las notificaciones en la configuración de Chrome. Para recibir alertas, toca el candado junto a la URL y activa 'Notificaciones'.");
+                return;
             }
+
+            if (permission === 'default') {
+                const perm = await Notification.requestPermission();
+                if (perm === 'granted') {
+                    setPushEnabled(true);
+                    return;
+                }
+            }
+
+            // If prompt fails or they're in a weird state, try slidedown
             await window.OneSignal.Slidedown.promptPush();
         } catch (err) {
-            console.error(err);
+            console.error('Push Link Error:', err);
+            // Fallback for some browsers
+            window.location.reload();
         }
     };
 

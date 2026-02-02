@@ -40,7 +40,20 @@
   <link rel="manifest" href="/manifest.json" />
 
   <!-- OneSignal SDK (Official Setup) -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <style>
+    /* Force OneSignal bell to be on top of everything */
+    .onesignal-bell-container,
+    #onesignal-bell-container,
+    .onesignal-slidedown-container,
+    #onesignal-slidedown-container {
+      z-index: 999999999 !important;
+    }
+  </style>
+  <script>
+    window.OS_BLOCKED_BY_ADBLOCK = false;
+  </script>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+    onerror="window.OS_BLOCKED_BY_ADBLOCK = true;" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function (OneSignal) {
@@ -48,9 +61,57 @@
         appId: "04046e2f-a035-4a88-9842-147cf501c938",
         safari_web_id: "web.onesignal.auto.44737891-769a-4856-a052-0f3c94719003",
         notifyButton: {
-          enable: true
+          enable: true,
+          size: 'medium',
+          theme: 'default',
+          position: 'bottom-right',
+          offset: {
+            bottom: '40px',
+            right: '20px'
+          },
+          colors: {
+            'circle.background': '#ff0000',
+            'circle.foreground': 'white',
+            'badge.background': '#ff0000',
+            'badge.foreground': 'white',
+            'badge.bordercolor': 'white',
+            'pulse.color': 'white',
+          },
+          text: {
+            'tip.state.unsubscribed': 'Suscribirse a notificaciones',
+            'tip.state.subscribed': 'Estás suscrito',
+            'tip.state.blocked': 'Has bloqueado las notificaciones',
+            'message.prenotify': 'Haz clic para activar señales tácticas',
+            'message.action.subscribed': '¡Gracias por suscribirte!',
+            'message.action.resubscribed': 'Estás suscrito de nuevo',
+            'message.action.unsubscribed': 'No recibirás más señales',
+            'dialog.main.title': 'Gestionar Notificaciones',
+            'dialog.main.button.subscribe': 'SUSCRIBIRSE',
+            'dialog.main.button.unsubscribe': 'DAR DE BAJA',
+            'dialog.blocked.title': 'Desbloquear Notificaciones',
+            'dialog.blocked.message': 'Haz clic aquí para ver cómo permitir notificaciones en tu navegador'
+          }
         },
-        allowLocalhostAsSecureOrigin: true
+        allowLocalhostAsSecureOrigin: true,
+        promptOptions: {
+          slidedown: {
+            prompts: [
+              {
+                type: 'push',
+                autoPrompt: true,
+                text: {
+                  actionMessage: "¿Deseas recibir alertas tácticas y señales en tiempo real?",
+                  acceptButton: "ACTIVAR",
+                  cancelButton: "LUEGO"
+                },
+                delay: {
+                  pageViews: 1,
+                  timeDelay: 10
+                }
+              }
+            ]
+          }
+        }
       });
 
       // Auto-tag users when they login
@@ -75,6 +136,15 @@
 
       // Check immediately
       checkAndTagUser();
+
+      // Reliable Adblock detection check
+      setTimeout(() => {
+        if (!window.OneSignal && !window.OneSignalDeferred?.length) {
+          console.warn('⚠️ [OneSignal] SDK potentialy blocked by AdBlock or Network');
+          window.OS_BLOCKED_BY_ADBLOCK = true;
+          window.dispatchEvent(new Event('focus')); // Trigger re-check in usePWA
+        }
+      }, 3000);
 
       // Also check when storage changes (e.g., after login)
       window.addEventListener('storage', checkAndTagUser);
