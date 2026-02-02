@@ -10,6 +10,7 @@ export const useSignals = (appLoadTime = Date.now(), isApproved = false) => {
     const [lastSignal, setLastSignal] = useState(null);
     const [signals, setSignals] = useState([]);
     const [reconnectTrigger, setReconnectTrigger] = useState(0);
+    const notifiedSignalIdsRef = useRef(new Set());
     const appLoadTimeRef = useRef(appLoadTime);
 
     // Detect when app comes back from background
@@ -42,18 +43,26 @@ export const useSignals = (appLoadTime = Date.now(), isApproved = false) => {
 
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
+                    const signalId = change.doc.id;
                     const signalData = change.doc.data();
                     const signalTime = signalData.timestamp?.toMillis() || Date.now();
 
-                    // 1. Skip silent signals (historical/silent)
+                    // 1. Skip if already notified in this session
+                    if (notifiedSignalIdsRef.current.has(signalId)) return;
+
+                    // 2. Skip silent signals (historical/silent)
                     if (signalData.silent) return;
 
-                    // 2. Only trigger for ACTIVE signals (don't notify about closed ones)
+                    // 3. Only trigger for ACTIVE signals (don't notify about closed ones)
                     if (signalData.status !== 'ACTIVE') return;
 
-                    // 3. Only trigger for strictly new signals added AFTER app load
+                    // 4. Only trigger for strictly new signals added AFTER app load
                     if (signalTime > appLoadTimeRef.current) {
-                        setLastSignal({ ...signalData, id: change.doc.id });
+                        notifiedSignalIdsRef.current.add(signalId);
+                        setLastSignal({ ...signalData, id: signalId });
+                    } else {
+                        // Mark old signals as "seen" so they don't trigger if we reconnect
+                        notifiedSignalIdsRef.current.add(signalId);
                     }
                 }
             });
