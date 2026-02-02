@@ -27,16 +27,23 @@ const DashboardPage = ({ user, broadcastSignal }) => {
     }, []);
 
     useEffect(() => {
-        const qS = query(collection(db, "signals"), orderBy("timestamp", "desc"), limit(12));
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+        const qS = query(collection(db, "signals"), orderBy("timestamp", "desc"), limit(40));
         const unsubS = onSnapshot(qS, (snapshot) => {
-            setSignals(snapshot.docs.map(doc => {
-                const d = doc.data();
-                return {
+            const todaySignals = snapshot.docs
+                .map(doc => ({ id: doc.id, ...doc.data() }))
+                .filter(d => {
+                    const signalTime = d.timestamp?.toMillis ? d.timestamp.toMillis() : Date.now();
+                    return signalTime >= todayStart;
+                })
+                .map(d => ({
                     ...d,
-                    id: doc.id,
                     time: d.timestamp ? new Date(d.timestamp.toMillis()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'NOW'
-                };
-            }));
+                }));
+
+            setSignals(todaySignals);
             setLoading(false);
         }, (error) => {
             console.error('❌ Dashboard signals listener error:', error);
@@ -131,6 +138,11 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
                     <Loader2 className="text-red-600 animate-spin" size={48} />
                     <p className="text-[10px] font-black tracking-widest text-gray-500 uppercase">SYNCING TERMINALS...</p>
+                </div>
+            ) : signals.length === 0 ? (
+                <div className="col-span-full py-20 text-center space-y-4 bg-white/5 border border-dashed border-white/10">
+                    <TrendingUp className="mx-auto text-gray-700 opacity-20" size={50} />
+                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">NO HAY SEÑALES REGISTRADAS HOY</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

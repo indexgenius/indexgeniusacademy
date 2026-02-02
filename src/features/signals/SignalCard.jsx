@@ -121,8 +121,8 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                 </div>
 
                 <div className="relative">
-                    <div className={`transform skew-x-[-12deg] px-3 py-1 flex items-center justify-center ${isActive ? 'bg-red-600' : 'bg-gray-800'}`}>
-                        <span className="text-white text-[8px] lg:text-[10px] font-black uppercase tracking-[0.2em] transform skew-x-[12deg]">
+                    <div className={`transform skew-x-[-12deg] px-4 py-1.5 flex items-center justify-center transition-all ${status === 'ACTIVE' ? 'bg-red-600 ring-2 ring-red-600/20' : (status === 'WON' ? 'bg-green-600 shadow-[0_0_15px_rgba(22,163,74,0.4)]' : (status === 'LOST' ? 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 'bg-gray-800'))}`}>
+                        <span className="text-white text-[9px] lg:text-[11px] font-black uppercase tracking-[0.2em] transform skew-x-[12deg]">
                             {status === 'ACTIVE' ? 'READY' : (status === 'WON' ? 'WIN' : (status === 'LOST' ? 'LOSS' : status))}
                         </span>
                     </div>
