@@ -47,8 +47,8 @@ const MonthlyHistory = () => {
             });
 
             const stats = Object.values(months).sort((a, b) => {
-                if (a.year !== b.year) return b.year - a.year;
-                return b.month - a.month;
+                if (a.year !== b.year) return b.year - a.year; // Años más recientes primero
+                return a.month - b.month; // Meses en orden cronológico (Enero -> Diciembre)
             });
 
             setMonthlyStats(stats);
