@@ -50,7 +50,7 @@ const DashboardPage = ({ user, broadcastSignal }) => {
             setTimeout(() => setReconnectTrigger(prev => prev + 1), 2000);
         });
 
-        const qT = query(collection(db, "signals"), orderBy("closedAt", "desc"), limit(200));
+        const qT = query(collection(db, "signals"), orderBy("closedAt", "desc"), limit(1000));
         const unsubT = onSnapshot(qT, (snapshot) => {
             const now = new Date();
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
@@ -58,7 +58,7 @@ const DashboardPage = ({ user, broadcastSignal }) => {
 
             const allClosed = snapshot.docs.map(doc => doc.data()).filter(d => (d.status === 'WON' || d.status === 'LOST') && d.closedAt);
 
-            // Monthly Filter for Win Ratio
+            // Monthly Filter for Win Ratio (Current Calendar Month)
             const monthlyClosed = allClosed.filter(s => s.closedAt?.toMillis() >= monthStart);
 
             if (monthlyClosed.length > 0) {
@@ -118,13 +118,13 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                             <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-red-600 shadow-red-glow"></span>
                             <p className="text-[8px] lg:text-[10px] font-black tracking-widest text-gray-400 uppercase">REAL-TIME SIGNALS</p>
                         </div>
-                        <p className="text-[8px] lg:text-[10px] font-black tracking-widest text-red-600 uppercase">{stats.winRatio}% ACCURACY</p>
+                        <p className="text-[8px] lg:text-[10px] font-black tracking-widest text-red-600 uppercase">{stats.winRatio}% MONTHLY ACCURACY</p>
                     </div>
                 </div>
 
                 <div className="flex gap-3 lg:gap-4 w-full lg:w-auto">
                     <div className="h-16 lg:h-24 bg-black border-2 border-white/5 p-3 lg:p-6 flex-1 lg:flex-none lg:min-w-[160px] flex flex-col justify-between">
-                        <span className="text-[8px] lg:text-[9px] font-black text-gray-500 uppercase">WIN RATIO</span>
+                        <span className="text-[8px] lg:text-[9px] font-black text-gray-500 uppercase">MONTHLY WIN RATE</span>
                         <p className="text-xl lg:text-3xl font-black text-white italic">{stats.winRatio}%</p>
                     </div>
                     <div className="h-16 lg:h-24 bg-red-600 p-3 lg:p-6 flex-1 lg:flex-none lg:min-w-[160px] flex flex-col justify-between shadow-red-glow">

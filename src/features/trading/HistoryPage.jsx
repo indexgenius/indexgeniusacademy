@@ -18,7 +18,7 @@ const HistoryPage = ({ user }) => {
         const q = query(
             collection(db, "signals"),
             orderBy("closedAt", "desc"),
-            limit(200)
+            limit(1000)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -30,12 +30,12 @@ const HistoryPage = ({ user }) => {
                 .map(doc => ({ id: doc.id, ...doc.data() }))
                 .filter(d => (d.status === 'WON' || d.status === 'LOST') && d.closedAt);
 
-            // Filter for CURRENT MONTH ONLY
+            // Filter for CURRENT CALENDAR MONTH
             const currentMonthClosed = allClosed.filter(s => s.closedAt?.toMillis() >= monthStart);
             setBattleLog(currentMonthClosed);
 
             if (currentMonthClosed.length > 0) {
-                // 1. Monthly Win Rate (replaces total in this view)
+                // 1. Monthly Win Rate 
                 const wins = currentMonthClosed.filter(s => s.status === 'WON').length;
                 const winRate = ((wins / currentMonthClosed.length) * 100).toFixed(1);
 
@@ -120,7 +120,7 @@ const HistoryPage = ({ user }) => {
                     </p>
                 </div>
                 <div className="bg-black border border-white/10 p-6 flex flex-col justify-between group hover:border-red-600/30 transition-all">
-                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">WIN RATE</p>
+                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">MONTHLY WIN RATE (30D)</p>
                     <p className="text-3xl font-black italic tracking-tighter text-white">{stats.monthlyWinRate}</p>
                 </div>
                 <div className="bg-black border border-white/10 p-6 flex flex-col justify-between group hover:border-red-600/30 transition-all">

@@ -27,7 +27,9 @@ import {
     ShieldAlert,
     Trash2,
     Skull,
-    BellRing
+    BellRing,
+    ExternalLink,
+    Link2
 } from 'lucide-react';
 import { db, auth } from '../../firebase';
 import { collection, query, onSnapshot, orderBy, where, limit, getDocs, updateDoc, doc, deleteDoc, serverTimestamp, addDoc } from 'firebase/firestore';
@@ -53,6 +55,11 @@ const SupremeDashboard = ({ user: adminUser }) => {
     const [broadcastMsg, setBroadcastMsg] = useState('');
     const [isBroadcasting, setIsBroadcasting] = useState(false);
     const [visibleCount, setVisibleCount] = useState(12); // Initial limit
+
+    // Manual Referral States
+    const [targetUser, setTargetUser] = useState(null); // The user being assigned a referrer
+    const [refSearch, setRefSearch] = useState('');
+    const [isAssigning, setIsAssigning] = useState(false);
 
     useEffect(() => {
         // Reset visible count when filters change to avoid confusion
@@ -157,6 +164,44 @@ const SupremeDashboard = ({ user: adminUser }) => {
             await deleteDoc(doc(db, "users", u.id));
             alert("UNIT NEUTRALIZED.");
         } catch (e) { console.error(e); }
+    };
+
+    const handleManualReferral = async (referrer) => {
+        if (!targetUser || !referrer) return;
+        if (targetUser.id === referrer.id) {
+            alert("ERROR: UNIT CANNOT REFER ITSELF.");
+            return;
+        }
+
+        if (!confirm(`ASIGNAR A ${referrer.email} COMO REFERENTE DE ${targetUser.email}?`)) return;
+
+        setIsAssigning(true);
+        try {
+            await updateDoc(doc(db, "users", targetUser.id), {
+                referredBy: referrer.id,
+                referralAssignedAt: serverTimestamp(),
+                referralAssignedBy: 'SUPREME_OVERRIDE'
+            });
+
+            // Create a notification for the referrer
+            await addDoc(collection(db, "notifications"), {
+                userId: referrer.id,
+                userEmail: referrer.email,
+                type: 'new_referral',
+                title: 'NUEVO REFERIDO ASIGNADO',
+                message: `Se te ha asignado manualmente a ${targetUser.email} como referido.`,
+                timestamp: serverTimestamp()
+            });
+
+            alert("REFERRAL LINK ESTABLISHED.");
+            setTargetUser(null);
+            setRefSearch('');
+        } catch (e) {
+            console.error(e);
+            alert("FAILED TO ESTABLISH LINK.");
+        } finally {
+            setIsAssigning(false);
+        }
     };
 
     const handleBroadcast = async () => {
@@ -445,6 +490,13 @@ const SupremeDashboard = ({ user: adminUser }) => {
                                             <div className="relative z-10">
                                                 <p className="text-sm font-black text-white uppercase truncate tracking-tighter mb-1">{u.email}</p>
                                                 <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest truncate">{u.displayName || 'ANONYMOUS UNIT'}</p>
+
+                                                {u.referredBy && (
+                                                    <div className="mt-2 flex items-center gap-2 bg-red-600/10 border border-red-600/20 px-2 py-1">
+                                                        <ExternalLink size={10} className="text-red-500" />
+                                                        <span className="text-[8px] font-black text-red-500 uppercase">REF BY: {users.find(ref => ref.id === u.referredBy)?.email || u.referredBy.substring(0, 10)}</span>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="pt-6 border-t border-white/5 flex justify-between items-center relative z-10">
@@ -464,20 +516,28 @@ const SupremeDashboard = ({ user: adminUser }) => {
                                             </div>
 
                                             {/* SUPREME OVERRIDE BUTTONS - Visible by default on mobile, hover-only on desktop */}
-                                            <div className="grid grid-cols-2 gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 mt-2 lg:mt-0 p-1 lg:p-0">
-                                                {u.status !== 'approved' && (
+                                            <div className="grid grid-cols-1 gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 mt-2 lg:mt-0 p-1 lg:p-0">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {u.status !== 'approved' && (
+                                                        <button
+                                                            onClick={() => handleSupremeApprove(u)}
+                                                            className="py-3 lg:py-2 bg-green-600 text-white text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-green-600 shadow-lg shadow-green-600/20 transition-all flex items-center justify-center gap-2"
+                                                        >
+                                                            <ShieldCheck size={12} /> AUTHORIZE
+                                                        </button>
+                                                    )}
                                                     <button
-                                                        onClick={() => handleSupremeApprove(u)}
-                                                        className="py-3 lg:py-2 bg-green-600 text-white text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-green-600 shadow-lg shadow-green-600/20 transition-all flex items-center justify-center gap-2"
+                                                        onClick={() => handleSupremeDelete(u)}
+                                                        className="py-3 lg:py-2 bg-black/60 lg:bg-white/10 text-red-600 text-[9px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 border border-red-600/40"
                                                     >
-                                                        <ShieldCheck size={12} /> AUTHORIZE
+                                                        <Skull size={12} /> TERMINATE
                                                     </button>
-                                                )}
+                                                </div>
                                                 <button
-                                                    onClick={() => handleSupremeDelete(u)}
-                                                    className="py-3 lg:py-2 bg-black/60 lg:bg-white/10 text-red-600 text-[9px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 border border-red-600/40"
+                                                    onClick={() => setTargetUser(u)}
+                                                    className="w-full py-3 lg:py-2 bg-white/5 text-white text-[9px] font-black uppercase tracking-widest hover:bg-red-600 transition-all flex items-center justify-center gap-2 border border-white/10"
                                                 >
-                                                    <Skull size={12} /> TERMINATE
+                                                    <Users size={12} /> ASIGNAR REFERIDO
                                                 </button>
                                             </div>
                                         </motion.div>
@@ -591,6 +651,97 @@ const SupremeDashboard = ({ user: adminUser }) => {
                             ))}
                         </div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Manual Referral Assignment Modal */}
+            <AnimatePresence>
+                {targetUser && (
+                    <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="bg-black border-2 border-red-600 w-full max-w-xl overflow-hidden relative"
+                        >
+                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-red-600/10">
+                                <div>
+                                    <h3 className="text-xl font-black italic text-white uppercase tracking-tighter">ASIGNAR REFERENTE</h3>
+                                    <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mt-1">SISTEMA DE ASIGNACIÓN MANUAL</p>
+                                </div>
+                                <button onClick={() => { setTargetUser(null); setRefSearch(''); }} className="text-gray-500 hover:text-white transition-colors">
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="p-8 space-y-6">
+                                <div className="bg-white/5 p-4 border border-white/10">
+                                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-2">TARGET UNIT</p>
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-sm font-black text-white uppercase">{targetUser.email}</p>
+                                        <span className="text-[10px] font-mono text-red-600">#{targetUser.id.substring(0, 8)}</span>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block">BUSCAR REFERENTE (ENROLADOR)</label>
+                                    <div className="relative">
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+                                        <input
+                                            autoFocus
+                                            value={refSearch}
+                                            onChange={e => setRefSearch(e.target.value)}
+                                            placeholder="EMAIL O NOMBRE DEL REFERENTE..."
+                                            className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-black uppercase outline-none focus:border-red-600 transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="max-h-[300px] overflow-y-auto space-y-2 custom-scrollbar pr-2">
+                                        {refSearch.length > 2 ? (
+                                            users.filter(u =>
+                                                (u.email?.toLowerCase().includes(refSearch.toLowerCase()) ||
+                                                    u.displayName?.toLowerCase().includes(refSearch.toLowerCase())) &&
+                                                u.id !== targetUser.id
+                                            ).map(u => (
+                                                <button
+                                                    key={u.id}
+                                                    onClick={() => handleManualReferral(u)}
+                                                    disabled={isAssigning}
+                                                    className="w-full p-4 bg-white/5 border border-white/5 hover:border-red-600/50 hover:bg-white/10 transition-all flex justify-between items-center group text-left"
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[11px] font-black text-white uppercase group-hover:text-red-600">{u.email}</span>
+                                                        <span className="text-[8px] font-bold text-gray-600 uppercase italic">{u.displayName || 'S/N'}</span>
+                                                    </div>
+                                                    <ArrowUpRight size={16} className="text-gray-700 group-hover:text-red-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <div className="py-10 text-center">
+                                                <p className="text-[9px] font-black text-gray-700 uppercase tracking-widest">DIGITE AL MENOS 3 CARACTERES</p>
+                                            </div>
+                                        )}
+                                        {refSearch.length > 2 && users.filter(u =>
+                                            (u.email?.toLowerCase().includes(refSearch.toLowerCase()) ||
+                                                u.displayName?.toLowerCase().includes(refSearch.toLowerCase())) &&
+                                            u.id !== targetUser.id
+                                        ).length === 0 && (
+                                                <div className="py-10 text-center">
+                                                    <p className="text-[9px] font-black text-gray-700 uppercase tracking-widest uppercase">SIN RESULTADOS EN LA BASE DE DATOS</p>
+                                                </div>
+                                            )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {isAssigning && (
+                                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-50">
+                                    <RefreshCw className="text-red-600 animate-spin" size={40} />
+                                    <p className="text-[10px] font-black text-white uppercase tracking-[0.4em]">SYNCING PROTOCOLS...</p>
+                                </div>
+                            )}
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
         </div>
