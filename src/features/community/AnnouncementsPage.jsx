@@ -3,7 +3,7 @@ import { Megaphone, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { formatDrivePreview } from '../../utils/mediaUtils';
+import { formatDrivePreview, getEmbedUrl } from '../../utils/mediaUtils';
 
 
 const AnnouncementsPage = ({ user }) => {

@@ -3,7 +3,7 @@ import { X, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatDrivePreview } from '../../utils/mediaUtils';
+import { formatDrivePreview, getEmbedUrl } from '../../utils/mediaUtils';
 
 
 const PromoModal = () => {
