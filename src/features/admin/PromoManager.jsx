@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Image, Save, Trash2, Power, ChevronUp, ChevronDown, Plus, RefreshCw } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { formatDrivePreview } from '../../utils/mediaUtils';
+
 
 const PromoManager = () => {
     const [promos, setPromos] = useState([]);
@@ -188,14 +190,13 @@ const PromoManager = () => {
                                                 {editForm.videoUrl ? (
                                                     editForm.videoUrl.includes('drive.google.com') ? (
                                                         <iframe
-                                                            src={editForm.videoUrl.includes('/file/d/')
-                                                                ? `https://drive.google.com/file/d/${editForm.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1]}/preview`
-                                                                : editForm.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                                            src={formatDrivePreview(editForm.videoUrl)}
                                                             className="w-full h-full border-0"
                                                             allowFullScreen
                                                         />
                                                     ) : <video src={editForm.videoUrl} className="w-full h-full" controls />
                                                 ) : <img src={editForm.imageUrl} className="w-full h-auto max-h-full object-contain" alt="Preview" />}
+
                                             </div>
                                         </div>
                                     )}

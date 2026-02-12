@@ -3,6 +3,8 @@ import { X, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatDrivePreview } from '../../utils/mediaUtils';
+
 
 const PromoModal = () => {
     const [promos, setPromos] = useState([]);
@@ -120,9 +122,7 @@ const PromoModal = () => {
                                 <div className="w-full h-full">
                                     {currentPromo.videoUrl.includes('drive.google.com') ? (
                                         <iframe
-                                            src={currentPromo.videoUrl.includes('/file/d/')
-                                                ? `https://drive.google.com/file/d/${currentPromo.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1]}/preview`
-                                                : currentPromo.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                            src={formatDrivePreview(currentPromo.videoUrl)}
                                             className="w-full h-full border-0"
                                             allow="autoplay"
                                             allowFullScreen

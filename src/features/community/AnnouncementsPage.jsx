@@ -3,6 +3,8 @@ import { Megaphone, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { formatDrivePreview } from '../../utils/mediaUtils';
+
 
 const AnnouncementsPage = ({ user }) => {
     const [announcements, setAnnouncements] = useState([]);
@@ -63,9 +65,7 @@ const AnnouncementsPage = ({ user }) => {
                                 <div className="w-full max-w-2xl mx-auto border border-white/10 shadow-2xl bg-black aspect-video ">
                                     {sel.videoUrl.includes('drive.google.com') ? (
                                         <iframe
-                                            src={sel.videoUrl.includes('/file/d/')
-                                                ? `https://drive.google.com/file/d/${sel.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1]}/preview`
-                                                : sel.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                            src={formatDrivePreview(sel.videoUrl)}
                                             className="w-full h-full"
                                             allow="autoplay"
                                             allowFullScreen

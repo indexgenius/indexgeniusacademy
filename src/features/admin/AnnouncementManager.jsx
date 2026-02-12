@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Megaphone, Send, RefreshCw, Clock, Trash2 } from 'lucide-react';
+import { Megaphone, Send, RefreshCw, Clock, Trash2, Plus } from 'lucide-react';
 import { db, auth } from '../../firebase';
 import { collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { formatDrivePreview } from '../../utils/mediaUtils';
+
 
 const AnnouncementManager = ({ user }) => {
     const [annForm, setAnnForm] = useState({ title: '', message: '', imageUrl: '', videoUrl: '' });
@@ -110,14 +112,13 @@ const AnnouncementManager = ({ user }) => {
                                 {annForm.videoUrl ? (
                                     annForm.videoUrl.includes('drive.google.com') ? (
                                         <iframe
-                                            src={annForm.videoUrl.includes('/file/d/')
-                                                ? `https://drive.google.com/file/d/${annForm.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1]}/preview`
-                                                : annForm.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                            src={formatDrivePreview(annForm.videoUrl)}
                                             className="w-full h-full border-0"
                                             allowFullScreen
                                         />
                                     ) : <video src={annForm.videoUrl} className="w-full h-full" controls />
                                 ) : <img src={annForm.imageUrl} className="w-full h-auto max-h-full object-contain" alt="Preview" />}
+
                             </div>
                         </div>
                     )}
