@@ -33,7 +33,10 @@ export const getYouTubeID = (url) => {
 
 export const formatYouTubeEmbed = (url) => {
     const id = getYouTubeID(url);
-    return id ? `https://www.youtube.com/embed/${id}` : url;
+    // rel=0: only show related videos from the same channel
+    // modestbranding=1: hide YouTube logo
+    // iv_load_policy=3: hide annotations
+    return id ? `https://www.youtube.com/embed/${id}?modestbranding=1&rel=0&iv_load_policy=3&autoplay=1` : url;
 };
 
 export const getEmbedUrl = (url) => {
