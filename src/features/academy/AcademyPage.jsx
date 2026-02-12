@@ -131,15 +131,19 @@ const AcademyPage = ({ user }) => {
                                 <Plus size={32} className="rotate-45" />
                             </button>
 
-                            {/* Main Player Frame */}
+                            {/* Main Player Frame with Click Shields */}
                             <div className="relative aspect-video bg-black ring-1 ring-white/10 shadow-[0_0_100px_rgba(220,38,38,0.15)] overflow-hidden">
                                 <iframe
                                     src={getEmbedUrl(activeVideo.videoUrl)}
                                     title={activeVideo.title}
-                                    className="w-full h-full border-0"
+                                    className="absolute inset-0 w-[101%] h-[101%] -left-[0.5%] -top-[0.5%] border-0"
                                     allow="autoplay; encrypted-media"
                                     allowFullScreen
                                 />
+
+                                {/* SECURITY SHIELDS: Intercept clicks on YouTube branding */}
+                                <div className="absolute top-0 right-0 w-32 h-20 z-10 cursor-default" onClick={e => e.stopPropagation()} /> {/* Blocks top-right share/watch later */}
+                                <div className="absolute bottom-12 right-0 w-40 h-16 z-10 cursor-default" onClick={e => e.stopPropagation()} /> {/* Blocks "Watch on YouTube" button */}
 
                                 {/* Navigation Arrows */}
                                 {prevVideo && (
