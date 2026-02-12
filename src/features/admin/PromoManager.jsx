@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Image, Save, Trash2, Power, ChevronUp, ChevronDown, Plus, RefreshCw } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import { formatDrivePreview } from '../../utils/mediaUtils';
+import { formatDrivePreview, getYouTubeThumbnail, getEmbedUrl } from '../../utils/mediaUtils';
 
 
 const PromoManager = () => {
@@ -171,7 +171,9 @@ const PromoManager = () => {
                                             <p className="text-[8px] font-black text-gray-500 uppercase">Live Intel Preview:</p>
                                             <div className="aspect-video bg-black flex items-center justify-center overflow-hidden border border-white/5">
                                                 {editForm.videoUrl ? (
-                                                    editForm.videoUrl.includes('drive.google.com') || editForm.videoUrl.includes('youtube') ? (
+                                                    editForm.videoUrl.includes('youtube') ? (
+                                                        <img src={getYouTubeThumbnail(editForm.videoUrl)} className="w-full h-auto max-h-full object-contain" alt="YouTube Preview" />
+                                                    ) : editForm.videoUrl.includes('drive.google.com') ? (
                                                         <iframe
                                                             src={getEmbedUrl(editForm.videoUrl)}
                                                             className="w-full h-full border-0"

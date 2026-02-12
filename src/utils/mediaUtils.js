@@ -42,3 +42,8 @@ export const getEmbedUrl = (url) => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) return formatYouTubeEmbed(url);
     return url;
 };
+
+export const getYouTubeThumbnail = (url) => {
+    const id = getYouTubeID(url);
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+};

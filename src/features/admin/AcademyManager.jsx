@@ -3,6 +3,7 @@ import { Upload, Youtube, RefreshCw, Rocket, Play, Trash2, Globe } from 'lucide-
 import { db, auth } from '../../firebase';
 import { collection, query, onSnapshot, updateDoc, doc, addDoc, serverTimestamp, deleteDoc, where, getDocs } from 'firebase/firestore';
 import { videoService } from '../../utils/videoService';
+import { getYouTubeThumbnail, getEmbedUrl } from '../../utils/mediaUtils';
 import TacticalSelect from '../../components/TacticalSelect';
 
 const AcademyManager = ({ user }) => {
@@ -131,7 +132,21 @@ const AcademyManager = ({ user }) => {
                             </label>
                         </div>
                     ) : (
-                        <input placeholder="YOUTUBE URL" value={academyForm.url || ''} onChange={e => setAcademyForm({ ...academyForm, url: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-black text-white outline-none" />
+                        <div className="space-y-4">
+                            <input placeholder="YOUTUBE URL" value={academyForm.url || ''} onChange={e => setAcademyForm({ ...academyForm, url: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-black text-white outline-none" />
+                            {academyForm.url && (
+                                <div className="p-4 bg-white/5 border border-white/10 space-y-2">
+                                    <p className="text-[8px] font-black text-gray-500 uppercase">Live Intel Preview:</p>
+                                    <div className="aspect-video bg-black flex items-center justify-center overflow-hidden border border-white/5">
+                                        {academyForm.url.includes('youtube') || academyForm.url.includes('youtu.be') ? (
+                                            <img src={getYouTubeThumbnail(academyForm.url)} className="w-full h-auto max-h-full object-contain" alt="YouTube Preview" />
+                                        ) : (
+                                            <iframe src={getEmbedUrl(academyForm.url)} className="w-full h-full border-0" allowFullScreen />
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     )}
                     <button onClick={handleDeployLesson} disabled={uploading} className="w-full py-4 bg-red-600 text-white text-xs font-black tracking-widest uppercase hover:bg-white hover:text-black transition-all">
                         {uploading ? 'SYNCING...' : (academyForm.id ? 'UPDATE INTELLIGENCE' : 'AUTHORIZE DEPLOYMENT')}
@@ -145,7 +160,7 @@ const AcademyManager = ({ user }) => {
                     {videosList.map(video => (
                         <div key={video.id} className="p-4 bg-white/5 border border-white/10 flex justify-between items-center group">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-black flex items-center justify-center border border-white/10"><Play size={16} className="text-red-600" /></div>
+                                <div className="w-10 h-10 bg-black flex items-center justify-center border border-white/10 text-red-600 font-bold text-[10px]">INTEL</div>
                                 <div>
                                     <h4 className="text-xs font-black text-white uppercase">{video.title}</h4>
                                     <p className="text-[9px] font-bold text-gray-500 uppercase">{video.level} • {video.duration} MIN</p>

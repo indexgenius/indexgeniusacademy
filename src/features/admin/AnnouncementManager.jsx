@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Megaphone, Send, RefreshCw, Clock, Trash2, Plus } from 'lucide-react';
 import { db, auth } from '../../firebase';
 import { collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { formatDrivePreview } from '../../utils/mediaUtils';
+import { formatDrivePreview, getYouTubeThumbnail, getEmbedUrl } from '../../utils/mediaUtils';
 
 
 const AnnouncementManager = ({ user }) => {
@@ -92,7 +92,9 @@ const AnnouncementManager = ({ user }) => {
                             <p className="text-[8px] font-black text-gray-500 uppercase">Live Intel Preview:</p>
                             <div className="aspect-video bg-black flex items-center justify-center overflow-hidden border border-white/5">
                                 {annForm.videoUrl ? (
-                                    annForm.videoUrl.includes('drive.google.com') || annForm.videoUrl.includes('youtube.com') || annForm.videoUrl.includes('youtu.be') ? (
+                                    annForm.videoUrl.includes('youtube.com') || annForm.videoUrl.includes('youtu.be') ? (
+                                        <img src={getYouTubeThumbnail(annForm.videoUrl)} className="w-full h-auto max-h-full object-contain" alt="YouTube Preview" />
+                                    ) : annForm.videoUrl.includes('drive.google.com') ? (
                                         <iframe
                                             src={getEmbedUrl(annForm.videoUrl)}
                                             className="w-full h-full border-0"

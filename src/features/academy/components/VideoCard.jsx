@@ -19,11 +19,6 @@ const VideoCard = ({ video, isCompleted, onPlay, onShare, onToggleProgress, isSu
 
             <div className="w-full aspect-video bg-white/5 mb-4 flex items-center justify-center relative group-hover:bg-red-600/10 transition-colors overflow-hidden">
                 {thumb && <img src={thumb} alt={video.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />}
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full border-2 border-white/20 group-hover:border-red-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-red-600 transition-all bg-black/50 backdrop-blur-sm">
-                        <Play size={20} className="text-white fill-current ml-1" />
-                    </div>
-                </div>
             </div>
 
             <div className="space-y-3">
