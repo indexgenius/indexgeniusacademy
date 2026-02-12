@@ -5,6 +5,8 @@ import { collection, onSnapshot, doc, setDoc, updateDoc, arrayUnion, arrayRemove
 import { AnimatePresence, motion } from 'framer-motion';
 import ModuleCard from './components/ModuleCard';
 import VideoCard from './components/VideoCard';
+import { getEmbedUrl } from '../../utils/mediaUtils';
+
 
 const AcademyPage = ({ user }) => {
     const [videos, setVideos] = useState([]);
@@ -103,7 +105,7 @@ const AcademyPage = ({ user }) => {
                     <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[200] flex items-center justify-center p-4">
                         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-6xl aspect-video bg-black border-2 border-red-600/30 relative overflow-hidden">
                             <button onClick={() => setActiveVideo(null)} className="absolute top-4 right-4 z-50 text-white/40 hover:text-white"><Plus size={32} className="rotate-45" /></button>
-                            <iframe src={activeVideo.videoUrl.replace('watch?v=', 'embed/')} title={activeVideo.title} className="w-full h-full" allowFullScreen />
+                            <iframe src={getEmbedUrl(activeVideo.videoUrl)} title={activeVideo.title} className="w-full h-full" allowFullScreen />
                         </motion.div>
                     </div>
                 )}

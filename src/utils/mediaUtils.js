@@ -23,3 +23,22 @@ export const formatDrivePreview = (url) => {
         return url;
     }
 };
+
+export const getYouTubeID = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+};
+
+export const formatYouTubeEmbed = (url) => {
+    const id = getYouTubeID(url);
+    return id ? `https://www.youtube.com/embed/${id}` : url;
+};
+
+export const getEmbedUrl = (url) => {
+    if (!url) return '';
+    if (url.includes('drive.google.com')) return formatDrivePreview(url);
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return formatYouTubeEmbed(url);
+    return url;
+};

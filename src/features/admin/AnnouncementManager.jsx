@@ -92,10 +92,11 @@ const AnnouncementManager = ({ user }) => {
                             <p className="text-[8px] font-black text-gray-500 uppercase">Live Intel Preview:</p>
                             <div className="aspect-video bg-black flex items-center justify-center overflow-hidden border border-white/5">
                                 {annForm.videoUrl ? (
-                                    annForm.videoUrl.includes('drive.google.com') ? (
+                                    annForm.videoUrl.includes('drive.google.com') || annForm.videoUrl.includes('youtube.com') || annForm.videoUrl.includes('youtu.be') ? (
                                         <iframe
-                                            src={formatDrivePreview(annForm.videoUrl)}
+                                            src={getEmbedUrl(annForm.videoUrl)}
                                             className="w-full h-full border-0"
+                                            allow="autoplay"
                                             allowFullScreen
                                         />
                                     ) : <video src={annForm.videoUrl} className="w-full h-full" controls />

@@ -1,18 +1,10 @@
 import React from 'react';
 import { Play, Clock, BookOpen, Share2, Bell } from 'lucide-react';
+import { getYouTubeID } from '../../../utils/mediaUtils';
 
 const VideoCard = ({ video, isCompleted, onPlay, onShare, onToggleProgress, isSubscribed, onToggleSubscription }) => {
-    const getThumbnail = (url) => {
-        if (!url) return null;
-        let videoId = '';
-        if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-        else if (url.includes('youtube.com/watch?v=')) videoId = url.split('v=')[1].split('&')[0];
-        else if (url.includes('youtube.com/shorts/')) videoId = url.split('shorts/')[1].split('?')[0];
-        else if (url.includes('youtube.com/embed/')) videoId = url.split('embed/')[1].split('?')[0];
-        return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
-    };
-
-    const thumb = getThumbnail(video.videoUrl);
+    const videoId = getYouTubeID(video.videoUrl);
+    const thumb = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
 
     return (
         <div onClick={onPlay} className="group bg-black border-2 border-white/5 hover:border-red-600/50 transition-all p-4 cursor-pointer relative overflow-hidden">
