@@ -120,9 +120,9 @@ const PromoModal = () => {
                         <div className="relative aspect-[4/5] w-full overflow-hidden bg-black flex items-center justify-center">
                             {currentPromo.videoUrl ? (
                                 <div className="w-full h-full">
-                                    {currentPromo.videoUrl.includes('drive.google.com') ? (
+                                    {currentPromo.videoUrl.includes('drive.google.com') || currentPromo.videoUrl.includes('youtube') || currentPromo.videoUrl.includes('youtu.be') ? (
                                         <iframe
-                                            src={formatDrivePreview(currentPromo.videoUrl)}
+                                            src={getEmbedUrl(currentPromo.videoUrl)}
                                             className="w-full h-full border-0"
                                             allow="autoplay"
                                             allowFullScreen

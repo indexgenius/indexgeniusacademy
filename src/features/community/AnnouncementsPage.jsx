@@ -63,13 +63,13 @@ const AnnouncementsPage = ({ user }) => {
                         <div className="bg-white/5 border border-white/5 p-4 lg:p-8 min-h-[400px] space-y-6">
                             {sel?.videoUrl && (
                                 <div className="w-full max-w-2xl mx-auto border border-white/10 shadow-2xl bg-black aspect-video ">
-                                    {sel.videoUrl.includes('drive.google.com') ? (
+                                    {sel.videoUrl.includes('drive.google.com') || sel.videoUrl.includes('youtube') || sel.videoUrl.includes('youtu.be') ? (
                                         <iframe
-                                            src={formatDrivePreview(sel.videoUrl)}
-                                            className="w-full h-full"
+                                            src={getEmbedUrl(sel.videoUrl)}
+                                            className="w-full h-full border-0"
                                             allow="autoplay"
                                             allowFullScreen
-                                        ></iframe>
+                                        />
                                     ) : (
                                         <video
                                             src={sel.videoUrl}
