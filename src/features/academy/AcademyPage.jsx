@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, ChevronLeft, ChevronRight, Clock, BookOpen } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, doc, setDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp } from 'firebase/firestore';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -58,6 +58,11 @@ const AcademyPage = ({ user }) => {
         if (!acc[m]) acc[m] = []; acc[m].push(v); return acc;
     }, {});
 
+    const currentModuleVideos = activeModule ? (modulesMap[activeModule] || []) : [];
+    const activeVideoIndex = currentModuleVideos.findIndex(v => v.id === activeVideo?.id);
+    const prevVideo = activeVideoIndex > 0 ? currentModuleVideos[activeVideoIndex - 1] : null;
+    const nextVideo = activeVideoIndex < currentModuleVideos.length - 1 ? currentModuleVideos[activeVideoIndex + 1] : null;
+
     const levelProgress = currentVideos.length === 0 ? 0 : Math.round((currentVideos.filter(v => progress[v.id]).length / currentVideos.length) * 100);
 
     return (
@@ -102,12 +107,91 @@ const AcademyPage = ({ user }) => {
 
             <AnimatePresence>
                 {activeVideo && (
-                    <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[200] flex items-center justify-center p-4">
-                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-6xl aspect-video bg-black border-2 border-red-600/30 relative overflow-hidden">
-                            <button onClick={() => setActiveVideo(null)} className="absolute top-4 right-4 z-50 text-white/40 hover:text-white"><Plus size={32} className="rotate-45" /></button>
-                            <iframe src={getEmbedUrl(activeVideo.videoUrl)} title={activeVideo.title} className="w-full h-full" allowFullScreen />
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[500] flex items-center justify-center p-4 lg:p-12"
+                    >
+                        {/* Shadow Glow Background */}
+                        <div className="absolute inset-0 bg-red-600/5 mix-blend-overlay pointer-events-none" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-red-600/10 blur-[150px] rounded-full pointer-events-none" />
+
+                        <motion.div
+                            initial={{ scale: 0.95, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.95, y: 20 }}
+                            className="w-full max-w-6xl relative group"
+                        >
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setActiveVideo(null)}
+                                className="absolute -top-12 right-0 p-2 text-white/50 hover:text-white transition-all hover:rotate-90"
+                            >
+                                <Plus size={32} className="rotate-45" />
+                            </button>
+
+                            {/* Main Player Frame */}
+                            <div className="relative aspect-video bg-black ring-1 ring-white/10 shadow-[0_0_100px_rgba(220,38,38,0.15)] overflow-hidden">
+                                <iframe
+                                    src={getEmbedUrl(activeVideo.videoUrl)}
+                                    title={activeVideo.title}
+                                    className="w-full h-full border-0"
+                                    allow="autoplay; encrypted-media"
+                                    allowFullScreen
+                                />
+
+                                {/* Navigation Arrows */}
+                                {prevVideo && (
+                                    <button
+                                        onClick={() => setActiveVideo(prevVideo)}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-black/60 backdrop-blur-md border border-white/10 text-white/40 hover:text-white hover:bg-red-600 transition-all opacity-0 group-hover:opacity-100 hidden lg:flex"
+                                    >
+                                        <ChevronLeft size={24} />
+                                    </button>
+                                )}
+                                {nextVideo && (
+                                    <button
+                                        onClick={() => setActiveVideo(nextVideo)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-black/60 backdrop-blur-md border border-white/10 text-white/40 hover:text-white hover:bg-red-600 transition-all opacity-0 group-hover:opacity-100 hidden lg:flex"
+                                    >
+                                        <ChevronRight size={24} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Video Info Strip */}
+                            <div className="mt-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 bg-white/[0.03] border border-white/5 backdrop-blur-sm">
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-3">
+                                        <span className="bg-red-600 text-[10px] font-black px-2 py-0.5 text-white tracking-widest">{activeVideo.level}</span>
+                                        <span className="text-[10px] font-bold text-gray-500 tracking-[0.3em] uppercase">{activeModule}</span>
+                                    </div>
+                                    <h2 className="text-xl lg:text-3xl font-black italic text-white uppercase tracking-tighter">{activeVideo.title}</h2>
+                                </div>
+
+                                <div className="flex items-center gap-6 text-gray-400">
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest mb-1">DURATION</span>
+                                        <div className="flex items-center gap-2">
+                                            <Clock size={14} className="text-red-600" />
+                                            <span className="text-sm font-black text-white">{activeVideo.duration} MIN</span>
+                                        </div>
+                                    </div>
+                                    <div className="w-px h-10 bg-white/10" />
+                                    {nextVideo && (
+                                        <div onClick={() => setActiveVideo(nextVideo)} className="cursor-pointer group/next">
+                                            <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest mb-1 block text-right">UP NEXT</span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-xs font-black text-white/60 group-hover/next:text-white transition-colors uppercase">{nextVideo.title}</span>
+                                                <ChevronRight size={16} className="text-red-600 group-hover/next:translate-x-1 transition-transform" />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div>
