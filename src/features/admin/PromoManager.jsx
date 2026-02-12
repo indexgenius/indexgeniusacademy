@@ -21,33 +21,66 @@ const PromoManager = () => {
         });
     }, []);
 
-    const toggleStatus = async (slot) => {
+    const [editingSlot, setEditingSlot] = useState(null);
+    const [editForm, setEditForm] = useState({});
+
+    const startEditing = (slot, existing) => {
+        setEditingSlot(slot.id);
+        setEditForm(existing || {
+            slotId: slot.id,
+            title: slot.title,
+            imageUrl: slot.img,
+            videoUrl: '',
+            description: slot.defaultDesc,
+            link: slot.link || '#'
+        });
+    };
+
+    const saveEdit = async () => {
         setLoading(true);
         try {
-            const existing = promos.find(p => p.slotId === slot.id);
+            const existing = promos.find(p => p.slotId === editingSlot);
             if (existing) {
                 await updateDoc(doc(db, "promos", existing.id), {
-                    active: !existing.active,
-                    title: slot.title,
-                    imageUrl: slot.img,
-                    description: slot.defaultDesc,
-                    link: slot.link || '#'
+                    ...editForm,
+                    updatedAt: new Date()
                 });
             } else {
                 await addDoc(collection(db, "promos"), {
-                    slotId: slot.id,
-                    title: slot.title,
-                    imageUrl: slot.img,
-                    description: slot.defaultDesc,
-                    link: slot.link || '#',
+                    ...editForm,
                     active: true,
-                    order: SLOTS.findIndex(s => s.id === slot.id),
+                    order: SLOTS.findIndex(s => s.id === editingSlot),
                     createdAt: new Date()
                 });
             }
-        } catch (err) {
-            console.error(err);
+            setEditingSlot(null);
+            alert("PROMO UPDATED");
+        } catch (err) { console.error(err); }
+        setLoading(false);
+    };
+
+    const toggleStatus = async (slot) => {
+        const existing = promos.find(p => p.slotId === slot.id);
+        if (!existing) {
+            // If it doesn't exist, create it with defaults first
+            await addDoc(collection(db, "promos"), {
+                slotId: slot.id,
+                title: slot.title,
+                imageUrl: slot.img,
+                description: slot.defaultDesc,
+                link: slot.link || '#',
+                active: true,
+                order: SLOTS.findIndex(s => s.id === slot.id),
+                createdAt: new Date()
+            });
+            return;
         }
+        setLoading(true);
+        try {
+            await updateDoc(doc(db, "promos", existing.id), {
+                active: !existing.active
+            });
+        } catch (err) { console.error(err); }
         setLoading(false);
     };
 
@@ -63,13 +96,10 @@ const PromoManager = () => {
         setLoading(false);
     };
 
-    const isSlotActive = (slotId) => {
-        const p = promos.find(p => p.slotId === slotId);
-        return p ? p.active : false;
-    };
+    const getPromoData = (slotId) => promos.find(p => p.slotId === slotId);
 
     return (
-        <div className="max-w-4xl mx-auto pt-8 space-y-8">
+        <div className="max-w-6xl mx-auto pt-8 space-y-8">
             <div className="flex flex-col gap-2 border-b border-white/5 pb-6">
                 <h3 className="text-xl font-black italic text-white uppercase tracking-tighter">TACTICAL ADVERTISING SLOTS</h3>
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Control the visibility of marketing intelligence on entry</p>
@@ -77,28 +107,60 @@ const PromoManager = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {SLOTS.map((slot) => {
-                    const active = isSlotActive(slot.id);
+                    const promo = getPromoData(slot.id);
+                    const active = promo?.active || false;
+                    const isEditing = editingSlot === slot.id;
+
                     return (
                         <div key={slot.id} className={`bg-black border transition-all p-6 space-y-4 relative group ${active ? 'border-red-600 shadow-red-glow/20' : 'border-white/5 opacity-40'}`}>
                             <div className="aspect-[4/5] bg-white/5 border border-white/10 overflow-hidden relative">
-                                <img src={slot.img} alt={slot.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                {promo?.videoUrl ? (
+                                    <div className="w-full h-full bg-black flex items-center justify-center">
+                                        <Power className="text-red-600 animate-pulse" size={48} />
+                                        <span className="absolute bottom-2 right-2 text-[8px] font-black bg-red-600 px-2 py-1 text-white">VIDEO ACTIVE</span>
+                                    </div>
+                                ) : (
+                                    <img src={promo?.imageUrl || slot.img} alt={slot.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                )}
                                 {!active && <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
                                     <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] -rotate-45 border border-white/20 px-4 py-2">OFLINE</span>
                                 </div>}
                             </div>
 
                             <div className="space-y-1 text-center">
-                                <h4 className="text-xs font-black text-white uppercase">{slot.title}</h4>
+                                <h4 className="text-xs font-black text-white uppercase">{promo?.title || slot.title}</h4>
                                 <p className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">{slot.id.toUpperCase()} MODULE</p>
                             </div>
 
-                            <button
-                                onClick={() => toggleStatus(slot)}
-                                className={`w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${active ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-500 hover:text-white hover:bg-white/10'}`}
-                            >
-                                <Power size={14} />
-                                {active ? 'DEACTIVATE' : 'ACTIVATE'}
-                            </button>
+                            {isEditing ? (
+                                <div className="space-y-2 pt-2 bg-white/5 p-4 border border-white/10">
+                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="TITLE" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
+                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="IMAGE URL" value={editForm.imageUrl} onChange={e => setEditForm({ ...editForm, imageUrl: e.target.value })} />
+                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white font-bold text-red-500" placeholder="VIDEO URL (DRIVE)" value={editForm.videoUrl} onChange={e => setEditForm({ ...editForm, videoUrl: e.target.value })} />
+                                    <textarea className="w-full bg-black border border-white/10 p-2 text-[9px] text-white h-20" placeholder="DESC" value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
+                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="LINK" value={editForm.link} onChange={e => setEditForm({ ...editForm, link: e.target.value })} />
+                                    <div className="flex gap-2">
+                                        <button onClick={saveEdit} className="flex-1 py-2 bg-green-600 text-white text-[9px] font-black uppercase">SAVE</button>
+                                        <button onClick={() => setEditingSlot(null)} className="flex-1 py-2 bg-white/10 text-white text-[9px] font-black uppercase">CANCEL</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => toggleStatus(slot)}
+                                        className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${active ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-500 hover:text-white hover:bg-white/10'}`}
+                                    >
+                                        <Power size={14} />
+                                        {active ? 'OFF' : 'ON'}
+                                    </button>
+                                    <button
+                                        onClick={() => startEditing(slot, promo)}
+                                        className="px-4 bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                                    >
+                                        <Save size={14} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     );
                 })}

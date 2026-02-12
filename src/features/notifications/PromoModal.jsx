@@ -114,13 +114,35 @@ const PromoModal = () => {
                         transition={{ duration: 0.3 }}
                         className="w-full"
                     >
-                        {/* Promo Image */}
-                        <div className="relative aspect-[4/5] w-full overflow-hidden">
-                            <img
-                                src={currentPromo.imageUrl}
-                                alt={currentPromo.title}
-                                className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
-                            />
+                        {/* Promo Media */}
+                        <div className="relative aspect-[4/5] w-full overflow-hidden bg-black flex items-center justify-center">
+                            {currentPromo.videoUrl ? (
+                                <div className="w-full h-full">
+                                    {currentPromo.videoUrl.includes('drive.google.com') ? (
+                                        <iframe
+                                            src={currentPromo.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                            className="w-full h-full border-0"
+                                            allow="autoplay; encrypted-media"
+                                            allowFullScreen
+                                        ></iframe>
+                                    ) : (
+                                        <video
+                                            src={currentPromo.videoUrl}
+                                            className="w-full h-full object-cover"
+                                            autoPlay
+                                            muted
+                                            loop
+                                            playsInline
+                                        />
+                                    )}
+                                </div>
+                            ) : (
+                                <img
+                                    src={currentPromo.imageUrl}
+                                    alt={currentPromo.title}
+                                    className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
+                                />
+                            )}
 
                             {/* Glowing effect overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-red-600/30 to-transparent pointer-events-none opacity-60"></div>

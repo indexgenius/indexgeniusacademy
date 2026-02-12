@@ -4,7 +4,7 @@ import { db, auth } from '../../firebase';
 import { collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 const AnnouncementManager = ({ user }) => {
-    const [annForm, setAnnForm] = useState({ title: '', message: '', imageUrl: '' });
+    const [annForm, setAnnForm] = useState({ title: '', message: '', imageUrl: '', videoUrl: '' });
     const [annLoading, setAnnLoading] = useState(false);
     const [annList, setAnnList] = useState([]);
 
@@ -23,6 +23,7 @@ const AnnouncementManager = ({ user }) => {
                 title: annForm.title.toUpperCase(),
                 message: annForm.message,
                 imageUrl: annForm.imageUrl || '',
+                videoUrl: annForm.videoUrl || '',
                 timestamp: serverTimestamp(),
                 sender: user.email
             });
@@ -38,7 +39,7 @@ const AnnouncementManager = ({ user }) => {
                 })
             });
 
-            setAnnForm({ title: '', message: '', imageUrl: '' });
+            setAnnForm({ title: '', message: '', imageUrl: '', videoUrl: '' });
             alert("ANNOUNCEMENT DEPLOYED");
         } catch (e) { alert("FAILED: " + e.message); }
         setAnnLoading(false);
@@ -56,6 +57,7 @@ const AnnouncementManager = ({ user }) => {
                 <form onSubmit={createAnnouncement} className="space-y-4 bg-black border border-white/5 p-6 shadow-red-glow/5">
                     <input placeholder="ANNOUNCEMENT TITLE" value={annForm.title} onChange={e => setAnnForm({ ...annForm, title: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
                     <input placeholder="IMAGE URL (OPTIONAL)" value={annForm.imageUrl} onChange={e => setAnnForm({ ...annForm, imageUrl: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
+                    <input placeholder="VIDEO URL (DRIVE/DIRECT) (OPTIONAL)" value={annForm.videoUrl} onChange={e => setAnnForm({ ...annForm, videoUrl: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
                     <textarea placeholder="MISSION DETAILS..." value={annForm.message} onChange={e => setAnnForm({ ...annForm, message: e.target.value })} className="w-full h-48 bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none resize-none" />
                     <button disabled={annLoading} className="w-full py-4 bg-red-600 text-white text-xs font-black tracking-widest uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3">
                         {annLoading ? <RefreshCw className="animate-spin" /> : <Send size={16} />}
@@ -70,7 +72,11 @@ const AnnouncementManager = ({ user }) => {
                     {annList.map(ann => (
                         <div key={ann.id} className="p-4 bg-white/5 border border-white/10 flex justify-between items-start group hover:bg-white/10 transition-colors">
                             <div className="flex-1">
-                                <h4 className="text-xs font-black text-white uppercase mb-1">{ann.title}</h4>
+                                <h4 className="text-xs font-black text-white uppercase mb-1">
+                                    {ann.title}
+                                    {ann.videoUrl && <span className="ml-2 text-[8px] bg-red-600/20 text-red-500 px-1 py-0.5 rounded">VIDEO</span>}
+                                    {ann.imageUrl && !ann.videoUrl && <span className="ml-2 text-[8px] bg-blue-600/20 text-blue-500 px-1 py-0.5 rounded">IMAGE</span>}
+                                </h4>
                                 <p className="text-[9px] text-gray-500 line-clamp-2 italic mb-2">{ann.message}</p>
                                 <div className="flex items-center gap-2 text-[8px] font-black text-red-600 uppercase">
                                     <Clock size={10} /> {ann.timestamp ? new Date(ann.timestamp.toMillis()).toLocaleString() : 'Recent'}

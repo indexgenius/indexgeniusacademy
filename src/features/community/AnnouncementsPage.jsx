@@ -59,7 +59,25 @@ const AnnouncementsPage = ({ user }) => {
                             <h1 className="text-2xl lg:text-4xl font-black italic text-white uppercase leading-none">{sel?.title}</h1>
                         </div>
                         <div className="bg-white/5 border border-white/5 p-4 lg:p-8 min-h-[400px] space-y-6">
-                            {sel?.imageUrl && (
+                            {sel?.videoUrl && (
+                                <div className="w-full max-w-2xl mx-auto border border-white/10 shadow-2xl bg-black aspect-video ">
+                                    {sel.videoUrl.includes('drive.google.com') ? (
+                                        <iframe
+                                            src={sel.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                            className="w-full h-full"
+                                            allow="autoplay"
+                                            allowFullScreen
+                                        ></iframe>
+                                    ) : (
+                                        <video
+                                            src={sel.videoUrl}
+                                            controls
+                                            className="w-full h-full"
+                                        />
+                                    )}
+                                </div>
+                            )}
+                            {sel?.imageUrl && !sel?.videoUrl && (
                                 <div className="w-full max-w-2xl mx-auto border border-white/10 shadow-2xl">
                                     <img src={sel.imageUrl} alt={sel.title} className="w-full h-auto object-contain" />
                                 </div>
