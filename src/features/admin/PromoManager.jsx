@@ -18,18 +18,6 @@ const PromoManager = () => {
     const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
-        const initGapi = () => {
-            window.gapi.load('client:auth2', () => {
-                window.gapi.client.init({
-                    apiKey: import.meta.env.VITE_GOOGLE_DRIVE_API_KEY,
-                    clientId: import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID,
-                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-                    scope: "https://www.googleapis.com/auth/drive.file"
-                });
-            });
-        };
-        if (window.gapi) initGapi();
-
         const q = query(collection(db, "promos"), orderBy("order", "asc"));
         return onSnapshot(q, (snapshot) => {
             const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -43,11 +31,6 @@ const PromoManager = () => {
 
         setUploading(true);
         try {
-            const GoogleAuth = window.gapi.auth2.getAuthInstance();
-            if (!GoogleAuth.isSignedIn.get()) {
-                await GoogleAuth.signIn();
-            }
-
             const { uploadToDrive } = await import('../../services/driveService');
             const driveLink = await uploadToDrive(file);
             setEditForm({ ...editForm, videoUrl: driveLink });
