@@ -32,7 +32,8 @@ const PromoManager = () => {
             imageUrl: slot.img,
             videoUrl: '',
             description: slot.defaultDesc,
-            link: slot.link || '#'
+            link: slot.link || '#',
+            order: existing?.order || index
         });
     };
 
@@ -49,8 +50,7 @@ const PromoManager = () => {
                 await addDoc(collection(db, "promos"), {
                     ...editForm,
                     active: true,
-                    order: SLOTS.findIndex(s => s.id === editingSlot),
-                    createdAt: new Date()
+                    updatedAt: new Date()
                 });
             }
             setEditingSlot(null);
@@ -139,6 +139,10 @@ const PromoManager = () => {
                                     <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white font-bold text-red-500" placeholder="VIDEO URL (DRIVE)" value={editForm.videoUrl} onChange={e => setEditForm({ ...editForm, videoUrl: e.target.value })} />
                                     <textarea className="w-full bg-black border border-white/10 p-2 text-[9px] text-white h-20" placeholder="DESC" value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
                                     <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="LINK" value={editForm.link} onChange={e => setEditForm({ ...editForm, link: e.target.value })} />
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-[8px] text-gray-500 font-bold uppercase">Priority Order:</label>
+                                        <input type="number" className="w-20 bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="0" value={editForm.order} onChange={e => setEditForm({ ...editForm, order: parseInt(e.target.value) || 0 })} />
+                                    </div>
                                     <div className="flex gap-2">
                                         <button onClick={saveEdit} className="flex-1 py-2 bg-green-600 text-white text-[9px] font-black uppercase">SAVE</button>
                                         <button onClick={() => setEditingSlot(null)} className="flex-1 py-2 bg-white/10 text-white text-[9px] font-black uppercase">CANCEL</button>

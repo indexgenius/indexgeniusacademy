@@ -120,7 +120,7 @@ const PromoModal = () => {
                                 <div className="w-full h-full">
                                     {currentPromo.videoUrl.includes('drive.google.com') ? (
                                         <iframe
-                                            src={currentPromo.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                            src={`${currentPromo.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}?autoplay=1&mute=1`}
                                             className="w-full h-full border-0"
                                             allow="autoplay; encrypted-media"
                                             allowFullScreen
