@@ -8,11 +8,48 @@ const AnnouncementManager = ({ user }) => {
     const [annLoading, setAnnLoading] = useState(false);
     const [annList, setAnnList] = useState([]);
 
+    const [uploading, setUploading] = useState(false);
+
     useEffect(() => {
+        const initGapi = () => {
+            window.gapi.load('client:auth2', () => {
+                window.gapi.client.init({
+                    apiKey: import.meta.env.VITE_GOOGLE_DRIVE_API_KEY,
+                    clientId: import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID,
+                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+                    scope: "https://www.googleapis.com/auth/drive.file"
+                });
+            });
+        };
+        if (window.gapi) initGapi();
+
         return onSnapshot(query(collection(db, "announcements"), orderBy("timestamp", "desc")), (snapshot) => {
             setAnnList(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
     }, []);
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            // Check if signed in, otherwise sign in
+            const GoogleAuth = window.gapi.auth2.getAuthInstance();
+            if (!GoogleAuth.isSignedIn.get()) {
+                await GoogleAuth.signIn();
+            }
+
+            const { uploadToDrive } = await import('../../services/driveService');
+            const driveLink = await uploadToDrive(file);
+            setAnnForm({ ...annForm, videoUrl: driveLink });
+            alert("UPLOAD COMPLETE");
+        } catch (error) {
+            console.error(error);
+            alert("UPLOAD FAILED: " + error.message);
+        }
+        setUploading(false);
+    };
 
     const createAnnouncement = async (e) => {
         e.preventDefault();
@@ -57,7 +94,34 @@ const AnnouncementManager = ({ user }) => {
                 <form onSubmit={createAnnouncement} className="space-y-4 bg-black border border-white/5 p-6 shadow-red-glow/5">
                     <input placeholder="ANNOUNCEMENT TITLE" value={annForm.title} onChange={e => setAnnForm({ ...annForm, title: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
                     <input placeholder="IMAGE URL (OPTIONAL)" value={annForm.imageUrl} onChange={e => setAnnForm({ ...annForm, imageUrl: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
-                    <input placeholder="VIDEO URL (DRIVE/DIRECT) (OPTIONAL)" value={annForm.videoUrl} onChange={e => setAnnForm({ ...annForm, videoUrl: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
+                    <div className="flex gap-2">
+                        <input placeholder="VIDEO URL (DRIVE/DIRECT)" value={annForm.videoUrl} onChange={e => setAnnForm({ ...annForm, videoUrl: e.target.value })} className="flex-1 bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
+                        <label className="cursor-pointer bg-white/10 border border-white/10 px-4 flex items-center justify-center hover:bg-white hover:text-black transition-all">
+                            {uploading ? <RefreshCw className="animate-spin" size={16} /> : <Plus size={16} />}
+                            <input type="file" className="hidden" onChange={handleFileUpload} accept="video/*" />
+                        </label>
+                    </div>
+
+                    {/* LIVE PREVIEW */}
+                    {(annForm.imageUrl || annForm.videoUrl) && (
+                        <div className="p-4 bg-white/5 border border-white/10 space-y-2">
+                            <p className="text-[8px] font-black text-gray-500 uppercase">Live Intel Preview:</p>
+                            <div className="aspect-video bg-black flex items-center justify-center overflow-hidden border border-white/5">
+                                {annForm.videoUrl ? (
+                                    annForm.videoUrl.includes('drive.google.com') ? (
+                                        <iframe
+                                            src={annForm.videoUrl.includes('/file/d/')
+                                                ? `https://drive.google.com/file/d/${annForm.videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1]}/preview`
+                                                : annForm.videoUrl.split('?')[0].replace('/view', '/preview').replace('/edit', '/preview')}
+                                            className="w-full h-full border-0"
+                                            allowFullScreen
+                                        />
+                                    ) : <video src={annForm.videoUrl} className="w-full h-full" controls />
+                                ) : <img src={annForm.imageUrl} className="w-full h-auto max-h-full object-contain" alt="Preview" />}
+                            </div>
+                        </div>
+                    )}
+
                     <textarea placeholder="MISSION DETAILS..." value={annForm.message} onChange={e => setAnnForm({ ...annForm, message: e.target.value })} className="w-full h-48 bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none resize-none" />
                     <button disabled={annLoading} className="w-full py-4 bg-red-600 text-white text-xs font-black tracking-widest uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3">
                         {annLoading ? <RefreshCw className="animate-spin" /> : <Send size={16} />}
