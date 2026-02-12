@@ -3,11 +3,11 @@ import { Upload, Youtube, RefreshCw, Rocket, Play, Trash2, Globe } from 'lucide-
 import { db, auth } from '../../firebase';
 import { collection, query, onSnapshot, updateDoc, doc, addDoc, serverTimestamp, deleteDoc, where, getDocs } from 'firebase/firestore';
 import { videoService } from '../../utils/videoService';
-import { getYouTubeThumbnail, getEmbedUrl } from '../../utils/mediaUtils';
+import { getYouTubeThumbnail, getEmbedUrl, fetchYouTubeDuration } from '../../utils/mediaUtils';
 import TacticalSelect from '../../components/TacticalSelect';
 
 const AcademyManager = ({ user }) => {
-    const [academyForm, setAcademyForm] = useState({ title: '', level: 'BEGINNER', type: 'UPLOAD' });
+    const [academyForm, setAcademyForm] = useState({ title: '', level: 'BEGINNER', type: 'UPLOAD', duration: '', module: '', url: '' });
     const [videoBlob, setVideoBlob] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [videosList, setVideosList] = useState([]);
@@ -25,6 +25,18 @@ const AcademyManager = ({ user }) => {
         });
     }, []);
 
+    useEffect(() => {
+        const getDuration = async () => {
+            if (academyForm.type === 'LINK' && academyForm.url) {
+                const seconds = await fetchYouTubeDuration(academyForm.url);
+                if (seconds) {
+                    setAcademyForm(prev => ({ ...prev, duration: (seconds / 60).toFixed(2) }));
+                }
+            }
+        };
+        getDuration();
+    }, [academyForm.url, academyForm.type]);
+
     const handleDeployLesson = async () => {
         if (!academyForm.title || (!videoBlob && academyForm.type === 'UPLOAD' && !academyForm.id) || (academyForm.type === 'LINK' && !academyForm.url)) {
             alert("COMPLETE ALL FIELDS");
@@ -40,9 +52,10 @@ const AcademyManager = ({ user }) => {
                     module: academyForm.module ? academyForm.module.toUpperCase() : 'GENERAL',
                 };
                 if (academyForm.type === 'LINK' && academyForm.url) updateData.videoUrl = academyForm.url;
+                if (academyForm.duration) updateData.duration = parseFloat(academyForm.duration).toFixed(2);
                 await updateDoc(doc(db, "academy_videos", academyForm.id), updateData);
                 alert("INTEL UPDATED SUCCESSFULLY");
-                setAcademyForm({ title: '', level: 'BEGINNER', type: 'UPLOAD', module: '', url: '' });
+                setAcademyForm({ title: '', level: 'BEGINNER', type: 'UPLOAD', module: '', url: '', duration: '' });
                 setVideoBlob(null);
             } else {
                 let uploadResult;
@@ -50,7 +63,7 @@ const AcademyManager = ({ user }) => {
                     const fileInput = document.getElementById('gallery-upload');
                     if (fileInput.files[0]) uploadResult = await videoService.uploadVideo(fileInput.files[0]);
                 } else if (academyForm.type === 'LINK') {
-                    uploadResult = { url: academyForm.url, id: 'external-link-' + Date.now(), duration: 15 * 60 };
+                    uploadResult = { url: academyForm.url, id: 'external-link-' + Date.now(), duration: (parseFloat(academyForm.duration) || 0) * 60 };
                 }
 
                 if (uploadResult) {
@@ -89,7 +102,7 @@ const AcademyManager = ({ user }) => {
                         }));
                     }
                     alert("TACTICAL LESSON DEPLOYED");
-                    setAcademyForm({ title: '', level: 'BEGINNER', type: 'UPLOAD', module: '', url: '' });
+                    setAcademyForm({ title: '', level: 'BEGINNER', type: 'UPLOAD', module: '', url: '', duration: '' });
                     setVideoBlob(null);
                 }
             }
@@ -115,8 +128,9 @@ const AcademyManager = ({ user }) => {
                         ))}
                     </div>
                     <input placeholder="MODULE TITLE" value={academyForm.title} onChange={e => setAcademyForm({ ...academyForm, title: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                         <input placeholder="MODULE NAME" value={academyForm.module || ''} onChange={e => setAcademyForm({ ...academyForm, module: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none uppercase" />
+                        <input type="number" placeholder="MINUTES" value={academyForm.duration || ''} onChange={e => setAcademyForm({ ...academyForm, duration: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none uppercase" title="Manual Duration for Links" />
                         <TacticalSelect
                             options={LEVEL_OPTIONS}
                             value={academyForm.level}
@@ -167,7 +181,7 @@ const AcademyManager = ({ user }) => {
                                 </div>
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={() => { setAcademyForm({ id: video.id, title: video.title, module: video.module, level: video.level, type: (video.videoUrl?.includes('youtu')) ? 'LINK' : 'UPLOAD', url: video.videoUrl }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-3 bg-blue-600/10 text-blue-500 border border-blue-600/30 hover:bg-blue-600 hover:text-white transition-all text-[9px] font-black tracking-widest"><RefreshCw size={14} /></button>
+                                <button onClick={() => { setAcademyForm({ id: video.id, title: video.title, module: video.module, level: video.level, type: (video.videoUrl?.includes('youtu')) ? 'LINK' : 'UPLOAD', url: video.videoUrl, duration: video.duration }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-3 bg-blue-600/10 text-blue-500 border border-blue-600/30 hover:bg-blue-600 hover:text-white transition-all text-[9px] font-black tracking-widest"><RefreshCw size={14} /></button>
                                 <button onClick={() => handleDeleteVideo(video.id)} className="p-3 bg-red-600/10 text-red-600 border border-red-600/30 hover:bg-red-600 hover:text-white transition-all text-[9px] font-black tracking-widest"><Trash2 size={14} /></button>
                             </div>
                         </div>

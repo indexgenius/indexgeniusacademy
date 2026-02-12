@@ -48,3 +48,30 @@ export const getYouTubeThumbnail = (url) => {
     const id = getYouTubeID(url);
     return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
 };
+
+export const parseISO8601Duration = (duration) => {
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return 0;
+    const hours = parseInt(match[1] || 0);
+    const minutes = parseInt(match[2] || 0);
+    const seconds = parseInt(match[3] || 0);
+    return (hours * 3600) + (minutes * 60) + seconds;
+};
+
+export const fetchYouTubeDuration = async (url) => {
+    const videoId = getYouTubeID(url);
+    if (!videoId) return null;
+
+    const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
+    try {
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=contentDetails&key=${apiKey}`);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+            const isoDuration = data.items[0].contentDetails.duration;
+            return parseISO8601Duration(isoDuration); // Returns total seconds
+        }
+    } catch (error) {
+        console.error("Error fetching YouTube duration:", error);
+    }
+    return null;
+};
