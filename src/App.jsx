@@ -5,6 +5,7 @@ import Landing from './features/landing/LandingPage';
 import Login from './features/auth/AuthPage';
 import Dashboard from './features/signals/DashboardPage';
 import Admin from './features/admin/AdminPage';
+import ResetPassword from './features/auth/ResetPasswordPage';
 
 // Modular Feature Components
 import Groups from './features/community/GroupsPage';
@@ -43,6 +44,12 @@ function App() {
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [customMsg, setCustomMsg] = useState('');
   const [reconnectTrigger, setReconnectTrigger] = useState(0);
+
+  // URL Auth Action Detection
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
+  const oobCode = urlParams.get('oobCode');
+  const isResetFlow = mode === 'resetPassword' && oobCode;
 
   // 1. Auth & Profile
   const { user, login, logout } = useAuth();
@@ -163,6 +170,9 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
 
   // --- GATING LOGIC ---
+  // 0. If it's a Reset Password flow
+  if (isResetFlow) return <ResetPassword oobCode={oobCode} />;
+
   // 1. If no user, handle Landing vs Login
   if (!user) {
     if (!isStandalone && !showAuth) {
