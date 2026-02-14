@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Unlock, Key, ShieldAlert, Zap, MessageSquare, CreditCard, Download, Copy, Wallet, Landmark, Smartphone, LayoutGrid, Check, Phone, ArrowRight, Play, X } from 'lucide-react';
 import { db } from '../../firebase';
-import { doc, getDoc, updateDoc, serverTimestamp, collection, onSnapshot, addDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, serverTimestamp, collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TemplatesPage = ({ user }) => {
@@ -15,6 +15,11 @@ const TemplatesPage = ({ user }) => {
     const [copied, setCopied] = useState(null);
     const [userBroker, setUserBroker] = useState(null);
     const [showVideoModal, setShowVideoModal] = useState(false);
+    const [templateInfo, setTemplateInfo] = useState({
+        url: '',
+        name: 'V4.5 ELITE',
+        size: '84.2 MB'
+    });
 
     useEffect(() => {
         const checkAccess = async () => {
@@ -29,6 +34,17 @@ const TemplatesPage = ({ user }) => {
                 setUserBroker(userData.brokerType || 'other');
             }
         };
+        const fetchTemplate = async () => {
+            try {
+                const assetRef = doc(db, 'site_assets', 'template_pack');
+                const assetSnap = await getDoc(assetRef);
+                if (assetSnap.exists()) {
+                    setTemplateInfo(assetSnap.data());
+                }
+            } catch (e) { console.error("Error fetching template:", e); }
+        };
+        fetchTemplate();
+
         checkAccess();
 
         const unsubMethods = onSnapshot(collection(db, "payment_methods"), (snapshot) => {
@@ -42,6 +58,62 @@ const TemplatesPage = ({ user }) => {
     const isBridge = userBroker === 'bridge';
     const finalPrice = isBridge ? 35 : 75;
     const planName = isBridge ? 'MEMBER ACCESS' : 'EXTERNAL BROKER';
+    const isAdmin = user?.canBroadcast || user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.email?.toLowerCase() === 'pipoapaza@gmail.com';
+
+    const handleFileUpload = async (e) => {
+        if (!isAdmin) {
+            alert("ACCESO DENEGADO. SOLO EL PERSONAL AUTORIZADO PUEDE MODIFICAR ESTE ACTIVO.");
+            return;
+        }
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+        // Using the same preset and cloud name as ProfilePage for consistency
+        formData.append("upload_preset", "perfil_users");
+
+        try {
+            // Determine resource type: images go to /image/upload, others to /raw/upload
+            const resourceType = file.type.startsWith('image/') ? 'image' : 'raw';
+            const CLOUDINARY_CLOUD_NAME = "ddfx8syri";
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+            if (data.secure_url) {
+                const assetRef = doc(db, 'site_assets', 'template_pack');
+                const newInfo = {
+                    url: data.secure_url,
+                    name: file.name,
+                    size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+                    updatedAt: serverTimestamp()
+                };
+                await setDoc(assetRef, newInfo, { merge: true });
+                setTemplateInfo(newInfo);
+                alert("PLANTILLA ACTUALIZADA Y LISTA PARA DESCARGA");
+            } else {
+                throw new Error(data.error?.message || "Upload failed");
+            }
+        } catch (err) {
+            console.error("Cloudinary Upload Error:", err);
+            alert(`ERROR AL SUBIR: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDownload = () => {
+        if (templateInfo?.url) {
+            window.open(templateInfo.url, '_blank');
+        } else {
+            alert("LA PLANTILLA NO ESTÁ DISPONIBLE EN ESTE MOMENTO. CONTACTA A SOPORTE.");
+        }
+    };
 
     const handleUnlock = async (e) => {
         e.preventDefault();
@@ -250,9 +322,9 @@ const TemplatesPage = ({ user }) => {
 
                             <div className="grid grid-cols-3 gap-3 lg:gap-4">
                                 {[
-                                    { label: 'VERSION', val: 'V4.5 ELITE' },
+                                    { label: 'VERSION', val: templateInfo?.name || 'V4.5 ELITE' },
                                     { label: 'FORMAT', val: 'MT5 / .ZIP' },
-                                    { label: 'FILE SIZE', val: '84.2 MB' },
+                                    { label: 'FILE SIZE', val: templateInfo?.size || '84.2 MB' },
                                 ].map((stat, i) => (
                                     <div key={i} className="p-3 lg:p-4 bg-white/5 border border-white/5">
                                         <p className="text-[6px] lg:text-[8px] font-black text-gray-600 tracking-widest mb-1 uppercase">{stat.label}</p>
@@ -293,6 +365,7 @@ const TemplatesPage = ({ user }) => {
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
+                                        onClick={handleDownload}
                                         className="group relative w-full py-6 bg-red-600 text-white font-black italic tracking-[0.3em] uppercase text-xs overflow-hidden rounded-2xl shadow-red-glow transition-all hover:bg-white hover:text-black"
                                     >
                                         <span className="relative z-10 flex items-center justify-center gap-3">
@@ -300,6 +373,54 @@ const TemplatesPage = ({ user }) => {
                                         </span>
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                                     </motion.button>
+
+                                    {isAdmin && (
+                                        <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
+                                            <div className="space-y-2">
+                                                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">SUBIR NUEVO ARCHIVO</p>
+                                                <label className="flex items-center justify-center gap-2 py-3 border border-white/10 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all group">
+                                                    <Download size={14} className="text-red-600" />
+                                                    <span className="text-[10px] font-black italic text-gray-400 group-hover:text-white uppercase font-mono">UPLOAD (.ZIP / .MT5)</span>
+                                                    <input type="file" className="hidden" onChange={handleFileUpload} />
+                                                </label>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">O VINCULAR URL DIRECTA</p>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Pega la URL de Cloudinary aquí..."
+                                                        className="flex-1 bg-white/5 border border-white/10 p-2 text-[9px] font-mono text-white outline-none focus:border-red-600 transition-all"
+                                                        onKeyDown={async (e) => {
+                                                            if (e.key === 'Enter' && e.target.value) {
+                                                                const url = e.target.value;
+                                                                setLoading(true);
+                                                                try {
+                                                                    const assetRef = doc(db, 'site_assets', 'template_pack');
+                                                                    const newInfo = {
+                                                                        url: url,
+                                                                        name: 'MANUAL UPDATE',
+                                                                        size: '---',
+                                                                        updatedAt: serverTimestamp()
+                                                                    };
+                                                                    await setDoc(assetRef, newInfo, { merge: true });
+                                                                    setTemplateInfo(newInfo);
+                                                                    alert("URL VINCULADA CORRECTAMENTE");
+                                                                    e.target.value = '';
+                                                                } catch (err) {
+                                                                    alert("ERROR AL VINCULAR: " + err.message);
+                                                                } finally {
+                                                                    setLoading(false);
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                <p className="text-[7px] text-gray-600 leading-none">Presiona ENTER para guardar la URL</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Decorative HUD elements */}
