@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Unlock, Key, ShieldAlert, Zap, MessageSquare, CreditCard, Download, Copy, Wallet, Landmark, Smartphone, LayoutGrid, Check, Phone, ArrowRight, Play, X } from 'lucide-react';
+import { Lock, Unlock, Key, ShieldAlert, Zap, MessageSquare, CreditCard, Download, Copy, Wallet, Landmark, Smartphone, LayoutGrid, Check, Phone, ArrowRight, Play, X, Trophy, TrendingUp, Medal, Rocket, Briefcase, Crown, Coins, Flame, Target, ShieldCheck } from 'lucide-react';
 import { db } from '../../firebase';
 import { doc, getDoc, updateDoc, setDoc, serverTimestamp, collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -56,7 +56,7 @@ const TemplatesPage = ({ user }) => {
 
     // Calculate price based on broker
     const isBridge = userBroker === 'bridge';
-    const finalPrice = isBridge ? 35 : 75;
+    const finalPrice = isBridge ? 35 : 50;
     const planName = isBridge ? 'MEMBER ACCESS' : 'EXTERNAL BROKER';
     const isAdmin = user?.canBroadcast || user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.email?.toLowerCase() === 'pipoapaza@gmail.com';
 
@@ -71,11 +71,9 @@ const TemplatesPage = ({ user }) => {
         setLoading(true);
         const formData = new FormData();
         formData.append("file", file);
-        // Using the same preset and cloud name as ProfilePage for consistency
         formData.append("upload_preset", "perfil_users");
 
         try {
-            // Determine resource type: images go to /image/upload, others to /raw/upload
             const resourceType = file.type.startsWith('image/') ? 'image' : 'raw';
             const CLOUDINARY_CLOUD_NAME = "ddfx8syri";
 
@@ -180,10 +178,17 @@ const TemplatesPage = ({ user }) => {
                 /* --- LOCKED VIEW --- */
                 <div className="max-w-6xl w-full flex flex-col gap-6 lg:gap-12">
                     <div className="text-center space-y-2 lg:space-y-4">
-                        <h2 className="text-3xl lg:text-7xl font-black italic tracking-tighter text-white uppercase leading-none">
-                            TEMPLATES <span className="text-red-600">VAULT</span>
-                        </h2>
-                        <p className="text-[8px] lg:text-[10px] font-black text-gray-500 tracking-[0.4em] uppercase">SYSTEM CLEARANCE REQUIRED FOR DEPLOYMENT</p>
+                        <div className="flex items-center justify-center gap-3 lg:gap-5">
+                            <Trophy size={48} className="text-red-600 filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)] hidden lg:block" />
+                            <h2 className="text-3xl lg:text-7xl font-black italic tracking-tighter text-white uppercase leading-none">
+                                <span className="text-red-600">ElitePack</span> IndexGenius
+                            </h2>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 lg:gap-3">
+                            <Medal size={16} className="text-yellow-500" />
+                            <p className="text-[10px] lg:text-[14px] font-bold text-gray-400 tracking-wide">La plantilla #1 utilizada por traders en Latinoamérica</p>
+                            <TrendingUp size={16} className="text-green-500" />
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
@@ -199,38 +204,87 @@ const TemplatesPage = ({ user }) => {
                                         <div className="w-8 h-8 lg:w-10 lg:h-10 bg-red-600 rounded-lg lg:rounded-xl flex items-center justify-center">
                                             <Zap size={16} className="text-white lg:w-5 lg:h-5" />
                                         </div>
-                                        <span className="text-[8px] lg:text-[10px] font-black text-white tracking-widest uppercase italic">ACQUISITION MODULE</span>
+                                        <span className="text-[8px] lg:text-[10px] font-black text-white tracking-widest uppercase italic">⚡ ACCESS MODULE</span>
                                     </div>
                                     <h3 className="text-2xl lg:text-3xl font-black italic text-white uppercase tracking-tighter">
-                                        PURCHASE <br /><span className="text-red-600">FULL ACCESS</span>
+                                        ACTIVAR <br /><span className="text-red-600">ACCESO ELITE</span>
                                     </h3>
                                 </div>
 
                                 <div className="space-y-4 lg:space-y-6">
                                     <div className="p-4 lg:p-6 bg-white/5 border border-white/5 rounded-xl lg:rounded-2xl">
-                                        <div className="flex justify-between items-center mb-2 lg:mb-4">
-                                            <span className="text-[8px] lg:text-[9px] font-black text-gray-500 uppercase tracking-widest">MEMBERSHIP TYPE</span>
-                                            <span className="px-2 py-0.5 lg:px-3 lg:py-1 bg-red-600 text-[6px] lg:text-[8px] font-black text-white uppercase rounded-full">{planName}</span>
+                                        <div className="flex justify-between items-center mb-3 lg:mb-4">
+                                            <div className="flex items-center gap-2">
+                                                <Briefcase size={12} className="text-gray-500" />
+                                                <span className="text-[8px] lg:text-[9px] font-black text-gray-500 uppercase tracking-widest">MEMBERSHIP TYPE</span>
+                                            </div>
+                                            <span className="px-2 py-0.5 lg:px-3 lg:py-1 bg-red-600 text-[6px] lg:text-[8px] font-black text-white uppercase rounded-full flex items-center gap-1">
+                                                <Crown size={10} /> ELITE FULL ACCESS
+                                            </span>
                                         </div>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl lg:text-5xl font-black text-white italic">${finalPrice}</span>
-                                            <span className="text-[10px] lg:text-xs font-bold text-gray-500 uppercase">USDT • ONE TIME</span>
+
+                                        {/* Benefits List */}
+                                        <div className="space-y-1.5 mb-4 text-[8px] lg:text-[9px] text-gray-400">
+                                            <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Plantillas profesionales listas para operar</p>
+                                            <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Estructura institucional y validada</p>
+                                            <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Optimizada para índices y sintéticos</p>
+                                            <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Uso inmediato – sin configuraciones complejas</p>
+                                            <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Actualizaciones incluidas</p>
+                                        </div>
+
+                                        <div className="border-t border-white/5 pt-3 lg:pt-4">
+                                            <div className="flex items-baseline gap-2 mb-1">
+                                                <span className="text-4xl lg:text-5xl font-black text-white italic">${finalPrice}</span>
+                                                <span className="text-[10px] lg:text-xs font-bold text-gray-400 uppercase">USD</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[8px] lg:text-[9px] text-gray-500 font-bold">Pago único • Acceso de por vida</span>
+                                                <Coins size={12} className="text-yellow-600 animate-pulse" />
+                                                <Flame size={12} className="text-orange-600" />
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-4 lg:gap-6 opacity-40">
-                                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026" className="h-4 lg:h-5" alt="USDT" />
-                                        <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png?v=026" className="h-4 lg:h-5" alt="BNB" />
-                                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=026" className="h-4 lg:h-5" alt="BTC" />
+                                    <div className="bg-black/30 rounded-lg p-3 border border-white/5">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Lock size={12} className="text-red-500" />
+                                            <p className="text-[7px] lg:text-[8px] font-bold text-gray-500 uppercase tracking-widest">PAYMENT METHODS</p>
+                                        </div>
+                                        <div className="flex gap-3 items-center flex-wrap">
+                                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-green-500/30 transition-all group">
+                                                <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-4 h-4 lg:w-5 lg:h-5 group-hover:scale-110 transition-transform" alt="USDT" />
+                                                <span className="text-[8px] font-bold text-gray-400 group-hover:text-green-400 transition-colors">USDT</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-orange-500/30 transition-all group">
+                                                <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-4 h-4 lg:w-5 lg:h-5 group-hover:scale-110 transition-transform" alt="BTC" />
+                                                <span className="text-[8px] font-bold text-gray-400 group-hover:text-orange-400 transition-colors">BTC</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-yellow-500/30 transition-all group">
+                                                <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-4 h-4 lg:w-5 lg:h-5 group-hover:scale-110 transition-transform" alt="BNB" />
+                                                <span className="text-[8px] font-bold text-gray-400 group-hover:text-yellow-400 transition-colors">BNB</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2 mt-2">
+                                            <ShieldCheck size={12} className="text-green-500" />
+                                            <p className="text-[7px] lg:text-[8px] text-gray-500 text-center uppercase tracking-widest font-bold">Transacción rápida y segura</p>
+                                            <Lock size={12} className="text-red-500" />
+                                        </div>
+                                    </div>
+
+                                    {/* Extra Premium Line */}
+                                    <div className="text-center flex flex-col items-center gap-1">
+                                        <p className="text-[8px] lg:text-[9px] text-gray-500 italic flex items-center gap-2">
+                                            <Target size={12} className="text-red-600" /> Diseñado para quienes buscan consistencia, no suerte <Target size={12} className="text-red-600" />
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             <button
                                 onClick={() => setShowPaymentModal(true)}
-                                className="relative z-10 w-full py-4 lg:py-6 bg-white text-black font-black uppercase tracking-[0.3em] italic text-[10px] lg:text-xs rounded-xl lg:rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-xl"
+                                className="relative z-10 w-full py-4 lg:py-6 bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase tracking-[0.2em] italic text-[10px] lg:text-xs rounded-xl lg:rounded-2xl hover:brightness-110 transition-all shadow-[0_0_25px_rgba(220,38,38,0.4)] flex items-center justify-center gap-3"
                             >
-                                INITIATE PAYMENT PROTOCOL
+                                <Rocket size={18} /> ACTIVAR ACCESO ELITE
                             </button>
                         </div>
 
@@ -246,7 +300,7 @@ const TemplatesPage = ({ user }) => {
                                     <h3 className="text-2xl lg:text-3xl font-black italic text-white uppercase tracking-tighter">
                                         VERIFY <span className="text-red-600">KEY</span>
                                     </h3>
-                                    <p className="text-[8px] lg:text-[9px] font-bold text-gray-600 tracking-widest uppercase">INPUT CLEARANCE CORE</p>
+                                    <p className="text-[8px] lg:text-[9px] font-bold text-gray-600 tracking-widest uppercase">Ingresa tu clave de activación</p>
                                 </div>
 
                                 <form onSubmit={handleUnlock} className="space-y-4 lg:space-y-6">
@@ -268,8 +322,7 @@ const TemplatesPage = ({ user }) => {
                                         disabled={loading || !accessKey}
                                         className="w-full py-4 lg:py-6 bg-red-600 text-white font-black italic text-[10px] lg:text-xs tracking-[0.3em] uppercase rounded-xl lg:rounded-2xl hover:bg-white hover:text-black transition-all shadow-red-glow flex items-center justify-center gap-3 lg:gap-4 disabled:opacity-50"
                                     >
-                                        {loading ? 'VALIDATING...' : 'DECRYPT & UNLOCK'}
-                                        {!loading && <Unlock size={16} className="lg:w-[18px]" />}
+                                        {loading ? 'DESENCRIPTANDO...' : <><Unlock size={16} className="lg:w-[18px]" /> DESENCRIPTAR Y DESBLOQUEAR <Flame size={14} className="text-red-600 animate-pulse ml-2" /></>}
                                     </button>
                                 </form>
                             </div>
@@ -570,6 +623,7 @@ const TemplatesPage = ({ user }) => {
                     </div>
                 )}
             </AnimatePresence>
+
             {/* VIDEO MODAL */}
             <AnimatePresence>
                 {showVideoModal && (
@@ -590,7 +644,6 @@ const TemplatesPage = ({ user }) => {
                                 </button>
                             </div>
                             <div className="aspect-video w-full bg-black">
-                                {/* Placeholder for the video - You can change the URL to your actual tutorial */}
                                 <iframe
                                     className="w-full h-full"
                                     src="https://www.youtube.com/embed/dQw4w9WgXcQ"

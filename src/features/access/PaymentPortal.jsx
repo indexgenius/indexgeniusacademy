@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Wallet, Smartphone, Landmark, Check, Copy, Phone, ShieldCheck, Clock, Zap, MessageSquare, ExternalLink, ArrowRight } from 'lucide-react';
+import { CreditCard, Wallet, Smartphone, Landmark, Check, Copy, Phone, ShieldCheck, Zap, ArrowRight, Lock, Key, Unlock, Bell, MessageSquare, Menu, Trophy, TrendingUp, Rocket, Briefcase, Coins, Flame, Target, Crown, Globe, BarChart3, Medal } from 'lucide-react';
 import { db } from '../../firebase';
 import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,13 +7,14 @@ import InstallGuide from '../landing/components/InstallGuide';
 
 const PaymentPortal = ({ user, onLogout }) => {
     const [paymentMethods, setPaymentMethods] = useState([]);
-    const [selectedMethod, setSelectedMethod] = useState(null);
     const [copied, setCopied] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [brokerType, setBrokerType] = useState('universal'); // Single generic type
-    const [step, setStep] = useState(1); // 1: Broker Selection, 2: Payment
+    const [verifying, setVerifying] = useState(false);
+    const [brokerType, setBrokerType] = useState('universal');
+    const [step, setStep] = useState(1); // 1: Main Vault View, 2: Payment Selection
     const [showWelcome, setShowWelcome] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
+    const [accessKey, setAccessKey] = useState('');
 
     useEffect(() => {
         if (localStorage.getItem('show_onboarding') === 'true') {
@@ -35,8 +36,8 @@ const PaymentPortal = ({ user, onLogout }) => {
         setTimeout(() => setCopied(null), 2000);
     };
 
-    const finalPrice = 25;
-    const planName = 'ELITE MEMBERSHIP';
+    const finalPrice = 50;
+    const planName = 'ELITEPACK INDEXGENIUS';
 
     const confirmPayment = async () => {
         setLoading(true);
@@ -80,330 +81,301 @@ const PaymentPortal = ({ user, onLogout }) => {
         }
     };
 
+    const handleVerifyKey = async () => {
+        if (!accessKey.trim()) return;
+        setVerifying(true);
+        setTimeout(() => {
+            alert("Clave inválida o expirada. Por favor contacta a soporte.");
+            setVerifying(false);
+        }, 1500);
+    };
+
     const methodsByCat = (cat) => paymentMethods.filter(m => m.category === cat);
 
     return (
-        <div className="min-h-screen bg-black text-white font-space selection:bg-red-600 p-4 lg:p-10 flex items-center justify-center relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-600/10 blur-[150px] rounded-full"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-red-600/5 blur-[150px] rounded-full"></div>
+        <div className="min-h-screen bg-[#050505] text-white font-space selection:bg-red-600 flex flex-col items-center relative overflow-x-hidden">
+
+            {/* Top Status Bar */}
+            <div className="w-full max-w-lg px-6 py-6 flex justify-between items-start z-20">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center">
+                            <img src="/img/logos/red_bull_logo_new.PNG" className="w-4 h-4 object-contain" alt="logo" />
+                        </div>
+                        <p className="text-[10px] font-black text-red-600 tracking-widest uppercase truncate">STATUS: AUTHORIZED (V6.2 - SW FILES)</p>
+                    </div>
+                    <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider pl-8">{user?.email || 'GUEST_USER'}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors">
+                        <Bell size={16} className="text-gray-400" />
+                    </button>
+                    <button onClick={onLogout} className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-black text-xs hover:bg-red-700 transition-colors border-2 border-transparent hover:border-white shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                        {user?.email?.[0].toUpperCase() || 'U'}
+                    </button>
+                </div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-5xl bg-black border border-white/10 relative z-10 shadow-2xl flex flex-col lg:flex-row min-h-[700px]"
-            >
-                {/* Left Panel: Info & Steps */}
-                <div className="w-full lg:w-[400px] bg-red-600 p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 blur-sm pointer-events-none rotate-12">
-                        <ShieldCheck size={300} />
+            <div className="w-full max-w-lg px-4 pb-10 flex-1 flex flex-col space-y-8 z-10 relative">
+
+                {/* Main Title */}
+                <div className="text-center space-y-2 mt-2">
+                    <div className="flex items-center justify-center gap-3">
+                        <Trophy size={32} className="text-red-600 filter drop-shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
+                        <h1 className="text-4xl font-black italic tracking-tighter uppercase leading-none">
+                            <span className="text-red-600">ElitePack</span> IndexGenius
+                        </h1>
                     </div>
-
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-10">
-                            <img src="/img/logos/red_bull_logo_new.PNG" alt="Logo" className="w-12 h-12 object-contain" />
-                            <h1 className="text-2xl font-black italic tracking-tighter leading-none">
-                                INDEX GENIUS<br /><span className="text-black">ACADEMY</span>
-                            </h1>
-                        </div>
-
-                        <div className="space-y-12">
-                            <div className="space-y-4">
-                                <h2 className="text-4xl lg:text-5xl font-black italic tracking-tighter leading-tight uppercase">
-                                    MEMBERSHIP <br />ACTIVATION
-                                </h2>
-                                <p className="text-[10px] font-black tracking-[0.3em] text-white/60 uppercase">Clearance Level: Tier 1 Access</p>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div className={`flex items-center gap-4 transition-all ${step === 1 ? 'opacity-100' : 'opacity-40'}`}>
-                                    <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center font-black">1</div>
-                                    <span className="text-xs font-black uppercase tracking-widest italic">Membership Plan</span>
-                                </div>
-                                <div className={`flex items-center gap-4 transition-all ${step === 2 ? 'opacity-100' : 'opacity-40'}`}>
-                                    <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center font-black">2</div>
-                                    <span className="text-xs font-black uppercase tracking-widest italic">Payment Injection</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col gap-4">
-                        <button
-                            onClick={() => setShowGuide(true)}
-                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] bg-black/20 p-3 border border-white/10 hover:bg-white hover:text-red-600 transition-all"
-                        >
-                            <Smartphone size={14} /> INSTALL APP [GUIDE]
-                        </button>
-                        <button onClick={onLogout} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 hover:text-white transition-colors">
-                            ABORT SESSION [LOGOUT]
-                        </button>
+                    <div className="flex items-center justify-center gap-2">
+                        <Medal size={14} className="text-yellow-500" />
+                        <p className="text-[10px] font-bold text-gray-400 tracking-wide">La plantilla #1 utilizada por traders en Latinoamérica</p>
+                        <TrendingUp size={14} className="text-green-500" />
                     </div>
                 </div>
 
-                {/* Right Panel: Content Section */}
-                <div className="flex-1 p-8 lg:p-12 bg-black flex flex-col justify-center">
-                    <AnimatePresence mode="wait">
-                        {step === 1 ? (
-                            <motion.div
-                                key="step1"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
-                                <div className="space-y-2">
-                                    <h3 className="text-2xl lg:text-3xl font-black italic tracking-tighter uppercase">SELECT MEMBERSHIP</h3>
-                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-relaxed">
-                                        Access all premium signals and features with our unified elite plan.
+                <AnimatePresence mode="wait">
+                    {step === 1 ? (
+                        <motion.div
+                            key="step1"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-6"
+                        >
+                            {/* ACQUISITION MODULE CARD */}
+                            <div className="bg-[#0A0A0A] border border-white/10 rounded-[30px] p-6 relative overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600/50 to-transparent opacity-50"></div>
+
+                                {/* Header */}
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center transform -skew-x-12">
+                                        <Zap size={16} className="text-white transform skew-x-12" fill="currentColor" />
+                                    </div>
+                                    <span className="text-[10px] font-black italic uppercase tracking-widest text-white flex items-center gap-2">
+                                        <Zap size={14} className="text-red-500" /> ACCESS MODULE
+                                    </span>
+                                </div>
+
+                                {/* Title */}
+                                <div className="mb-6 relative z-10">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Unlock size={14} className="text-red-500" />
+                                        <p className="text-[11px] font-bold text-gray-400">Desbloquea acceso completo al sistema Elite</p>
+                                        <Rocket size={14} className="text-red-500 animate-bounce" />
+                                    </div>
+                                    <h2 className="text-3xl font-black italic uppercase leading-[0.95] tracking-tight">
+                                        ACTIVAR <br />
+                                        <span className="text-red-600 text-shadow-red">ACCESO ELITE</span>
+                                    </h2>
+                                </div>
+
+                                {/* Credit Card Icon BG */}
+                                <div className="absolute top-20 right-[-20px] opacity-10 pointer-events-none">
+                                    <CreditCard size={180} />
+                                </div>
+
+                                {/* Price Container */}
+                                <div className="bg-[#111] border border-white/5 rounded-2xl p-5 mb-4 relative z-10">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <Briefcase size={12} className="text-gray-500" />
+                                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">MEMBERSHIP TYPE</span>
+                                        </div>
+                                        <div className="bg-red-600 px-2 py-0.5 rounded text-[8px] font-black uppercase text-white tracking-wider flex items-center gap-1">
+                                            <Crown size={10} /> ELITE FULL ACCESS
+                                        </div>
+                                    </div>
+
+                                    {/* Benefits List */}
+                                    <div className="space-y-1.5 mb-4 text-[9px] text-gray-400">
+                                        <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Plantillas profesionales listas para operar</p>
+                                        <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Estructura institucional y validada</p>
+                                        <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Optimizada para índices y sintéticos</p>
+                                        <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Uso inmediato – sin configuraciones complejas</p>
+                                        <p className="flex items-start gap-1.5"><span className="text-green-500 mt-0.5">✔</span> Actualizaciones incluidas</p>
+                                    </div>
+
+                                    <div className="border-t border-white/5 pt-4 mb-3">
+                                        <div className="flex items-baseline gap-2 mb-1">
+                                            <span className="text-5xl font-black italic tracking-tighter text-white">${finalPrice}</span>
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">USD</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[9px] text-gray-500 font-bold">Pago único • Acceso de por vida</span>
+                                            <Coins size={12} className="text-yellow-600 animate-pulse" />
+                                            <Flame size={12} className="text-orange-600" />
+                                        </div>
+                                    </div>
+
+                                    {/* Crypto Icons */}
+                                    <div className="bg-black/30 rounded-lg p-3 border border-white/5">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Lock size={12} className="text-red-500" />
+                                            <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">PAYMENT METHODS</p>
+                                        </div>
+                                        <div className="flex gap-2 items-center flex-wrap">
+                                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-green-500/30 transition-all group">
+                                                <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="USDT" />
+                                                <span className="text-[8px] font-bold text-gray-400 group-hover:text-green-400 transition-colors">USDT</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-orange-500/30 transition-all group">
+                                                <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="BTC" />
+                                                <span className="text-[8px] font-bold text-gray-400 group-hover:text-orange-400 transition-colors">BTC</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-yellow-500/30 transition-all group">
+                                                <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="BNB" />
+                                                <span className="text-[8px] font-bold text-gray-400 group-hover:text-yellow-400 transition-colors">BNB</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2 mt-2">
+                                            <ShieldCheck size={12} className="text-green-500" />
+                                            <p className="text-[7px] text-gray-500 text-center uppercase tracking-widest font-bold">Transacción rápida y segura</p>
+                                            <Lock size={12} className="text-red-500" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Extra Premium Line */}
+                                <div className="mb-6 flex flex-col items-center gap-1">
+                                    <p className="text-[9px] text-gray-500 italic flex items-center gap-2">
+                                        <Target size={12} className="text-red-600" /> Diseñado para quienes buscan consistencia, no suerte <Target size={12} className="text-red-600" />
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-4">
+                                {/* Action Button */}
+                                <button
+                                    onClick={() => setStep(2)}
+                                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-black italic uppercase tracking-[0.15em] text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:shadow-[0_0_35px_rgba(220,38,38,0.6)] flex items-center justify-center gap-3"
+                                >
+                                    <Rocket size={18} /> ACTIVAR ACCESO ELITE
+                                </button>
+                            </div>
+
+                            {/* VERIFY KEY CARD */}
+                            <div className="bg-[#080808] border border-white/5 rounded-[30px] p-8 text-center relative overflow-hidden">
+                                <div className="flex justify-center mb-4">
+                                    <div className="w-14 h-14 rounded-full border border-red-600/30 flex items-center justify-center bg-red-600/5 text-red-600 shadow-[0_0_15px_rgba(220,38,38,0.1)]">
+                                        <Lock size={24} />
+                                    </div>
+                                </div>
+
+                                <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-1 flex items-center justify-center gap-2">
+                                    <Key size={20} className="text-red-600" /> VERIFY <span className="text-red-600">KEY</span>
+                                </h3>
+                                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.3em] mb-6">Ingresa tu clave de activación</p>
+
+                                <div className="space-y-4">
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <Key size={14} className="text-red-600" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={accessKey}
+                                            onChange={(e) => setAccessKey(e.target.value)}
+                                            placeholder="XXXX - XXXX - XXXX"
+                                            className="w-full bg-[#111] border border-white/10 rounded-xl py-4 pl-10 pr-4 text-center font-mono text-xs text-white placeholder:text-gray-700 focus:outline-none focus:border-red-600 transition-colors uppercase tracking-widest"
+                                        />
+                                    </div>
+
                                     <button
-                                        className="p-8 border-2 border-red-600 bg-red-600/5 transition-all text-left flex flex-col justify-between min-h-[220px] relative overflow-hidden group cursor-default"
+                                        onClick={handleVerifyKey}
+                                        disabled={verifying}
+                                        className="w-full bg-[#330000] border border-red-900/50 text-red-500 py-4 rounded-xl font-black italic uppercase tracking-[0.15em] text-xs hover:bg-red-900/40 hover:text-red-400 transition-all flex items-center justify-center gap-2 group"
                                     >
-                                        <div className="relative z-10">
-                                            <h4 className="text-xl font-black italic uppercase mb-1">ELITE ACCESS</h4>
-                                            <span className="text-[9px] font-black bg-red-600 text-white px-2 py-0.5 tracking-widest">FULL BENEFIT UNLOCKED</span>
-                                        </div>
-                                        <div className="relative z-10">
-                                            <p className="text-5xl font-black italic">$25 <span className="text-xs italic text-gray-500">USDT / MO</span></p>
-                                        </div>
-                                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                            <ShieldCheck size={100} />
-                                        </div>
+                                        {verifying ? 'DESENCRIPTANDO...' : <><Unlock size={14} className="group-hover:text-red-300 transition-colors" /> DESENCRIPTAR Y DESBLOQUEAR <Flame size={14} className="text-red-600 animate-pulse" /></>}
                                     </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-6"
+                        >
+                            <button onClick={() => setStep(1)} className="text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-2 pl-2">
+                                ← ABORT PROTOCOL
+                            </button>
+
+                            <div className="bg-[#0A0A0A] border border-white/10 rounded-[30px] p-6">
+                                <div className="flex justify-between items-end mb-8 pb-4 border-b border-white/5">
+                                    <div>
+                                        <h3 className="text-xl font-black italic uppercase text-white">SELECT CHANNEL</h3>
+                                        <p className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">SECURE PAYMENT GATEWAY</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[9px] font-black text-red-600 uppercase tracking-widest">TOTAL</p>
+                                        <p className="text-2xl font-black italic text-white">${finalPrice}</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {paymentMethods.map((pm) => (
+                                        <div key={pm.id} className="bg-white/5 border border-white/5 rounded-xl p-4 hover:border-red-600/30 hover:bg-white/10 transition-all group">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded bg-black flex items-center justify-center border border-white/10">
+                                                        {pm.icon === 'usdt' && <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-5 h-5" />}
+                                                        {pm.icon === 'binance' && <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-5 h-5" />}
+                                                        {pm.icon === 'bitcoin' && <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-5 h-5" />}
+                                                        {pm.icon === 'bancolombia' && <img src="/img/metodos/logos/Logo_Bancolombia.svg.png" className="w-5 h-5 object-contain" />}
+                                                        {pm.icon === 'nequi' && <img src="/img/metodos/logos/nequi-37254.png" className="w-5 h-5 object-contain" />}
+                                                        {!['usdt', 'binance', 'bitcoin', 'bancolombia', 'nequi'].includes(pm.icon) && <CreditCard size={16} />}
+                                                    </div>
+                                                    <span className="text-[10px] font-black uppercase text-white">{pm.name}</span>
+                                                </div>
+                                                <button onClick={() => handleCopy(pm.value, pm.id)} className="text-gray-500 hover:text-white transition-colors">
+                                                    {copied === pm.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                                </button>
+                                            </div>
+                                            <div className="bg-black/40 rounded p-2 border border-white/5">
+                                                <p className="font-mono text-[10px] text-red-500 break-all">{pm.value}</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
 
                                 <button
-                                    onClick={() => setStep(2)}
-                                    className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.4em] italic text-xs hover:bg-red-600 hover:text-white transition-all skew-x-[-12deg] shadow-lg flex items-center justify-center gap-4"
+                                    onClick={confirmPayment}
+                                    disabled={loading}
+                                    className="w-full mt-6 bg-[#25D366] text-white py-4 rounded-xl font-black italic uppercase tracking-[0.2em] text-xs hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg"
                                 >
-                                    PROCEED TO PAYMENT <ArrowRight size={18} />
+                                    {loading ? 'TRANSMITTING...' : 'CONFIRM TRANSACTION'} <Phone size={16} />
                                 </button>
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key="step2"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
-                                <button onClick={() => setStep(1)} className="text-[9px] font-black text-gray-600 hover:text-white uppercase tracking-widest flex items-center gap-2">← VIEW MEMBERSHIP DETAILS</button>
-
-                                <div className="space-y-6">
-                                    <div className="flex justify-between items-end border-b-2 border-white/5 pb-4">
-                                        <div>
-                                            <h3 className="text-2xl font-black italic uppercase tracking-tighter">PAYMENT PORTAL</h3>
-                                            <p className="text-[10px] tracking-[0.3em] font-black text-gray-600 uppercase">SELECT YOUR CHANNEL</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">TOTAL DUE:</span>
-                                            <p className="text-4xl font-black italic text-white">${finalPrice}.00<span className="text-xs text-gray-500 ml-1">USDT</span></p>
-                                        </div>
-                                    </div>
-
-                                    {/* CRIPTO SECTION */}
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <Wallet size={16} className="text-red-600" />
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CRIPTOMONEDAS (USDT / BINANCE)</span>
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-3">
-                                            {methodsByCat('CRIPTO').map((pm) => (
-                                                <div key={pm.id} className="bg-white/5 border border-white/10 p-4 group hover:border-red-600/40 transition-all flex justify-between items-center">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 bg-black flex items-center justify-center border border-white/5">
-                                                            {pm.icon === 'binance' ? <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-8 h-8 object-contain" /> :
-                                                                pm.icon === 'usdt' ? <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-8 h-8 object-contain" /> :
-                                                                    pm.icon === 'bitcoin' ? <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-8 h-8 object-contain" /> :
-                                                                        <CreditCard size={18} />}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[10px] font-black text-white uppercase">{pm.name}</p>
-                                                            <p className="text-[11px] font-mono font-bold text-red-600 break-all border-l border-red-600/30 pl-3 mt-1">{pm.value}</p>
-                                                        </div>
-                                                    </div>
-                                                    <button onClick={() => handleCopy(pm.value, pm.id)} className={`p-3 transition-all ${copied === pm.id ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-600 hover:text-white'}`}>
-                                                        {copied === pm.id ? <Check size={16} /> : <Copy size={16} />}
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* BANK SECTION */}
-                                    {methodsByCat('BANCO').length > 0 && (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3">
-                                                <Landmark size={16} className="text-red-600" />
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">TRANSFERENCIA BANCARIA</span>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {methodsByCat('BANCO').map((pm) => (
-                                                    <div key={pm.id} className="bg-white/5 border border-white/10 p-4 group hover:border-red-600/40 transition-all flex justify-between items-center">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-10 h-10 bg-black flex items-center justify-center border border-white/5">
-                                                                {pm.icon === 'bancolombia' ? <img src="/img/metodos/logos/Logo_Bancolombia.svg.png" className="w-full h-full object-contain p-2" /> : <Landmark size={18} />}
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] font-black text-white uppercase">{pm.name}</p>
-                                                                <p className="text-[11px] font-mono font-bold text-red-600 pl-3 mt-1 border-l border-red-600/30">{pm.value}</p>
-                                                                {pm.owner && <p className="text-[8px] font-black text-gray-500 uppercase mt-0.5 pl-3">{pm.owner}</p>}
-                                                            </div>
-                                                        </div>
-                                                        <button onClick={() => handleCopy(pm.value, pm.id)} className={`p-3 transition-all ${copied === pm.id ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-600 hover:text-white'}`}>
-                                                            {copied === pm.id ? <Check size={16} /> : <Copy size={16} />}
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* APP SECTION */}
-                                    {methodsByCat('APP').length > 0 && (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3">
-                                                <Smartphone size={16} className="text-red-600" />
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">APLICACIONES DIGITALES</span>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {methodsByCat('APP').map((pm) => (
-                                                    <div key={pm.id} className="bg-white/5 border border-white/10 p-4 group hover:border-red-600/40 transition-all flex justify-between items-center">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-10 h-10 bg-black flex items-center justify-center border border-white/5">
-                                                                {pm.icon === 'nequi' ? <img src="/img/metodos/logos/nequi-37254.png" className="w-8 h-8 object-contain" /> : <Smartphone size={18} />}
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] font-black text-white uppercase">{pm.name}</p>
-                                                                <p className="text-[11px] font-mono font-bold text-red-600 pl-3 mt-1 border-l border-red-600/30">{pm.value}</p>
-                                                            </div>
-                                                        </div>
-                                                        <button onClick={() => handleCopy(pm.value, pm.id)} className={`p-3 transition-all ${copied === pm.id ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-600 hover:text-white'}`}>
-                                                            {copied === pm.id ? <Check size={16} /> : <Copy size={16} />}
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="pt-8 border-t border-white/5 space-y-4">
-                                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest text-center leading-relaxed">
-                                            Once payment is injected, send the transmission report to our commander center for manual activation.
-                                        </p>
-                                        <button
-                                            onClick={confirmPayment}
-                                            disabled={loading}
-                                            className="w-full py-5 bg-[#25D366] text-white font-black italic uppercase tracking-[0.2em] text-xs hover:brightness-110 transition-all flex items-center justify-center gap-4 shadow-xl"
-                                        >
-                                            {loading ? 'INITIALIZING...' : 'REPORT PAYMENT STATUS'} <Phone size={18} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </motion.div>
-
-            {/* NEW USER WELCOME OVERLAY */}
-            <AnimatePresence>
-                {showWelcome && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            className="bg-black border-2 border-red-600 p-8 lg:p-12 max-w-2xl w-full text-center space-y-8 relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
-                                <Zap size={300} className="text-red-600" />
                             </div>
-
-                            <div className="space-y-4 relative z-10">
-                                <div className="flex justify-center">
-                                    <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center animate-bounce shadow-red-glow">
-                                        <Check size={40} className="text-white" />
-                                    </div>
-                                </div>
-                                <h2 className="text-4xl lg:text-5xl font-black italic tracking-tighter text-white uppercase leading-none">
-                                    ¡REGISTRO <span className="text-red-600">EXITOSO!</span>
-                                </h2>
-                                <p className="text-[10px] font-black tracking-[0.4em] text-red-600 uppercase">PRÓXIMOS PASOS REQUERIDOS:</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
-                                <div className="bg-white/5 border border-white/10 p-6 space-y-3 text-left">
-                                    <Smartphone className="text-red-600" size={24} />
-                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">PASO 01</p>
-                                    <p className="text-xs font-bold leading-relaxed">INSTALA LA APP EN TU CELULAR PARA RECIBIR NOTIFICACIONES EN TIEMPO REAL.</p>
-                                    <button
-                                        onClick={() => {
-                                            setShowWelcome(false);
-                                            setShowGuide(true);
-                                        }}
-                                        className="text-[10px] font-black text-red-600 uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors"
-                                    >
-                                        VER GUÍA <ExternalLink size={12} />
-                                    </button>
-                                </div>
-                                <div className="bg-white/5 border border-white/10 p-6 space-y-3 text-left border-l-red-600">
-                                    <CreditCard className="text-red-600" size={24} />
-                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">PASO 02</p>
-                                    <p className="text-xs font-bold leading-relaxed">ACTIVA TU MEMBRESÍA REALIZANDO EL PAGO DE $25 USDT.</p>
-                                    <button
-                                        onClick={() => setShowWelcome(false)}
-                                        className="text-[10px] font-black text-white hover:text-red-600 uppercase tracking-widest flex items-center gap-2 transition-colors"
-                                    >
-                                        IR A PAGAR <ArrowRight size={12} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => setShowWelcome(false)}
-                                className="w-full py-5 bg-white text-black font-black uppercase tracking-[0.4em] italic text-xs hover:bg-red-600 hover:text-white transition-all skew-x-[-12deg] shadow-lg relative z-10"
-                            >
-                                CONTINUAR AL PORTAL
-                            </button>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    )}
+                </AnimatePresence>
 
-            {/* INSTALL GUIDE OVERLAY */}
+                {/* Footer */}
+                <div className="text-center pt-8 border-t border-white/5">
+                    <p className="text-[8px] font-bold text-gray-700 uppercase tracking-widest mb-2">ENCOUNTERING VALIDATION ISSUES?</p>
+                    <button className="text-[9px] font-black text-white hover:text-red-600 uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-colors mx-auto">
+                        <MessageSquare size={10} /> CONTACT COMMAND CENTER
+                    </button>
+                </div>
+            </div>
+
+            {/* Install Guide Modal */}
             <AnimatePresence>
                 {showGuide && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[110] bg-black overflow-y-auto p-4 lg:p-10"
+                        className="fixed inset-0 z-[100] bg-black p-4 flex flex-col"
                     >
-                        <div className="max-w-5xl mx-auto space-y-8">
-                            <button
-                                onClick={() => setShowGuide(false)}
-                                className="text-[10px] font-black text-red-600 uppercase tracking-widest border border-red-600/30 px-6 py-3 hover:bg-red-600 hover:text-white transition-all sticky top-0 bg-black z-20"
-                            >
-                                ← CERRAR GUÍA Y VOLVER AL PAGO
-                            </button>
-                            <div className="bg-black/50 border border-white/10 p-0">
-                                <InstallGuide />
-                            </div>
+                        <button onClick={() => setShowGuide(false)} className="self-end p-4 text-white hover:text-red-600">CLOSE [X]</button>
+                        <div className="flex-1 overflow-y-auto">
+                            <InstallGuide />
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
         </div>
     );
 };
