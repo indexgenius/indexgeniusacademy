@@ -215,15 +215,15 @@ const PaymentPortal = ({ user, onLogout }) => {
                                         </div>
                                         <div className="flex gap-2 items-center flex-wrap">
                                             <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-green-500/30 transition-all group">
-                                                <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="USDT" />
+                                                <img src="/img/metodos/logos/usdt_hq.svg" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="USDT" />
                                                 <span className="text-[8px] font-bold text-gray-400 group-hover:text-green-400 transition-colors">USDT</span>
                                             </div>
                                             <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-orange-500/30 transition-all group">
-                                                <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="BTC" />
+                                                <img src="/img/metodos/logos/btc_hq.svg" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="BTC" />
                                                 <span className="text-[8px] font-bold text-gray-400 group-hover:text-orange-400 transition-colors">BTC</span>
                                             </div>
                                             <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 hover:border-yellow-500/30 transition-all group">
-                                                <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="BNB" />
+                                                <img src="/img/metodos/logos/bnb_hq.svg" className="w-4 h-4 group-hover:scale-110 transition-transform" alt="BNB" />
                                                 <span className="text-[8px] font-bold text-gray-400 group-hover:text-yellow-400 transition-colors">BNB</span>
                                             </div>
                                         </div>
@@ -318,9 +318,9 @@ const PaymentPortal = ({ user, onLogout }) => {
                                             <div className="flex justify-between items-center mb-2">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded bg-black flex items-center justify-center border border-white/10">
-                                                        {pm.icon === 'usdt' && <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-5 h-5" />}
-                                                        {pm.icon === 'binance' && <img src="/img/metodos/logos/Binance-Vertical-Logo.wine.svg" className="w-5 h-5" />}
-                                                        {pm.icon === 'bitcoin' && <img src="/img/metodos/logos/Bitcoin-Logo.png" className="w-5 h-5" />}
+                                                        {pm.icon === 'usdt' && <img src="/img/metodos/logos/usdt_hq.svg" className="w-5 h-5" />}
+                                                        {pm.icon === 'binance' && <img src="/img/metodos/logos/bnb_hq.svg" className="w-5 h-5" />}
+                                                        {pm.icon === 'bitcoin' && <img src="/img/metodos/logos/btc_hq.svg" className="w-5 h-5" />}
                                                         {pm.icon === 'bancolombia' && <img src="/img/metodos/logos/Logo_Bancolombia.svg.png" className="w-5 h-5 object-contain" />}
                                                         {pm.icon === 'nequi' && <img src="/img/metodos/logos/nequi-37254.png" className="w-5 h-5 object-contain" />}
                                                         {!['usdt', 'binance', 'bitcoin', 'bancolombia', 'nequi'].includes(pm.icon) && <CreditCard size={16} />}
