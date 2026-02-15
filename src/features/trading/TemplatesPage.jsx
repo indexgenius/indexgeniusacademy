@@ -54,10 +54,9 @@ const TemplatesPage = ({ user }) => {
         return () => unsubMethods();
     }, [user]);
 
-    // Calculate price based on broker
-    const isBridge = userBroker === 'bridge';
-    const finalPrice = isBridge ? 35 : 50;
-    const planName = isBridge ? 'MEMBER ACCESS' : 'EXTERNAL BROKER';
+    // Unified membership price
+    const finalPrice = 25;
+    const planName = 'ELITE FULL ACCESS';
     const isAdmin = user?.canBroadcast || user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.email?.toLowerCase() === 'pipoapaza@gmail.com';
 
     const handleFileUpload = async (e) => {
