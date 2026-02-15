@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 
 const Hero = () => {
     return (
-        <section className="relative min-h-screen flex flex-col items-center justify-start lg:justify-center text-center overflow-hidden pt-4 lg:pt-20 pb-0">
+        <section className="relative min-h-screen flex flex-col items-center justify-start text-center overflow-hidden pt-4 lg:pt-10 pb-0">
             {/* Background Layers */}
             <div className="absolute inset-0 w-full h-full -z-20 overflow-hidden bg-black">
                 <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none mix-blend-screen">
