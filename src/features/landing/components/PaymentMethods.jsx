@@ -2,15 +2,15 @@ import React from 'react';
 
 const PaymentMethods = () => {
     return (
-        <section className="py-16 bg-black/50 border-y border-white/5 overflow-hidden">
+        <section className="py-16 border-y overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
             <div className="w-full">
                 <div className="text-center mb-10 px-6">
-                    <h3 className="text-3xl lg:text-5xl font-black italic tracking-tighter uppercase mb-4">MÉTODOS DE PAGO</h3>
+                    <h3 className="text-3xl lg:text-5xl font-black italic tracking-tighter uppercase mb-4" style={{ color: 'var(--text-primary)' }}>MÉTODOS DE PAGO</h3>
                     <div className="w-16 h-1 bg-red-600 mx-auto mb-6"></div>
                 </div>
                 <div className="relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black/50 to-transparent z-10 pointer-events-none"></div>
-                    <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black/50 to-transparent z-10 pointer-events-none"></div>
+                    <div className="absolute left-0 top-0 bottom-0 w-32 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, var(--bg-primary), transparent)' }}></div>
+                    <div className="absolute right-0 top-0 bottom-0 w-32 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, var(--bg-primary), transparent)' }}></div>
                     <div className="flex gap-8 sm:gap-16 animate-scroll items-center py-8">
                         {[...Array(3)].map((_, i) => (
                             <React.Fragment key={i}>

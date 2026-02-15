@@ -7,18 +7,33 @@ import AboutUs from './components/AboutUs';
 import Mission from './components/Mission';
 import InstallGuide from './components/InstallGuide';
 
+import { Sun, Moon } from 'lucide-react';
+
 const LandingPage = ({ onShowAuth }) => {
     const [isReferred, setIsReferred] = React.useState(false);
+    const [isDarkMode, setIsDarkMode] = React.useState(true);
 
     React.useEffect(() => {
         const ref = localStorage.getItem('referralCode');
         if (ref && ref.length > 5 && ref !== '/') {
             setIsReferred(true);
         }
+
+        // Check system preference or logic here if needed
     }, []);
 
+    const toggleTheme = () => {
+        const newMode = !isDarkMode;
+        setIsDarkMode(newMode);
+        if (newMode) {
+            document.body.classList.remove('light-mode');
+        } else {
+            document.body.classList.add('light-mode');
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-red-600 selection:text-white font-space overflow-x-hidden relative">
+        <div className={`min-h-screen selection:bg-red-600 selection:text-white font-space overflow-x-hidden relative transition-colors duration-300 ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
             {/* Background Ambience */}
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-full bg-red-600/5 blur-[120px] pointer-events-none -z-10"></div>
 
@@ -38,9 +53,18 @@ const LandingPage = ({ onShowAuth }) => {
                         <a href="#services" className="hover:text-red-600 transition-colors">SERVICIOS</a>
                         <a href="#testimonials" className="hover:text-red-600 transition-colors">TESTIMONIOS</a>
                     </div>
+
+                    <button
+                        onClick={toggleTheme}
+                        className={`p-2 rounded-full transition-all ${isDarkMode ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-black/5 hover:bg-black/10 text-black'}`}
+                        title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    >
+                        {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                    </button>
+
                     <button
                         onClick={onShowAuth}
-                        className="px-5 py-2.5 lg:px-6 lg:py-3 bg-white text-black font-black text-[10px] lg:text-[11px] hover:bg-red-600 hover:text-white transition-all skew-x-[-12deg] tracking-widest uppercase shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                        className={`px-5 py-2.5 lg:px-6 lg:py-3 font-black text-[10px] lg:text-[11px] hover:bg-red-600 hover:text-white transition-all skew-x-[-12deg] tracking-widest uppercase shadow-[0_0_20px_rgba(255,255,255,0.1)] ${isDarkMode ? 'bg-white text-black' : 'bg-black text-white'}`}
                     >
                         ÚNETE AHORA
                     </button>

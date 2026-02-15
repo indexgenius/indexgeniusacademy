@@ -17,8 +17,36 @@
 }
 
 @layer base {
+  :root {
+    --bg-primary: #050505;
+    --text-primary: #ffffff;
+    --shadow-color: #000000;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --hero-overlay: rgba(0, 0, 0, 0.2);
+    /* Reduced overlay for clearer video */
+    --glass-bg: rgba(0, 0, 0, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
+
+  .light-mode {
+    --bg-primary: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #000000;
+    /* Darker grey for better readability in light mode */
+    --card-bg: #f3f4f6;
+    --shadow-color: #d1d5db;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --hero-overlay: rgba(255, 255, 255, 0.1);
+    /* Minimal overlay for light mode too */
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(0, 0, 0, 0.1);
+  }
+
   body {
-    @apply bg-dark text-white font-space;
+    @apply font-space;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Force dark styles on native select elements */
@@ -174,12 +202,12 @@
   font-weight: 900;
   text-transform: uppercase;
   line-height: 0.85;
-  color: #ffffff;
+  color: var(--text-primary);
   font-style: italic;
   transform: skewX(-5deg);
   text-shadow:
     2px 2px 0px #ff0000,
-    4px 4px 0px #000000;
+    4px 4px 0px var(--shadow-color);
   letter-spacing: -2px;
   margin: 0;
   display: inline-block;
@@ -213,13 +241,41 @@
   font-weight: 900;
   text-transform: uppercase;
   line-height: 0.9;
-  color: #ffffff;
+  color: var(--text-primary);
   font-style: italic;
   transform: skewX(-5deg);
-  text-shadow:
-    2px 2px 0px #ff0000,
-    4px 4px 0px #000000;
   letter-spacing: -1px;
   margin: 0;
   display: inline-block;
+}
+
+/* TACTICAL TERMINAL EFFECTS - CLEAN */
+.vignette {
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+
+@keyframes breathe {
+
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+  }
+
+  50% {
+    transform: scale(1.02) translateY(-10px);
+  }
+}
+
+.animate-breathe {
+  animation: breathe 8s ease-in-out infinite;
+}
+
+.tactical-border-left {
+  border-left: 4px solid #ff0000;
+}
+
+.mask-radial-faded {
+  -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
+  mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
 }
