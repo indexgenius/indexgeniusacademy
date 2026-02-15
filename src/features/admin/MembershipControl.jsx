@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, query, orderBy, onSnapshot, updateDoc, doc, writeBatch, Timestamp, deleteDoc } from 'firebase/firestore';
-import { Clock, Search, Calendar, UserCheck, AlertTriangle, Shield, Trash2 } from 'lucide-react';
+import { Clock, Search, Calendar, UserCheck, AlertTriangle, Shield, Trash2, Smartphone } from 'lucide-react';
 
 const MembershipControl = () => {
     const [users, setUsers] = useState([]);
@@ -260,12 +260,28 @@ const MembershipControl = () => {
                                         </div>
                                         <div>
                                             <div className="font-bold text-white text-sm uppercase tracking-tight">{user.displayName || 'UNKNOWN'}</div>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex flex-col">
                                                 <div className="text-[10px] text-gray-500 font-mono">{user.email}</div>
+                                                {user.phone && (
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <span className="text-[10px] text-green-500 font-black tracking-tighter uppercase">PH: {user.phone}</span>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                window.open(`https://wa.me/${user.phone.replace(/\D/g, '')}`, '_blank');
+                                                            }}
+                                                            className="p-1 bg-green-500/10 border border-green-500/20 hover:bg-green-500 hover:text-white transition-all rounded"
+                                                        >
+                                                            <Smartphone size={8} />
+                                                        </button>
+                                                    </div>
+                                                )}
                                                 {user.referredBy && (
-                                                    <span className="text-[7px] font-black text-red-600 bg-red-600/5 px-2 py-0.5 border border-red-600/10 uppercase tracking-tighter">
-                                                        REF: {user.referredBy.substring(0, 8)}
-                                                    </span>
+                                                    <div className="mt-1">
+                                                        <span className="text-[7px] font-black text-red-600 bg-red-600/5 px-2 py-0.5 border border-red-600/10 uppercase tracking-tighter">
+                                                            REF: {user.referredBy.substring(0, 8)}
+                                                        </span>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>

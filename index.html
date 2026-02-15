@@ -56,111 +56,128 @@
   </style>
   <script>
     window.OS_BLOCKED_BY_ADBLOCK = false;
+
+    // Inyección dinámica de OneSignal para evitar errores de dominio en dev
+    const isApprovedOneSignalDomain = window.location.hostname === 'indexgeniusacademy.com' ||
+      window.location.hostname === 'www.indexgeniusacademy.com';
+
+    if (isApprovedOneSignalDomain) {
+      const script = document.createElement('script');
+      script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+      script.defer = true;
+      script.onerror = () => { window.OS_BLOCKED_BY_ADBLOCK = true; };
+      document.head.appendChild(script);
+    }
   </script>
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-    onerror="window.OS_BLOCKED_BY_ADBLOCK = true;" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function (OneSignal) {
-      await OneSignal.init({
-        appId: "04046e2f-a035-4a88-9842-147cf501c938",
-        safari_web_id: "web.onesignal.auto.44737891-769a-4856-a052-0f3c94719003",
-        notifyButton: {
-          enable: true,
-          size: 'medium',
-          theme: 'default',
-          position: 'bottom-right',
-          offset: {
-            bottom: '40px',
-            right: '20px'
+
+    // Solo inicializar OneSignal si estamos en el dominio oficial de producción
+    const isApprovedDomain = window.location.hostname === 'indexgeniusacademy.com' ||
+      window.location.hostname === 'www.indexgeniusacademy.com';
+
+    if (isApprovedDomain) {
+      OneSignalDeferred.push(async function (OneSignal) {
+        await OneSignal.init({
+          appId: "04046e2f-a035-4a88-9842-147cf501c938",
+          safari_web_id: "web.onesignal.auto.44737891-769a-4856-a052-0f3c94719003",
+          notifyButton: {
+            enable: true,
+            size: 'medium',
+            theme: 'default',
+            position: 'bottom-right',
+            offset: {
+              bottom: '40px',
+              right: '20px'
+            },
+            colors: {
+              'circle.background': '#ff0000',
+              'circle.foreground': 'white',
+              'badge.background': '#ff0000',
+              'badge.foreground': 'white',
+              'badge.bordercolor': 'white',
+              'pulse.color': 'white',
+            },
+            text: {
+              'tip.state.unsubscribed': 'Suscribirse a notificaciones',
+              'tip.state.subscribed': 'Estás suscrito',
+              'tip.state.blocked': 'Has bloqueado las notificaciones',
+              'message.prenotify': 'Haz clic para activar señales tácticas',
+              'message.action.subscribed': '¡Gracias por suscribirte!',
+              'message.action.resubscribed': 'Estás suscrito de nuevo',
+              'message.action.unsubscribed': 'No recibirás más señales',
+              'dialog.main.title': 'Gestionar Notificaciones',
+              'dialog.main.button.subscribe': 'SUSCRIBIRSE',
+              'dialog.main.button.unsubscribe': 'DAR DE BAJA',
+              'dialog.blocked.title': 'Desbloquear Notificaciones',
+              'dialog.blocked.message': 'Haz clic aquí para ver cómo permitir notificaciones en tu navegador'
+            }
           },
-          colors: {
-            'circle.background': '#ff0000',
-            'circle.foreground': 'white',
-            'badge.background': '#ff0000',
-            'badge.foreground': 'white',
-            'badge.bordercolor': 'white',
-            'pulse.color': 'white',
-          },
-          text: {
-            'tip.state.unsubscribed': 'Suscribirse a notificaciones',
-            'tip.state.subscribed': 'Estás suscrito',
-            'tip.state.blocked': 'Has bloqueado las notificaciones',
-            'message.prenotify': 'Haz clic para activar señales tácticas',
-            'message.action.subscribed': '¡Gracias por suscribirte!',
-            'message.action.resubscribed': 'Estás suscrito de nuevo',
-            'message.action.unsubscribed': 'No recibirás más señales',
-            'dialog.main.title': 'Gestionar Notificaciones',
-            'dialog.main.button.subscribe': 'SUSCRIBIRSE',
-            'dialog.main.button.unsubscribe': 'DAR DE BAJA',
-            'dialog.blocked.title': 'Desbloquear Notificaciones',
-            'dialog.blocked.message': 'Haz clic aquí para ver cómo permitir notificaciones en tu navegador'
-          }
-        },
-        allowLocalhostAsSecureOrigin: true,
-        promptOptions: {
-          slidedown: {
-            prompts: [
-              {
-                type: 'push',
-                autoPrompt: true,
-                text: {
-                  actionMessage: "¿Deseas recibir alertas tácticas y señales en tiempo real?",
-                  acceptButton: "ACTIVAR",
-                  cancelButton: "LUEGO"
-                },
-                delay: {
-                  pageViews: 1,
-                  timeDelay: 25
+          allowLocalhostAsSecureOrigin: true,
+          promptOptions: {
+            slidedown: {
+              prompts: [
+                {
+                  type: 'push',
+                  autoPrompt: true,
+                  text: {
+                    actionMessage: "¿Deseas recibir alertas tácticas y señales en tiempo real?",
+                    acceptButton: "ACTIVAR",
+                    cancelButton: "LUEGO"
+                  },
+                  delay: {
+                    pageViews: 1,
+                    timeDelay: 25
+                  }
                 }
-              }
-            ]
+              ]
+            }
           }
-        }
-      });
+        });
 
-      // Auto-tag users when they login
-      // This listens for user email stored in localStorage
-      let lastTaggedEmail = null; // Track the last email we tagged to avoid redundant calls
+        // Auto-tag users when they login
+        // This listens for user email stored in localStorage
+        let lastTaggedEmail = null; // Track the last email we tagged to avoid redundant calls
 
-      const checkAndTagUser = async () => {
-        const userEmail = localStorage.getItem('dn_academy_email');
+        const checkAndTagUser = async () => {
+          const userEmail = localStorage.getItem('dn_academy_email');
 
-        // Only tag if we have an email AND it's different from the last one we tagged
-        if (userEmail && userEmail !== lastTaggedEmail) {
-          console.log('🏷️ [OneSignal] Tagging user with email:', userEmail);
-          try {
-            await OneSignal.User.addTag('email', userEmail);
-            lastTaggedEmail = userEmail; // Remember this email
-            console.log('✅ [OneSignal] User tagged successfully');
-          } catch (err) {
-            console.error('❌ [OneSignal] Failed to tag user:', err);
+          // Only tag if we have an email AND it's different from the last one we tagged
+          if (userEmail && userEmail !== lastTaggedEmail) {
+            console.log('🏷️ [OneSignal] Tagging user with email:', userEmail);
+            try {
+              await OneSignal.User.addTag('email', userEmail);
+              lastTaggedEmail = userEmail; // Remember this email
+              console.log('✅ [OneSignal] User tagged successfully');
+            } catch (err) {
+              console.error('❌ [OneSignal] Failed to tag user:', err);
+            }
           }
-        }
-      };
+        };
 
-      // Check immediately
-      checkAndTagUser();
-
-      // Reliable Adblock detection check
-      setTimeout(() => {
-        if (!window.OneSignal && !window.OneSignalDeferred?.length) {
-          console.warn('⚠️ [OneSignal] SDK potentialy blocked by AdBlock or Network');
-          window.OS_BLOCKED_BY_ADBLOCK = true;
-          window.dispatchEvent(new Event('focus')); // Trigger re-check in usePWA
-        }
-      }, 3000);
-
-      // Also check when storage changes (e.g., after login)
-      window.addEventListener('storage', checkAndTagUser);
-
-      // Check periodically ALWAYS (every 5 seconds) to catch any email changes
-      setInterval(() => {
+        // Check immediately
         checkAndTagUser();
-      }, 5000); // Check every 5 seconds continuously
 
-      console.log('🔔 [OneSignal] Continuous email monitoring active');
-    });
+        // Reliable Adblock detection check
+        setTimeout(() => {
+          if (!window.OneSignal && !window.OneSignalDeferred?.length) {
+            console.warn('⚠️ [OneSignal] SDK potentialy blocked by AdBlock or Network');
+            window.OS_BLOCKED_BY_ADBLOCK = true;
+            window.dispatchEvent(new Event('focus')); // Trigger re-check in usePWA
+          }
+        }, 3000);
+
+        // Also check when storage changes (e.g., after login)
+        window.addEventListener('storage', checkAndTagUser);
+
+        // Check periodically ALWAYS (every 5 seconds) to catch any email changes
+        setInterval(() => {
+          checkAndTagUser();
+        }, 5000); // Check every 5 seconds continuously
+
+        console.log('🔔 [OneSignal] Continuous email monitoring active');
+      });
+    }
   </script>
 
 </head>

@@ -3,6 +3,7 @@ import { Lock, Unlock, Key, ShieldAlert, Zap, MessageSquare, CreditCard, Downloa
 import { db } from '../../firebase';
 import { doc, getDoc, updateDoc, setDoc, serverTimestamp, collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProTacticalBackground from '../../components/ProTacticalBackground';
 
 const TemplatesPage = ({ user }) => {
     const [unlocked, setUnlocked] = useState(false);
@@ -172,7 +173,8 @@ const TemplatesPage = ({ user }) => {
     const getCatMethods = (catId) => paymentMethods.filter(pm => pm.category === catId);
 
     return (
-        <div className="min-h-[80vh] flex flex-col items-center justify-center p-4">
+        <div className="min-h-[80vh] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+            <ProTacticalBackground />
             {!unlocked ? (
                 /* --- LOCKED VIEW --- */
                 <div className="max-w-6xl w-full flex flex-col gap-6 lg:gap-12">
@@ -337,157 +339,182 @@ const TemplatesPage = ({ user }) => {
                 </div>
             ) : (
                 /* --- UNLOCKED VIEW --- */
-                <div className="w-full max-w-5xl animate-in fade-in duration-700">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+                <>
+                    <div className="w-full max-w-5xl animate-in fade-in duration-700 relative z-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
 
-                        {/* Left: Tactical Info */}
-                        <div className="lg:col-span-7 space-y-6 lg:space-y-8">
-                            <div className="space-y-3 lg:space-y-4">
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    className="inline-flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-1.5 bg-green-500/10 border border-green-500/20 rounded-full"
-                                >
-                                    <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                    <span className="text-[8px] lg:text-[10px] font-black text-green-500 tracking-[0.2em] uppercase">ACCESS GRANTED • CLEARANCE TIER IV</span>
-                                </motion.div>
-
-                                <motion.h2
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="text-4xl lg:text-8xl font-black italic tracking-tighter text-white uppercase leading-[0.9]"
-                                >
-                                    INDEX <span className="text-red-600">GENIUS</span> <br />
-                                    <span className="text-transparent border-t-2 border-white/10 pt-2 block">TERMINAL</span>
-                                </motion.h2>
-
-                                <motion.p
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-gray-500 font-bold tracking-widest text-[10px] lg:text-xs uppercase max-w-lg leading-relaxed italic"
-                                >
-                                    "DESCARGA EL ALGORITMO DE ALTA PRECISIÓN C4. DISEÑADO PARA DOMINAR EL MERCADO DE ÍNDICES SINTÉTICOS CON PRECISIÓN INSTITUCIONAL."
-                                </motion.p>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-3 lg:gap-4">
-                                {[
-                                    { label: 'VERSION', val: templateInfo?.name || 'V4.5 ELITE' },
-                                    { label: 'FORMAT', val: 'MT5 / .ZIP' },
-                                    { label: 'FILE SIZE', val: templateInfo?.size || '84.2 MB' },
-                                ].map((stat, i) => (
-                                    <div key={i} className="p-3 lg:p-4 bg-white/5 border border-white/5">
-                                        <p className="text-[6px] lg:text-[8px] font-black text-gray-600 tracking-widest mb-1 uppercase">{stat.label}</p>
-                                        <p className="text-xs lg:text-sm font-black text-white italic">{stat.val}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Right: The Download Trigger */}
-                        <div className="lg:col-span-5">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.3 }}
-                                className="relative bg-[#0a0a0a] border border-white/10 p-1 rounded-3xl overflow-hidden shadow-2xl"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-br from-red-600/5 to-transparent pointer-events-none"></div>
-
-                                <div className="p-8 space-y-8 relative z-10">
-                                    <div className="flex justify-between items-start">
-                                        <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center shadow-red-glow">
-                                            <Download className="text-white" size={24} />
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-[9px] font-black text-red-600 tracking-widest uppercase">STEVEN CASTILLO</p>
-                                            <p className="text-[9px] font-bold text-gray-600 tracking-widest uppercase">CHIEF DEVELOPER</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <h4 className="text-xl font-black italic text-white uppercase tracking-tighter">ELITE PACK READY</h4>
-                                        <p className="text-[10px] font-bold text-gray-500 leading-relaxed uppercase tracking-widest italic">
-                                            EL ARCHIVO CONTIENE MANUAL DE INSTALACIÓN, INDICADORES Y PLANTILLAS PRE-CONFIGURADAS.
-                                        </p>
-                                    </div>
-
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={handleDownload}
-                                        className="group relative w-full py-6 bg-red-600 text-white font-black italic tracking-[0.3em] uppercase text-xs overflow-hidden rounded-2xl shadow-red-glow transition-all hover:bg-white hover:text-black"
+                            {/* Left: Tactical Info */}
+                            <div className="lg:col-span-7 space-y-6 lg:space-y-8">
+                                <div className="space-y-3 lg:space-y-4">
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="inline-flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-1.5 bg-green-500/10 border border-green-500/20 rounded-full"
                                     >
-                                        <span className="relative z-10 flex items-center justify-center gap-3">
-                                            ENGAGE DOWNLOAD <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                                        </span>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                                    </motion.button>
+                                        <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                        <span className="text-[8px] lg:text-[10px] font-black text-green-500 tracking-[0.2em] uppercase">ACCESS GRANTED • CLEARANCE TIER IV</span>
+                                    </motion.div>
 
-                                    {isAdmin && (
-                                        <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
-                                            <div className="space-y-2">
-                                                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">SUBIR NUEVO ARCHIVO</p>
-                                                <label className="flex items-center justify-center gap-2 py-3 border border-white/10 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all group">
-                                                    <Download size={14} className="text-red-600" />
-                                                    <span className="text-[10px] font-black italic text-gray-400 group-hover:text-white uppercase font-mono">UPLOAD (.ZIP / .MT5)</span>
-                                                    <input type="file" className="hidden" onChange={handleFileUpload} />
-                                                </label>
-                                            </div>
+                                    <motion.h2
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="text-5xl lg:text-9xl font-black italic tracking-tighter text-white leading-[0.85] uppercase relative"
+                                        style={{ textShadow: '0 0 40px rgba(220, 38, 38, 0.6)' }}
+                                    >
+                                        INDEX <span className="text-red-600">GENIUS</span>
+                                        <div className="absolute -bottom-4 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600/50 to-transparent" />
+                                        <br />
+                                        <motion.span
+                                            animate={{
+                                                opacity: [1, 0.8, 1, 0.9, 1],
+                                                x: [0, -2, 2, -1, 0]
+                                            }}
+                                            transition={{
+                                                duration: 0.2,
+                                                repeat: Infinity,
+                                                repeatDelay: Math.random() * 5 + 2
+                                            }}
+                                            className="text-transparent border-t-2 border-white/10 pt-2 block"
+                                            style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}
+                                        >
+                                            TERMINAL
+                                        </motion.span>
+                                    </motion.h2>
 
-                                            <div className="space-y-2">
-                                                <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">O VINCULAR URL DIRECTA</p>
-                                                <div className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Pega la URL de Cloudinary aquí..."
-                                                        className="flex-1 bg-white/5 border border-white/10 p-2 text-[9px] font-mono text-white outline-none focus:border-red-600 transition-all"
-                                                        onKeyDown={async (e) => {
-                                                            if (e.key === 'Enter' && e.target.value) {
-                                                                const url = e.target.value;
-                                                                setLoading(true);
-                                                                try {
-                                                                    const assetRef = doc(db, 'site_assets', 'template_pack');
-                                                                    const newInfo = {
-                                                                        url: url,
-                                                                        name: 'MANUAL UPDATE',
-                                                                        size: '---',
-                                                                        updatedAt: serverTimestamp()
-                                                                    };
-                                                                    await setDoc(assetRef, newInfo, { merge: true });
-                                                                    setTemplateInfo(newInfo);
-                                                                    alert("URL VINCULADA CORRECTAMENTE");
-                                                                    e.target.value = '';
-                                                                } catch (err) {
-                                                                    alert("ERROR AL VINCULAR: " + err.message);
-                                                                } finally {
-                                                                    setLoading(false);
-                                                                }
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                                <p className="text-[7px] text-gray-600 leading-none">Presiona ENTER para guardar la URL</p>
-                                            </div>
-                                        </div>
-                                    )}
+                                    <motion.p
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-gray-500 font-bold tracking-widest text-[10px] lg:text-xs uppercase max-w-lg leading-relaxed italic"
+                                    >
+                                        "DESCARGA EL ALGORITMO DE ALTA PRECISIÓN C4. DISEÑADO PARA DOMINAR EL MERCADO DE ÍNDICES SINTÉTICOS CON PRECISIÓN INSTITUCIONAL."
+                                    </motion.p>
                                 </div>
 
-                                {/* Decorative HUD elements */}
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 opacity-20">
-                                    {[...Array(5)].map((_, i) => (
-                                        <div key={i} className="w-8 h-1 bg-white/20 rounded-full"></div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 mt-8 lg:mt-12">
+                                    {[
+                                        { label: 'VERSION', value: 'ElitePack IndexGenius Academy.zip', delay: 0.3 },
+                                        { label: 'FORMAT', value: 'MT5 / .ZIP', delay: 0.4 },
+                                        { label: 'FILE SIZE', value: '0.3 MB', delay: 0.5 }
+                                    ].map((item, idx) => (
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: item.delay }}
+                                            className="p-4 lg:p-5 bg-white/[0.02] border border-white/5 rounded-xl lg:rounded-2xl backdrop-blur-sm hover:border-red-600/30 transition-colors group"
+                                        >
+                                            <p className="text-[7px] lg:text-[8px] font-black text-gray-500 tracking-widest uppercase mb-1 lg:mb-2 group-hover:text-red-500 transition-colors">{item.label}</p>
+                                            <p className="text-[10px] lg:text-xs font-bold text-gray-300 truncate">{item.value}</p>
+                                        </motion.div>
                                     ))}
+                                </div>
+                            </div>
+
+                            {/* Right: The Download Trigger */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="lg:col-span-5 relative group"
+                            >
+                                {/* HUD Corners Decor */}
+                                <div className="absolute -top-2 -left-2 w-6 h-6 border-t border-l border-red-600/40 z-20" />
+                                <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b border-r border-red-600/40 z-20" />
+
+                                <div className="relative bg-[#050505]/95 border border-white/10 p-6 lg:p-10 rounded-3xl overflow-hidden backdrop-blur-xl group-hover:border-red-600/40 transition-all duration-500 shadow-2xl">
+                                    {/* Technical scanline inside card */}
+                                    <div className="absolute inset-0 bg-scanlines opacity-[0.02] pointer-events-none" />
+
+                                    <div className="relative z-10 space-y-6 lg:space-y-8 text-center">
+                                        <div className="flex justify-center">
+                                            <div className="w-16 h-16 lg:w-20 lg:h-20 bg-red-600 rounded-2xl flex items-center justify-center shadow-red-glow animate-pulse">
+                                                <Download size={32} className="text-white lg:w-10 lg:h-10" />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <h3 className="text-2xl lg:text-3xl font-black italic text-white uppercase tracking-tighter">ELITE PACK READY</h3>
+                                            <p className="text-[9px] lg:text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed px-4">
+                                                EL ARCHIVO CONTIENE MANUAL DE INSTALACIÓN, INDICADORES Y PLANTILLAS PRE-CONFIGURADAS.
+                                            </p>
+                                        </div>
+
+                                        <motion.button
+                                            whileHover={{ x: [-1, 1, -1, 1, 0] }}
+                                            transition={{ duration: 0.1, repeat: Infinity }}
+                                            onClick={handleDownload}
+                                            className="w-full relative py-5 lg:py-6 overflow-hidden rounded-xl lg:rounded-2xl group/btn"
+                                        >
+                                            <div className="absolute inset-0 bg-red-600 transition-all group-hover/btn:bg-white duration-300" />
+                                            <div className="absolute inset-0 opacity-0 group-hover/btn:opacity-20 bg-[linear-gradient(45deg,red,white,red)] bg-[length:200%_100%] animate-shimmer" />
+                                            <span className="relative z-10 text-white group-hover/btn:text-black font-black italic text-xs lg:text-sm tracking-[0.3em] uppercase flex items-center justify-center gap-3">
+                                                ENGAGE DOWNLOAD <ArrowRight size={18} />
+                                            </span>
+                                        </motion.button>
+
+                                        {isAdmin && (
+                                            <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
+                                                <div className="space-y-2">
+                                                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest text-left">SUBIR NUEVO ARCHIVO</p>
+                                                    <label className="flex items-center justify-center gap-2 py-3 border border-white/10 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all group">
+                                                        <Download size={14} className="text-red-600" />
+                                                        <span className="text-[10px] font-black italic text-gray-400 group-hover:text-white uppercase font-mono">UPLOAD (.ZIP / .MT5)</span>
+                                                        <input type="file" className="hidden" onChange={handleFileUpload} />
+                                                    </label>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest text-left">O VINCULAR URL DIRECTA</p>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Pega la URL de Cloudinary aquí..."
+                                                            className="flex-1 bg-white/5 border border-white/10 p-2 text-[9px] font-mono text-white outline-none focus:border-red-600 transition-all"
+                                                            onKeyDown={async (e) => {
+                                                                if (e.key === 'Enter' && e.target.value) {
+                                                                    const url = e.target.value;
+                                                                    setLoading(true);
+                                                                    try {
+                                                                        const assetRef = doc(db, 'site_assets', 'template_pack');
+                                                                        const newInfo = {
+                                                                            url: url,
+                                                                            name: 'MANUAL UPDATE',
+                                                                            size: '---',
+                                                                            updatedAt: serverTimestamp()
+                                                                        };
+                                                                        await setDoc(assetRef, newInfo, { merge: true });
+                                                                        setTemplateInfo(newInfo);
+                                                                        alert("URL VINCULADA CORRECTAMENTE");
+                                                                        e.target.value = '';
+                                                                    } catch (err) {
+                                                                        alert("ERROR AL VINCULAR: " + err.message);
+                                                                    } finally {
+                                                                        setLoading(false);
+                                                                    }
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <p className="text-[7px] text-gray-600 leading-none text-left">Presiona ENTER para guardar la URL</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Decorative HUD elements */}
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 opacity-20">
+                                        {[...Array(5)].map((_, i) => (
+                                            <div key={i} className="w-8 h-1 bg-white/20 rounded-full"></div>
+                                        ))}
+                                    </div>
                                 </div>
                             </motion.div>
                         </div>
-
                     </div>
 
                     {/* Tutorial Section */}
-                    <div className="mt-12 p-8 bg-white/5 border border-white/10 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 group">
+                    <div className="mt-12 p-8 bg-white/5 border border-white/10 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 group relative max-w-5xl w-full z-10">
                         <div className="space-y-2">
                             <h4 className="text-xl font-black italic text-white uppercase tracking-tighter">¿NO SABES CÓMO INSTALAR?</h4>
                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">MIRA EL VIDEO TUTORIAL PASO A PASO PARA CONFIGURAR TU TERMINAL</p>
@@ -502,7 +529,7 @@ const TemplatesPage = ({ user }) => {
                             VER TUTORIAL DE INSTALACIÓN
                         </button>
                     </div>
-                </div>
+                </>
             )}
 
             {/* PAYMENT MODAL */}
@@ -597,8 +624,6 @@ const TemplatesPage = ({ user }) => {
                                                         <div className="bg-black/80 border border-white/5 p-3 text-[10px] font-mono text-[#F3BA2F] break-all border-l-2 border-l-[#F3BA2F]">
                                                             {pm.value}
                                                         </div>
-
-
                                                     </div>
                                                 ))}
                                             </div>

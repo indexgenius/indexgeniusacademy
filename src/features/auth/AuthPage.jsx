@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Lock, User, ArrowRight, Chrome, Mail, Eye, EyeOff } from 'lucide-react';
+import { Zap, Lock, User, ArrowRight, Chrome, Mail, Eye, EyeOff, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, googleProvider, db } from '../../firebase';
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
@@ -12,17 +12,18 @@ const AuthPage = ({ onLogin }) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         const hasRef = localStorage.getItem('referralCode');
         if (hasRef && hasRef.length > 5 && hasRef !== '/') {
             setIsLogin(false);
         }
-    }, []); // Only check on mount
-    const [showPassword, setShowPassword] = useState(false);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -55,6 +56,7 @@ const AuthPage = ({ onLogin }) => {
                 const userData = {
                     email: normalizedEmail,
                     displayName: name,
+                    phone: phone,
                     status: 'payment_required',
                     role: 'user',
                     createdAt: serverTimestamp(),
@@ -143,7 +145,6 @@ const AuthPage = ({ onLogin }) => {
 
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
-                        {/* Mobile Logo Only */}
                         <div className="lg:hidden w-32 h-32 mb-8 mx-auto bg-black border border-white/10 rounded-full flex items-center justify-center p-4">
                             <img src="/img/logos/red_bull_logo_new.PNG" alt="Logo" className="w-full h-full object-contain" />
                         </div>
@@ -171,13 +172,22 @@ const AuthPage = ({ onLogin }) => {
                             ) : (
                                 <motion.div key="auth" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
                                     {!isLogin && (
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">USERNAME</label>
-                                            <div className="relative">
-                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="ENTER USERNAME" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                        <>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">USERNAME</label>
+                                                <div className="relative">
+                                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+                                                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="ENTER USERNAME" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                </div>
                                             </div>
-                                        </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">PHONE NUMBER</label>
+                                                <div className="relative">
+                                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+                                                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="ENTER PHONE NUMBER" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                </div>
+                                            </div>
+                                        </>
                                     )}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">EMAIL</label>

@@ -31,7 +31,8 @@ const PaymentPortal = ({ user, onLogout }) => {
     const confirmPayment = async () => {
         setLoading(true);
         const userEmail = user?.email || "SISTEMA_LOCAL_USER";
-        const message = `HOLA STEVEN. ACABO DE REALIZAR EL PAGO DE MI MEMBRESÍA ELITE.\n\nVALOR: $${finalPrice} USD\nPLAN: ${planName}\nUSUARIO: ${userEmail}\n\nPOR FAVOR ACTIVA MI ACCESO.`;
+        const userPhone = user?.phone || "NO REGISTRADO";
+        const message = `HOLA STEVEN. ACABO DE REALIZAR EL PAGO DE MI MEMBRESÍA ELITE.\n\nVALOR: $${finalPrice} USD\nPLAN: ${planName}\nUSUARIO: ${userEmail}\nTELÉFONO: ${userPhone}\n\nPOR FAVOR ACTIVA MI ACCESO.`;
         const waUrl = `https://wa.me/18292198071?text=${encodeURIComponent(message)}`;
 
         try {

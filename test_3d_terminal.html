@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDEX GENIUS - TACTICAL BULL TERMINAL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
+
+        body {
+            margin: 0;
+            background-color: #000;
+            color: #ff0000;
+            font-family: 'Space+Grotesk', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .bull-image {
+            max-width: 85%;
+            max-height: 85%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 40px rgba(255, 0, 0, 0.5)) contrast(1.2);
+            mix-blend-mode: screen;
+            animation: breathe 10s ease-in-out infinite, pulse-glow 5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1) translateY(0) rotateY(-5deg);
+            }
+
+            50% {
+                transform: scale(1.05) translateY(-20px) rotateY(5deg);
+            }
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.3)) brightness(1);
+            }
+
+            50% {
+                filter: drop-shadow(0 0 50px rgba(255, 0, 0, 0.6)) brightness(1.2);
+            }
+        }
+
+        .ui-layer {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+            box-sizing: border-box;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-left: 4px solid #ff0000;
+            padding-left: 20px;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            font-style: italic;
+            line-height: 0.9;
+        }
+
+        .status-box {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            padding: 10px 20px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    rgba(18, 16, 16, 0) 50%,
+                    rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 300px rgba(0, 0, 0, 1);
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        .ambient-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            background-image: radial-gradient(circle, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: move-bg 20s linear infinite;
+            opacity: 0.2;
+        }
+
+        @keyframes move-bg {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: -500px 500px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="ambient-particles"></div>
+
+    <div class="ui-layer">
+        <div class="header">
+            <div class="title">INDEX GENIUS<br><span style="color: #fff; opacity: 0.5;">ELITE V4.5</span></div>
+            <div class="status-box">SYSTEM STATUS: OPTIMAL<br>CLEARANCE: LEVEL IV</div>
+        </div>
+
+        <div class="footer">
+            <div>TERMINAL ID: IG-BULL-IMAGE-REF</div>
+            <div>&copy; 2026 INDEX GENIUS ACADEMY - ALL RIGHTS RESERVED</div>
+        </div>
+    </div>
+
+    <div id="bg-container">
+        <img src="./public/img/toro3d/ChatGPT%20Image%2015%20feb%202026%2C%2011_21_36%20a.m..png" alt="Tactical Bull"
+            class="bull-image">
+    </div>
+</body>
+
+</html>

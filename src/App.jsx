@@ -25,6 +25,7 @@ import SubscriptionExpired from './features/access/SubscriptionExpired';
 import PaymentPortal from './features/access/PaymentPortal';
 import PromoModal from './features/notifications/PromoModal';
 import NotificationPromptModal from './features/notifications/NotificationPromptModal';
+import PhoneCaptureModal from './features/user/PhoneCaptureModal';
 
 import { db } from './firebase';
 import { onSnapshot, query, orderBy, collection, limit } from "firebase/firestore";
@@ -233,6 +234,7 @@ function App() {
       {activeTab === 'admin' && (user?.canBroadcast || isAdmin) && <Admin user={user} broadcastSignal={broadcastSignal} />}
       {activeTab === 'groups' && <Groups user={user} />}
       {activeTab === 'profile' && <Profile user={user} />}
+      <PhoneCaptureModal user={user} />
       {user?.status === 'approved' && <PromoModal />}
       {user?.status === 'approved' && (
         <NotificationPromptModal
