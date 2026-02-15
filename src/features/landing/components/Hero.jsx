@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 
 const Hero = () => {
     return (
-        <section className="relative min-h-screen flex flex-col items-center justify-center text-center overflow-hidden pt-20 pb-0">
+        <section className="relative min-h-screen flex flex-col items-center justify-start lg:justify-center text-center overflow-hidden pt-4 lg:pt-20 pb-0">
             {/* Background Layers */}
             <div className="absolute inset-0 w-full h-full -z-20 overflow-hidden bg-black">
                 <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none mix-blend-screen">
@@ -35,17 +35,17 @@ const Hero = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
-                className="relative z-30 max-w-7xl mx-auto px-4 w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center"
+                className="relative z-30 max-w-7xl mx-auto px-4 w-full grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center mt-4 lg:mt-0"
             >
                 {/* 3D Cinematic Bull Animation */}
-                <div className="order-2 lg:order-2 flex justify-center lg:justify-end perspective-1000">
-                    <div className="relative w-full max-w-[600px] aspect-video flex items-center justify-center">
+                <div className="order-2 lg:order-2 flex justify-center lg:justify-end perspective-1000 -mt-10 lg:mt-0">
+                    <div className="relative w-full max-w-[400px] lg:max-w-[600px] aspect-video flex items-center justify-center">
                         <video
                             autoPlay
                             loop
                             muted
                             playsInline
-                            className="w-full h-full object-contain pointer-events-none mask-radial-faded"
+                            className="w-full h-full object-cover pointer-events-none mask-radial-faded"
                         >
                             <source src="/img/toro3d/hero_bull_cinematic.mp4" type="video/mp4" />
                         </video>
@@ -54,26 +54,26 @@ const Hero = () => {
 
                 {/* Text Content */}
                 <div className="order-1 lg:order-1 text-left">
-                    <div className="glass p-8 lg:p-14 rounded-none border-l-4 border-l-red-600 border-y-0 border-r-0 backdrop-blur-xl">
+                    <div className="glass p-6 lg:p-14 rounded-none border-l-4 border-l-red-600 border-y-0 border-r-0 backdrop-blur-xl">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
-                            <span className="text-red-600 font-bold tracking-widest text-xs uppercase">Elite Trading Systems v4.5</span>
+                            <span className="text-red-600 font-bold tracking-widest text-[10px] lg:text-xs uppercase">Elite Trading Systems v4.5</span>
                         </div>
 
                         <h1 className="diseno-futurista mb-2 leading-[0.85] text-left">
                             DOMINA LOS<br />
-                            <span className="sinteticos-rojo text-6xl lg:text-8xl">SINTÉTICOS</span>
+                            <span className="sinteticos-rojo text-5xl sm:text-6xl lg:text-8xl">SINTÉTICOS</span>
                         </h1>
 
-                        <p className="font-bold uppercase tracking-widest text-sm lg:text-base leading-relaxed mb-10 text-gray-300 max-w-xl">
+                        <p className="font-bold uppercase tracking-widest text-xs lg:text-base leading-relaxed mb-8 lg:mb-10 text-gray-300 max-w-xl">
                             La Academia de trading más avanzada de Latinoamérica. <span className="text-red-500">Señales en tiempo real</span>, formación de alto nivel y tecnología propietaria.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-5">
-                            <button onClick={() => document.getElementById('install').scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-red-600 text-white font-black italic text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all skew-x-[-12deg] shadow-red-glow flex items-center justify-center gap-3 group">
+                        <div className="flex flex-col sm:flex-row gap-4 lg:gap-5">
+                            <button onClick={() => document.getElementById('install').scrollIntoView({ behavior: 'smooth' })} className="px-6 py-4 lg:px-8 bg-red-600 text-white font-black italic text-xs lg:text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all skew-x-[-12deg] shadow-red-glow flex items-center justify-center gap-3 group">
                                 OBTENER ACCESO <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                             </button>
-                            <button onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 border border-white/20 font-black italic text-sm tracking-[0.2em] uppercase hover:bg-white/10 hover:border-red-600 hover:text-red-600 transition-all skew-x-[-12deg] flex items-center justify-center gap-3 bg-black/50 backdrop-blur-sm text-white">
+                            <button onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })} className="px-6 py-4 lg:px-8 border border-white/20 font-black italic text-xs lg:text-sm tracking-[0.2em] uppercase hover:bg-white/10 hover:border-red-600 hover:text-red-600 transition-all skew-x-[-12deg] flex items-center justify-center gap-3 bg-black/50 backdrop-blur-sm text-white">
                                 EXPLORAR SERVICIOS
                             </button>
                         </div>
