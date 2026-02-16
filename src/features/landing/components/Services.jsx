@@ -39,9 +39,9 @@ const Services = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: false }}
                 >
-                    <h3 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase mb-6 text-black">
+                    <h2 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase mb-6 text-black">
                         NUESTROS <span className="text-red-700">SERVICIOS</span>
-                    </h3>
+                    </h2>
                     <div className="w-24 h-2 bg-red-600 mx-auto"></div>
                 </motion.div>
 
@@ -64,9 +64,9 @@ const Services = () => {
                                 </div>
                             </div>
 
-                            <h4 className="relative z-10 text-xl font-black italic uppercase mb-6 text-gray-900 group-hover:text-red-600 transition-colors tracking-tight">
+                            <h3 className="relative z-10 text-xl font-black italic uppercase mb-6 text-gray-900 group-hover:text-red-600 transition-colors tracking-tight">
                                 {service.title}
-                            </h4>
+                            </h3>
 
                             <p className="relative z-10 text-gray-500 font-bold uppercase text-[10px] tracking-[0.15em] leading-loose">
                                 {service.desc}

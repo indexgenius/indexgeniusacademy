@@ -7,9 +7,9 @@ const AboutUs = () => {
         <section className="px-6 lg:px-20 py-32 relative overflow-hidden bg-white">
             <div className="max-w-6xl mx-auto text-center relative z-10">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} className="mb-24">
-                    <h3 className="text-5xl lg:text-7xl font-black italic tracking-tighter uppercase mb-8 text-black">
+                    <h2 className="text-5xl lg:text-7xl font-black italic tracking-tighter uppercase mb-8 text-black">
                         QUIENES <span className="text-red-700">SOMOS</span>
-                    </h3>
+                    </h2>
                     <div className="w-24 h-1.5 bg-red-600 mx-auto mb-12"></div>
                     <p className="font-black uppercase tracking-[0.15em] text-sm lg:text-xl leading-relaxed max-w-4xl mx-auto mb-8 text-black">
                         INDEXGENIUS <span className="text-red-600">ACADEMY</span> ES LA ACADEMIA DE TRADING MÁS AVANZADA DE LATINOAMÉRICA PARA OPERAR ÍNDICES SINTÉTICOS.

@@ -73,19 +73,19 @@ const LandingPage = ({ onShowAuth }) => {
                             <div className="w-2 h-2 bg-white animate-ping"></div>
                             <p className="text-[10px] font-black tracking-widest text-white uppercase italic">SISTEMA DE AFILIADOS DETECTADO</p>
                         </div>
-                        <h3 className="text-xl font-black italic tracking-tighter text-white uppercase mb-3 leading-none">PASOS PARA TU ACTIVACIÓN:</h3>
+                        <h2 className="text-xl font-black italic tracking-tighter text-white uppercase mb-3 leading-none">PASOS PARA TU ACTIVACIÓN:</h2>
                         <div className="space-y-3">
                             <div className="flex items-center gap-3 text-white/90">
                                 <span className="font-black text-xs bg-black/20 w-5 h-5 flex items-center justify-center">1</span>
-                                <p className="text-[10px] font-bold uppercase tracking-wider">HAZ CLIC EN <span className="bg-white text-black px-1.5 font-black">ÚNETE AHORA</span></p>
+                                <h3 className="text-[10px] font-bold uppercase tracking-wider">HAZ CLIC EN <span className="bg-white text-black px-1.5 font-black">ÚNETE AHORA</span></h3>
                             </div>
                             <div className="flex items-center gap-3 text-white/90">
                                 <span className="font-black text-xs bg-black/20 w-5 h-5 flex items-center justify-center">2</span>
-                                <p className="text-[10px] font-bold uppercase tracking-wider">CREA TU CUENTA DE OPERADOR</p>
+                                <h3 className="text-[10px] font-bold uppercase tracking-wider">CREA TU CUENTA DE OPERADOR</h3>
                             </div>
                             <div className="flex items-center gap-3 text-white/90">
                                 <span className="font-black text-xs bg-black/20 w-5 h-5 flex items-center justify-center">3</span>
-                                <p className="text-[10px] font-bold uppercase tracking-wider">SIGUE LA GUÍA DE INSTALACIÓN</p>
+                                <h3 className="text-[10px] font-bold uppercase tracking-wider">SIGUE LA GUÍA DE INSTALACIÓN</h3>
                             </div>
                         </div>
                     </div>

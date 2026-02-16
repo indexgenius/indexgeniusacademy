@@ -9,7 +9,7 @@ const Mission = () => {
             <div className="max-w-5xl mx-auto text-center relative z-10">
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false }}>
                     <Shield className="mx-auto text-red-600 mb-8" size={72} />
-                    <h3 className="text-4xl lg:text-5xl font-black italic tracking-tighter uppercase mb-6 text-black">NUESTRA <span className="text-red-700">MISIÓN</span></h3>
+                    <h2 className="text-4xl lg:text-5xl font-black italic tracking-tighter uppercase mb-6 text-black">NUESTRA <span className="text-red-700">MISIÓN</span></h2>
                     <p className="font-bold uppercase tracking-[0.2em] text-xs lg:text-sm leading-relaxed italic text-gray-800 max-w-4xl mx-auto">
                         "Dominar el mercado de índices sintéticos formando una élite de traders altamente rentables, otorgando acceso exclusivo a señales premium, metodologías propietarias y educación de nivel institucional."
                     </p>
