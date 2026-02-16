@@ -1,8 +1,9 @@
-import { LayoutDashboard, Users, User, Settings, LogOut, TrendingUp, Zap, Menu, X, FileCode, GraduationCap, Shield, Megaphone, History } from 'lucide-react';
+import { LayoutDashboard, Users, User, Settings, LogOut, TrendingUp, Zap, Menu, X, FileCode, GraduationCap, Shield, Megaphone, History, Video } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, isSupreme, unreadAnnouncements = 0 }) => {
     const menuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'SIGNALS' },
+        { id: 'live-classes', icon: Video, label: 'LIVE CLASSES' },
         { id: 'trading-history', icon: History, label: 'TRADING HISTORY' },
         { id: 'monthly-history', icon: TrendingUp, label: 'MONTHLY HISTORY' },
         { id: 'academy', icon: GraduationCap, label: 'ACADEMY' },
@@ -38,7 +39,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
                 <div className="p-6 lg:p-10 flex flex-col items-start gap-4">
                     <div className="flex items-center gap-3 group pointer-events-none">
                         <div className="w-10 h-10 lg:w-14 lg:h-14 flex items-center justify-center relative overflow-hidden">
-                            <img src="/img/logos/red_bull_logo_new.PNG" alt="Bull Logo" className="w-full h-full object-contain" />
+                            <img src="/img/logos/IMG_5208.PNG" alt="Bull Logo" className="w-full h-full object-contain" />
                         </div>
                         <div>
                             <h1 className="text-lg lg:text-xl font-black italic tracking-tighter leading-none">

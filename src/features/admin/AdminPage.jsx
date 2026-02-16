@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Radio, Megaphone, ShieldCheck, BookOpen, Key, Users, Wallet, Bell, Image as ImageIcon } from 'lucide-react';
+import { Radio, Megaphone, ShieldCheck, BookOpen, Key, Users, Wallet, Bell, Image as ImageIcon, Video } from 'lucide-react';
+import NotificationBroadcaster from './NotificationBroadcaster';
 
 // Sub-modules
 import SignalCenter from './SignalCenter';
@@ -9,15 +10,16 @@ import AcademyManager from './AcademyManager';
 import PaymentControl from './PaymentControl';
 import CellManager from './CellManager';
 import AccessKeys from './AccessKeys';
-import NotificationBroadcaster from './NotificationBroadcaster';
 import PromoManager from './PromoManager';
 import MembershipControl from './MembershipControl';
+import BroadcastLive from '../live/BroadcastLive';
 
 const AdminPage = ({ user, broadcastSignal }) => {
     const [subTab, setSubTab] = useState('signals');
 
     const tabs = [
         { id: 'signals', icon: Radio, label: 'SIGNAL OPS' },
+        { id: 'live', icon: Video, label: 'LIVE BROADCAST' },
         { id: 'announcements', icon: Megaphone, label: 'INTEL DEPLOY' },
         { id: 'promos', icon: ImageIcon, label: 'PROMO STACK' },
         { id: 'notifications', icon: Bell, label: 'PUSH BROADCAST' },
@@ -57,6 +59,7 @@ const AdminPage = ({ user, broadcastSignal }) => {
 
             <div className="min-h-[400px]">
                 {subTab === 'signals' && <SignalCenter broadcastSignal={broadcastSignal} />}
+                {subTab === 'live' && <BroadcastLive user={user} />}
                 {subTab === 'announcements' && <AnnouncementManager user={user} />}
                 {subTab === 'promos' && <PromoManager />}
                 {subTab === 'notifications' && <NotificationBroadcaster />}

@@ -80,7 +80,7 @@ const PaymentPortal = ({ user, onLogout }) => {
                 <div className="max-w-xl mx-auto relative z-10">
                     <div className="flex justify-between items-start mb-12">
                         <div className="flex items-center gap-3">
-                            <img src="/img/logos/red_bull_logo_new.PNG" className="w-10 h-10 object-contain brightness-0 invert" alt="logo" />
+                            <img src="/img/logos/IMG_5208.PNG" className="w-10 h-10 object-contain" alt="logo" />
                             <div className="h-8 w-[1px] bg-white/30 hidden md:block"></div>
                             <span className="hidden md:block text-[8px] font-black uppercase tracking-[0.3em] leading-tight text-white">INDEX<br />GENIUS</span>
                         </div>

@@ -31,14 +31,14 @@
   .light-mode {
     --bg-primary: #ffffff;
     --text-primary: #000000;
-    --text-secondary: #000000;
-    /* Darker grey for better readability in light mode */
-    --card-bg: #f3f4f6;
-    --shadow-color: #d1d5db;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --hero-overlay: rgba(255, 255, 255, 0.1);
-    /* Minimal overlay for light mode too */
-    --glass-bg: rgba(255, 255, 255, 0.6);
+    --text-secondary: #4a4a4a;
+    /* Improved contrast for subtexts */
+    --card-bg: #f9f9f9;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --border-color: rgba(0, 0, 0, 0.08);
+    --hero-overlay: rgba(255, 255, 255, 0.05);
+    /* Minimal overlay */
+    --glass-bg: rgba(255, 255, 255, 0.8);
     --glass-border: rgba(0, 0, 0, 0.1);
   }
 
@@ -195,29 +195,35 @@
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
-/* Título Futurista Bruto */
 .diseno-futurista {
   font-family: 'Archivo Black', sans-serif;
-  font-size: clamp(3rem, 10vw, 120px);
+  font-size: clamp(1.8rem, 10vw, 120px);
   font-weight: 900;
   text-transform: uppercase;
-  line-height: 0.85;
+  line-height: 0.8;
   color: var(--text-primary);
   font-style: italic;
-  transform: skewX(-5deg);
-  text-shadow:
-    2px 2px 0px #ff0000,
-    4px 4px 0px var(--shadow-color);
+  transform: skewX(-12deg);
   letter-spacing: -2px;
   margin: 0;
   display: inline-block;
+  padding-right: 40px;
+  /* Prevent text clipping due to skew */
+}
+
+.light-mode .diseno-futurista {
+  text-shadow: none;
+  /* Removed black shadows */
 }
 
 .sinteticos-rojo {
-  color: #ffffff;
-  text-shadow:
-    2px 2px 0px #ff0000,
-    4px 4px 0px #000000 !important;
+  color: #ff0000;
+  text-shadow: none;
+}
+
+.light-mode .sinteticos-rojo {
+  color: #ff0000;
+  text-shadow: none;
 }
 
 @media (min-width: 1024px) {

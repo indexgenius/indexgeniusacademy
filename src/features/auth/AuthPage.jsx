@@ -126,7 +126,7 @@ const AuthPage = ({ onLogin }) => {
                     className="relative z-10 text-center"
                 >
                     <div className="w-64 h-64 mb-8 mx-auto overflow-hidden relative group bg-black rounded-full flex items-center justify-center border border-white/10">
-                        <img src="/img/logos/red_bull_logo_new.PNG" alt="Logo" className="w-full h-full object-contain" />
+                        <img src="/img/logos/IMG_5208.PNG" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-6xl font-black italic tracking-tighter text-white uppercase leading-none mb-4">
                         INDEX GENIUS <span className="block text-red-600 text-7xl mt-2">ACADEMY</span>

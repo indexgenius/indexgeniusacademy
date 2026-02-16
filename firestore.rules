@@ -34,6 +34,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /lives/{id} {
+      allow read: if isAdmin() || isApproved();
+      allow write: if isAdmin();
+    }
+
     match /groups/{groupId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();

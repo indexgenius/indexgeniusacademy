@@ -16,6 +16,7 @@ import Templates from './features/trading/TemplatesPage';
 import Charts from './features/trading/ChartsPage';
 import TradingHistory from './features/trading/HistoryPage';
 import MonthlyHistory from './features/trading/MonthlyHistory';
+import LiveClasses from './features/live/LiveClassesPage';
 import Affiliate from './features/affiliate/AffiliateDashboard';
 import SupremeDashboard from './features/admin/SupremeDashboard';
 
@@ -223,6 +224,7 @@ function App() {
       setCustomMsg={setCustomMsg}
     >
       {activeTab === 'dashboard' && <Dashboard user={user} broadcastSignal={broadcastSignal} />}
+      {activeTab === 'live-classes' && <LiveClasses user={user} />}
       {activeTab === 'announcements' && <Announcements user={user} />}
       {activeTab === 'charts' && <Charts />}
       {activeTab === 'trading-history' && <TradingHistory user={user} />}
