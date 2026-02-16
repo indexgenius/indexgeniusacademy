@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fusion Test: Grid & Neural Network</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2.5rem;
+            border-radius: 2px;
+            border-left: 10px solid #dc1a1a;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: #000;
+            text-transform: uppercase;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -1px;
+        }
+
+        .red-text {
+            color: #dc1a1a;
+        }
+
+        p {
+            color: #666;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="overlay">
+        <h1>FRACTAL <span class="red-text">FUSION</span></h1>
+        <p>Cuadros tácticos fusionándose con redes neuronales</p>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        let fallingSquares = [];
+        const particleCount = 60;
+        const squareCount = 15;
+        const connectionDistance = 160;
+        const mouse = { x: null, y: null, radius: 200 };
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        resize();
+
+        class Particle {
+            constructor(x, y, isFixed = false) {
+                this.x = x || Math.random() * width;
+                this.y = y || Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.2;
+                this.vy = (Math.random() - 0.5) * 1.2;
+                this.radius = Math.random() * 3 + 2;
+                this.alpha = 0;
+                this.isFixed = isFixed;
+                this.life = 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+
+                if (this.alpha < 0.6) this.alpha += 0.01;
+
+                // Mouse interaction
+                if (mouse.x !== null) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < mouse.radius) {
+                        const force = (mouse.radius - dist) / mouse.radius;
+                        const angle = Math.atan2(dy, dx);
+                        this.x -= Math.cos(angle) * force * 4;
+                        this.y -= Math.sin(angle) * force * 4;
+                    }
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(220, 26, 26, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        class FallingSquare {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.size = Math.random() * 30 + 15;
+                this.x = Math.random() * width;
+                this.y = -50;
+                this.speed = Math.random() * 2 + 1;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.02;
+                this.alpha = 0;
+                this.hue = 0; // Will be red
+                this.fused = false;
+            }
+
+            update() {
+                this.y += this.speed;
+                this.rotation += this.rotSpeed;
+
+                if (this.alpha < 0.15) this.alpha += 0.005;
+
+                // Fusion logic: if it reaches the middle, it starts "dissolving" into the network
+                if (!this.fused && this.y > height * 0.4 && Math.random() < 0.01) {
+                    this.fused = true;
+                    // Create particles at its position
+                    for (let i = 0; i < 3; i++) {
+                        particles.push(new Particle(this.x, this.y));
+                        if (particles.length > 100) particles.shift();
+                    }
+                }
+
+                if (this.y > height + 50) {
+                    this.init();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.strokeStyle = `rgba(220, 26, 26, ${this.alpha})`;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(-this.size / 2, -this.size / 2, this.size, this.size);
+
+                // Draw a small crosshair inside
+                ctx.beginPath();
+                ctx.moveTo(-5, 0); ctx.lineTo(5, 0);
+                ctx.moveTo(0, -5); ctx.lineTo(0, 5);
+                ctx.stroke();
+
+                ctx.restore();
+
+                // Connect to nearby neural nodes even while falling
+                particles.forEach(p => {
+                    const dx = this.x - p.x;
+                    const dy = this.y - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < connectionDistance * 1.2) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(220, 26, 26, ${(1 - dist / (connectionDistance * 1.2)) * 0.15})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(p.x, p.y);
+                        ctx.stroke();
+                    }
+                });
+            }
+        }
+
+        function drawGrid() {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.03)';
+            ctx.lineWidth = 1;
+
+            const gridSize = 60;
+            for (let x = 0; x <= width; x += gridSize) {
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+            }
+            for (let y = 0; y <= height; y += gridSize) {
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+            }
+            ctx.stroke();
+        }
+
+        function init() {
+            particles = [];
+            fallingSquares = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            for (let i = 0; i < squareCount; i++) {
+                fallingSquares.push(new FallingSquare());
+                // Stagger spawn
+                fallingSquares[i].y = Math.random() * -height;
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            drawGrid();
+
+            fallingSquares.forEach(s => {
+                s.update();
+                s.draw();
+            });
+
+            for (let i = 0; i < particles.length; i++) {
+                const p1 = particles[i];
+                p1.update();
+                p1.draw();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(220, 26, 26, ${(1 - dist / connectionDistance) * 0.4})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+
+</html>

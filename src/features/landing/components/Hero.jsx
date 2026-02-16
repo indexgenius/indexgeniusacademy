@@ -1,13 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-
 const Hero = () => {
     return (
         <section className="relative min-h-screen flex flex-col items-center justify-start text-center overflow-hidden pt-32 lg:pt-48 pb-0 bg-white">
-            {/* Minimal Grid Background (Light mode) */}
-            <div className="absolute inset-0 w-full h-full -z-20 bg-white">
-                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '80px 80px' }}></div>
+
+
+            {/* Subtle 3D SVG Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+                {/* Floating Cube 1 */}
+                <motion.div
+                    animate={{
+                        y: [0, -40, 0],
+                        rotate: [0, 90, 180, 270, 360],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-[20%] right-[10%] opacity-[0.05]"
+                >
+                    <svg width="150" height="150" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="cube-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style={{ stopColor: '#ff0000', stopOpacity: 1 }} />
+                                <stop offset="100%" style={{ stopColor: '#000000', stopOpacity: 1 }} />
+                            </linearGradient>
+                        </defs>
+                        <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="none" stroke="url(#cube-grad-1)" strokeWidth="0.5" />
+                        <path d="M10 30 L50 50 L90 30 M50 50 L50 90" fill="none" stroke="url(#cube-grad-1)" strokeWidth="0.5" />
+                    </svg>
+                </motion.div>
+
+                {/* Floating Cube 2 */}
+                <motion.div
+                    animate={{
+                        y: [0, 60, 0],
+                        x: [0, 30, 0],
+                        rotate: [360, 0]
+                    }}
+                    transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+                    className="absolute bottom-[10%] left-[5%] opacity-[0.03]"
+                >
+                    <svg width="250" height="250" viewBox="0 0 100 100">
+                        <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="none" stroke="#000" strokeWidth="0.2" />
+                        <path d="M10 30 L50 50 L90 30 M50 50 L50 90" fill="none" stroke="#000" strokeWidth="0.2" />
+                    </svg>
+                </motion.div>
+
+                {/* Tactical Diamonds */}
+                {[...Array(6)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        animate={{
+                            opacity: [0.02, 0.1, 0.02],
+                            scale: [1, 1.2, 1]
+                        }}
+                        transition={{ duration: 5 + i, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute w-2 h-2 bg-red-600 rotate-45"
+                        style={{
+                            top: `${Math.random() * 80 + 10}%`,
+                            left: `${Math.random() * 80 + 10}%`,
+                        }}
+                    />
+                ))}
+
+                {/* Subtle Radial Gradient to Focus Content */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,white_70%)] opacity-60"></div>
             </div>
 
             <motion.div
@@ -37,7 +94,7 @@ const Hero = () => {
 
                 {/* Text Content */}
                 <div className="order-1 lg:order-1 text-left">
-                    <div className="bg-white px-4 py-8 lg:p-14 rounded-none border-l-[12px] border-l-red-600 border-y-0 border-r-0 shadow-2xl shadow-gray-100/50">
+                    <div className="bg-white/90 backdrop-blur-md px-4 py-8 lg:p-14 rounded-none border-l-[12px] border-l-red-600 border-y-0 border-r-0 shadow-2xl shadow-gray-100/50">
 
 
                         <h1 className="diseno-futurista mb-6 leading-[0.8] text-left text-black">

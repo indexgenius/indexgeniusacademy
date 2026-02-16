@@ -1,11 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield } from 'lucide-react';
+import TacticalEvolution from './TacticalEvolution';
 
 const Mission = () => {
     return (
-        <section className="px-6 lg:px-20 py-32 relative overflow-hidden bg-[#fcfcfc]">
-            <div className="absolute inset-0 bg-[url('/grid-pattern.png')] opacity-5 pointer-events-none"></div>
+        <section className="px-6 lg:px-20 py-32 relative overflow-hidden bg-white">
+            <TacticalEvolution stage={1} />
             <div className="max-w-5xl mx-auto text-center relative z-10">
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false }}>
                     <Shield className="mx-auto text-red-600 mb-8" size={72} />

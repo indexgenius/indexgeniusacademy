@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CountUp } from './Animations';
-
+import TacticalEvolution from './TacticalEvolution';
 const AboutUs = () => {
     return (
         <section className="px-6 lg:px-20 py-32 relative overflow-hidden bg-white">
+            <TacticalEvolution stage={0} />
             <div className="max-w-6xl mx-auto text-center relative z-10">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} className="mb-24">
                     <h2 className="text-5xl lg:text-7xl font-black italic tracking-tighter uppercase mb-8 text-black">

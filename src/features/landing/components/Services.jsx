@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Zap, TrendingUp, Users } from 'lucide-react';
+import TacticalEvolution from './TacticalEvolution';
 
 const services = [
     {
@@ -32,6 +33,7 @@ const services = [
 const Services = () => {
     return (
         <section id="services" className="px-6 lg:px-20 py-32 relative overflow-hidden bg-white">
+            <TacticalEvolution stage={2} />
             <div className="max-w-7xl mx-auto relative z-10">
                 <motion.div
                     className="text-center mb-24"
