@@ -41,9 +41,9 @@ const LandingPage = ({ onShowAuth }) => {
 
                     <div className="flex items-center gap-4 lg:gap-8">
                         <div className="hidden lg:flex items-center gap-2 text-[10px] font-black italic tracking-[0.2em] text-gray-400">
-                            <a href="#services" className="px-5 py-2 hover:bg-black hover:text-white transition-all uppercase skew-x-[-12deg]">SERVICIOS</a>
-                            <a href="#testimonials" className="px-5 py-2 hover:bg-black hover:text-white transition-all uppercase skew-x-[-12deg]">TESTIMONIOS</a>
-                            <a href="#about" className="px-5 py-2 hover:bg-black hover:text-white transition-all uppercase skew-x-[-12deg]">NOSOTROS</a>
+                            <a href="#services" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">SERVICIOS</a>
+                            <a href="#testimonials" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">TESTIMONIOS</a>
+                            <a href="#about" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">NOSOTROS</a>
                         </div>
 
                         <button
