@@ -30,10 +30,11 @@ const services = [
     }
 ];
 
-const Services = () => {
+const Services = ({ view }) => {
+    const isBroker = view === 'broker';
     return (
-        <section id="services" className="px-6 lg:px-20 py-32 relative overflow-hidden bg-white">
-            <TacticalEvolution stage={2} />
+        <section id="services" className={`px-6 lg:px-20 py-32 relative overflow-hidden transition-colors duration-500 ${isBroker ? 'bg-[#090228]' : 'bg-white'}`}>
+            <TacticalEvolution stage={2} view={view} />
             <div className="max-w-7xl mx-auto relative z-10">
                 <motion.div
                     className="text-center mb-24"
@@ -41,36 +42,39 @@ const Services = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: false }}
                 >
-                    <h2 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase mb-6 text-black">
-                        NUESTROS <span className="text-red-700">SERVICIOS</span>
+                    <h2 className={`text-5xl lg:text-8xl font-black italic tracking-tighter uppercase mb-6 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
+                        NUESTROS <span className={isBroker ? 'text-[#8158F6]' : 'text-red-700'}>SERVICIOS</span>
                     </h2>
-                    <div className="w-24 h-2 bg-red-600 mx-auto"></div>
+                    <div className={`w-24 h-2 mx-auto transition-colors duration-500 ${isBroker ? 'bg-[#8158F6]' : 'bg-red-600'}`}></div>
                 </motion.div>
 
                 <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {services.map((service, i) => (
                         <motion.div
                             key={i}
-                            className="group relative p-10 bg-white border border-gray-100 transition-all duration-500 shadow-xl shadow-gray-100/50 hover:shadow-2xl hover:border-red-600"
+                            className={`group relative p-10 border transition-all duration-500 shadow-xl shadow-gray-100/50 ${isBroker
+                                    ? 'bg-[#322070]/10 border-[#432C8D]/20 hover:border-[#8158F6] shadow-[#8158F6]/5'
+                                    : 'bg-white border-gray-100 hover:shadow-2xl hover:border-red-600'
+                                }`}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: false }}
                             transition={{ delay: i * 0.1 }}
                         >
                             {/* Hover Accent */}
-                            <div className="absolute top-0 left-0 w-full h-1 bg-red-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                            <div className={`absolute top-0 left-0 w-full h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ${isBroker ? 'bg-[#8158F6]' : 'bg-red-600'}`}></div>
 
                             <div className="relative z-10 mb-10 flex justify-center transform group-hover:-translate-y-2 transition-transform duration-500">
-                                <div className="p-6 rounded-none bg-white shadow-xl border border-gray-50 group-hover:bg-red-600 transition-colors duration-500">
-                                    <service.icon size={44} className={`${service.color} group-hover:text-white transition-colors duration-500`} />
+                                <div className={`p-6 rounded-none shadow-xl border border-gray-50 transition-colors duration-500 ${isBroker ? 'bg-[#090228] group-hover:bg-[#8158F6]' : 'bg-white group-hover:bg-red-600'}`}>
+                                    <service.icon size={44} className={`${isBroker ? 'text-[#8158F6]' : 'text-red-600'} group-hover:text-white transition-colors duration-500`} />
                                 </div>
                             </div>
 
-                            <h3 className="relative z-10 text-xl font-black italic uppercase mb-6 text-gray-900 group-hover:text-red-600 transition-colors tracking-tight">
+                            <h3 className={`relative z-10 text-xl font-black italic uppercase mb-6 transition-colors duration-500 tracking-tight ${isBroker ? 'text-white group-hover:text-[#8158F6]' : 'text-gray-900 group-hover:text-red-600'}`}>
                                 {service.title}
                             </h3>
 
-                            <p className="relative z-10 text-gray-500 font-bold uppercase text-[10px] tracking-[0.15em] leading-loose">
+                            <p className={`relative z-10 font-bold uppercase text-[10px] tracking-[0.15em] leading-loose transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>
                                 {service.desc}
                             </p>
                         </motion.div>
@@ -83,8 +87,8 @@ const Services = () => {
                 <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[60px] lg:h-[120px]">
                     <defs>
                         <linearGradient id="serv-unified-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
-                            <stop offset="100%" style={{ stopColor: '#fcfcfc', stopOpacity: 1 }} />
+                            <stop offset="0%" style={{ stopColor: isBroker ? '#090228' : '#ffffff', stopOpacity: 1 }} />
+                            <stop offset="100%" style={{ stopColor: isBroker ? '#090228' : '#fcfcfc', stopOpacity: 1 }} />
                         </linearGradient>
                     </defs>
                     <path

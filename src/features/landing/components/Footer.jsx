@@ -7,25 +7,29 @@ const WhatsAppIcon = ({ size = 18 }) => (
     </svg>
 );
 
-const Footer = () => {
+const Footer = ({ setView, view }) => {
     const currentYear = new Date().getFullYear();
+    const isBroker = view === 'broker';
 
     return (
-        <footer className="bg-white border-t border-gray-100 pt-24 pb-12 relative overflow-hidden">
+        <footer className={`pt-24 pb-12 relative overflow-hidden transition-all duration-500 ${isBroker
+            ? 'bg-[#090228] border-t border-[#432C8D]/20'
+            : 'bg-white border-t border-gray-100'
+            }`}>
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
 
                     {/* Brand Identity */}
                     <div className="space-y-8">
                         <div className="flex items-center gap-4">
-                            <img src="/img/logos/IMG_5208.PNG" alt="Bull Logo" className="w-14 h-14 object-contain shadow-2xl shadow-red-600/10" />
+                            <img src="/img/logos/IMG_5208.PNG" alt="Bull Logo" className={`w-14 h-14 object-contain transition-all ${isBroker ? 'brightness-125' : 'shadow-2xl shadow-red-600/10'}`} />
                             <div>
-                                <h2 className="text-xl font-black italic tracking-tighter leading-none text-black uppercase">
-                                    IndexGenius<br /><span className="text-red-600">ACADEMY</span>
+                                <h2 className={`text-xl font-black italic tracking-tighter leading-none uppercase transition-colors ${isBroker ? 'text-white' : 'text-black'}`}>
+                                    IndexGenius<br /><span className={isBroker ? 'text-[#8158F6]' : 'text-red-600'}>ACADEMY</span>
                                 </h2>
                             </div>
                         </div>
-                        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest leading-loose">
+                        <p className={`text-[11px] font-bold uppercase tracking-widest leading-loose transition-colors ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>
                             La academia de trading de mayor precisión en Latinoamérica. Elevamos tu nivel operativo con tecnología de punta y educación institucional de alto impacto.
                         </p>
                         <div className="flex items-center gap-4">
@@ -40,7 +44,10 @@ const Footer = () => {
                                     href={social.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white hover:bg-black hover:scale-110 transition-all duration-300 shadow-lg shadow-red-600/20"
+                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg ${isBroker
+                                        ? 'bg-[#8158F6] hover:bg-white hover:text-[#090228] shadow-[#8158F6]/20'
+                                        : 'bg-red-600 hover:bg-black shadow-red-600/20'
+                                        } hover:scale-110`}
                                     aria-label={social.label}
                                 >
                                     <social.icon size={18} />
@@ -51,65 +58,84 @@ const Footer = () => {
 
                     {/* Quick Access */}
                     <div className="space-y-8">
-                        <h4 className="text-xs font-black tracking-[0.3em] text-red-600 uppercase italic">Navegación Táctica</h4>
+                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Navegación Táctica</h4>
                         <ul className="space-y-4">
-                            {['Servicios', 'Testimonios', 'Nosotros', 'Academy', 'Plantilla'].map((item) => (
+                            {['Servicios', 'Testimonios', 'Nosotros'].map((item) => (
                                 <li key={item}>
-                                    <a href={`#${item.toLowerCase()}`} className="text-[10px] font-black text-gray-400 hover:text-red-600 uppercase tracking-widest flex items-center gap-2 group transition-colors">
-                                        <div className="w-1 h-1 bg-gray-200 group-hover:bg-red-600 transition-colors"></div>
+                                    <a href={`#${item.toLowerCase()}`} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
+                                        }`}>
+                                        <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'
+                                            }`}></div>
                                         {item}
                                     </a>
                                 </li>
                             ))}
+                            <li>
+                                <button onClick={() => setView('ceo')} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-left ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
+                                    }`}>
+                                    <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'
+                                        }`}></div>
+                                    CEO Steven Castillo
+                                </button>
+                            </li>
+                            <li>
+                                <button onClick={() => setView('broker')} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-left ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
+                                    }`}>
+                                    <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'
+                                        }`}></div>
+                                    Broker Aliado
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
                     {/* Contact Info */}
                     <div className="space-y-8">
-                        <h4 className="text-xs font-black tracking-[0.3em] text-red-600 uppercase italic">Centro de Mando</h4>
+                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Centro de Mando</h4>
                         <ul className="space-y-6">
-                            <li className="flex items-start gap-4 group">
-                                <div className="p-3 bg-red-50 rounded-xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                                    <Mail size={16} />
-                                </div>
-                                <div>
-                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Email Oficial</p>
-                                    <p className="text-[10px] font-bold text-black uppercase">soporte@ingenius.academy</p>
-                                </div>
-                            </li>
-                            <li className="flex items-start gap-4 group">
-                                <div className="p-3 bg-red-50 rounded-xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                                    <Phone size={16} />
-                                </div>
-                                <div>
-                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">WhatsApp Oficial</p>
-                                    <p className="text-[10px] font-bold text-black uppercase">+1 (829) 219-8071</p>
-                                </div>
-                            </li>
-                            <li className="flex items-start gap-4 group">
-                                <div className="p-3 bg-red-50 rounded-xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                                    <MapPin size={16} />
-                                </div>
-                                <div>
-                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Ubicación</p>
-                                    <p className="text-[10px] font-bold text-black uppercase leading-relaxed">República Dominicana<br />Global Digital Hub</p>
-                                </div>
-                            </li>
+                            {[
+                                { icon: Mail, label: 'Email Oficial', value: 'soporte@ingenius.academy' },
+                                { icon: Phone, label: 'WhatsApp Oficial', value: '+1 (829) 219-8071' },
+                                { icon: MapPin, label: 'Ubicación', value: 'República Dominicana Global Digital Hub', multiline: true }
+                            ].map((info, i) => (
+                                <li key={i} className="flex items-start gap-4 group">
+                                    <div className={`p-3 rounded-xl transition-colors ${isBroker
+                                        ? 'bg-[#8158F6]/10 text-[#8158F6] group-hover:bg-[#8158F6] group-hover:text-white'
+                                        : 'bg-red-50 text-red-600 group-hover:bg-red-600 group-hover:text-white'
+                                        }`}>
+                                        <info.icon size={16} />
+                                    </div>
+                                    <div>
+                                        <p className={`text-[8px] font-black uppercase tracking-widest mb-1 transition-colors ${isBroker ? 'text-white/30' : 'text-gray-400'}`}>{info.label}</p>
+                                        <p className={`text-[10px] font-bold uppercase leading-relaxed transition-colors ${isBroker ? 'text-white' : 'text-black'}`}>
+                                            {info.multiline ? (
+                                                <>{info.value.split(' ')[0]} {info.value.split(' ')[1]}<br />{info.value.split(' ').slice(2).join(' ')}</>
+                                            ) : info.value}
+                                        </p>
+                                    </div>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* Newsletter / CTA */}
                     <div className="space-y-8">
-                        <h4 className="text-xs font-black tracking-[0.3em] text-red-600 uppercase italic">Operativa Global</h4>
-                        <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex flex-col gap-4">
-                            <p className="text-[10px] font-bold text-gray-600 uppercase leading-relaxed tracking-wider">
+                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Operativa Global</h4>
+                        <div className={`p-6 rounded-2xl border transition-all ${isBroker
+                            ? 'bg-[#322070]/10 border-[#432C8D]/20'
+                            : 'bg-gray-50 border-gray-100'
+                            } flex flex-col gap-4`}>
+                            <p className={`text-[10px] font-bold uppercase leading-relaxed tracking-wider transition-colors ${isBroker ? 'text-white/60' : 'text-gray-600'}`}>
                                 ¿Listo para dominar los mercados? Sigue nuestra operativa en tiempo real.
                             </p>
                             <a
                                 href="https://t.me/indexgeniusacademy"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] italic flex items-center justify-center gap-3 hover:bg-red-600 transition-all group"
+                                className={`w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] italic flex items-center justify-center gap-3 transition-all group ${isBroker
+                                    ? 'bg-[#8158F6] text-white hover:bg-white hover:text-[#090228]'
+                                    : 'bg-black text-white hover:bg-red-600'
+                                    }`}
                             >
                                 UNIRSE AL TELEGRAM <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                             </a>
@@ -119,24 +145,25 @@ const Footer = () => {
                 </div>
 
                 {/* Final Copyright */}
-                <div className="pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className={`pt-12 border-t flex flex-col md:flex-row justify-between items-center gap-6 transition-colors ${isBroker ? 'border-[#432C8D]/20' : 'border-gray-100'}`}>
                     <div className="flex items-center gap-2">
-                        <Globe size={14} className="text-red-600" />
-                        <span className="text-[9px] font-black text-gray-400 tracking-[0.4em] uppercase">
+                        <Globe size={14} className={isBroker ? 'text-[#8158F6]' : 'text-red-600'} />
+                        <span className={`text-[9px] font-black tracking-[0.4em] uppercase transition-colors ${isBroker ? 'text-white/20' : 'text-gray-400'}`}>
                             © {currentYear} IndexGenius ACADEMY • TACTICAL NETWORK SYSTEMS
                         </span>
                     </div>
                     <div className="flex gap-8">
-                        <a href="#" className="text-[8px] font-black text-gray-400 hover:text-red-600 uppercase tracking-[0.2em]">Términos</a>
-                        <a href="#" className="text-[8px] font-black text-gray-400 hover:text-red-600 uppercase tracking-[0.2em]">Privacidad</a>
-                        <a href="#" className="text-[8px] font-black text-gray-400 hover:text-red-600 uppercase tracking-[0.2em]">Legal</a>
+                        {['Términos', 'Privacidad', 'Legal'].map((item) => (
+                            <a key={item} href="#" className={`text-[8px] font-black uppercase tracking-[0.2em] transition-colors ${isBroker ? 'text-white/20 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
+                                }`}>{item}</a>
+                        ))}
                     </div>
                 </div>
             </div>
 
             {/* Decorative Vector Elements */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/[0.01] blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-red-600/[0.01] blur-3xl rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+            <div className={`absolute top-0 right-0 w-[500px] h-[500px] blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none transition-colors ${isBroker ? 'bg-[#8158F6]/[0.05]' : 'bg-red-600/[0.01]'}`}></div>
+            <div className={`absolute bottom-0 left-0 w-[500px] h-[500px] blur-3xl rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none transition-colors ${isBroker ? 'bg-[#432C8D]/[0.05]' : 'bg-red-600/[0.01]'}`}></div>
         </footer>
     );
 };

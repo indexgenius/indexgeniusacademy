@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-const Hero = () => {
+const Hero = ({ view }) => {
+    const isBroker = view === 'broker';
     return (
-        <section className="relative min-h-screen flex flex-col items-center justify-start text-center overflow-hidden pt-32 lg:pt-48 pb-0 bg-white">
+        <section className={`relative min-h-screen flex flex-col items-center justify-start text-center overflow-hidden pt-32 lg:pt-48 pb-0 transition-colors duration-500 ${isBroker ? 'bg-[#090228]' : 'bg-white'}`}>
+
 
 
             {/* Subtle 3D SVG Background Elements */}
@@ -81,7 +83,7 @@ const Hero = () => {
                             loop
                             muted
                             playsInline
-                            className="absolute inset-0 w-full h-full object-contain mix-blend-multiply contrast-[1.1] brightness-[1.05]"
+                            className={`absolute inset-0 w-full h-full object-contain contrast-[1.1] brightness-[1.05] transition-all duration-500 ${isBroker ? 'mix-blend-lighten opacity-80' : 'mix-blend-multiply'}`}
                             style={{
                                 maskImage: 'radial-gradient(circle, black 60%, transparent 95%)',
                                 WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 95%)'
@@ -109,13 +111,19 @@ const Hero = () => {
                         <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
                             <button
                                 onClick={() => document.getElementById('install').scrollIntoView({ behavior: 'smooth' })}
-                                className="px-10 py-5 bg-red-600 text-white font-black italic text-xs lg:text-sm tracking-[0.4em] uppercase hover:bg-black transition-all skew-x-[-12deg] shadow-2xl shadow-red-600/20 flex items-center justify-center gap-4 group"
+                                className={`px-10 py-5 font-black italic text-xs lg:text-sm tracking-[0.4em] uppercase transition-all skew-x-[-12deg] shadow-2xl flex items-center justify-center gap-4 group ${isBroker
+                                    ? 'bg-[#8158F6] text-white hover:bg-white hover:text-[#090228] shadow-[#8158F6]/20'
+                                    : 'bg-red-600 text-white hover:bg-black shadow-red-600/20'
+                                    }`}
                             >
                                 ACCESO TOTAL <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                             </button>
                             <button
                                 onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })}
-                                className="px-10 py-5 border-2 border-red-600 font-black italic text-xs lg:text-sm tracking-[0.4em] uppercase hover:bg-red-600 hover:text-white transition-all skew-x-[-12deg] flex items-center justify-center gap-4 bg-transparent text-red-600"
+                                className={`px-10 py-5 border-2 font-black italic text-xs lg:text-sm tracking-[0.4em] uppercase transition-all skew-x-[-12deg] flex items-center justify-center gap-4 bg-transparent ${isBroker
+                                    ? 'border-[#8158F6] text-[#8158F6] hover:bg-[#8158F6] hover:text-white'
+                                    : 'border-red-600 text-red-600 hover:bg-red-600 hover:text-white'
+                                    }`}
                             >
                                 EXPLORAR
                             </button>
@@ -129,8 +137,8 @@ const Hero = () => {
                 <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[80px] lg:h-[150px]">
                     <defs>
                         <linearGradient id="hero-unified-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
-                            <stop offset="100%" style={{ stopColor: '#f4f4f4', stopOpacity: 1 }} />
+                            <stop offset="0%" style={{ stopColor: isBroker ? '#090228' : '#ffffff', stopOpacity: 1 }} />
+                            <stop offset="100%" style={{ stopColor: isBroker ? '#090228' : '#f4f4f4', stopOpacity: 1 }} />
                         </linearGradient>
                     </defs>
                     <path
