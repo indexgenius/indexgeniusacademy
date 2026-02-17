@@ -126,6 +126,26 @@ const Testimonials = () => {
                         ))}
                     </div>
                 </div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mt-20 text-center"
+                >
+                    <a
+                        href="https://www.trustpilot.com/review/indexgeniusacademy.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-3 px-10 py-5 bg-[#00b67a] text-white rounded-full font-black uppercase tracking-[0.2em] italic hover:bg-black hover:scale-105 transition-all duration-300 shadow-xl shadow-[#00b67a]/20 group"
+                    >
+                        Ver todas las reseñas en Trustpilot
+                        <Star className="group-hover:rotate-45 transition-transform" size={18} fill="white" />
+                    </a>
+                    <p className="mt-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] opacity-60">
+                        Puntuación Excelente de 4.4 basada en testimonios reales
+                    </p>
+                </motion.div>
             </div>
             {/* Unified Section Separator (Gray to White Gradient) */}
             <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-20">
