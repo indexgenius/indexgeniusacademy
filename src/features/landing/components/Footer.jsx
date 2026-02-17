@@ -24,14 +24,16 @@ const Footer = () => {
                         </p>
                         <div className="flex items-center gap-4">
                             {[
-                                { icon: Instagram, url: '#', label: 'Instagram' },
-                                { icon: Youtube, url: '#', label: 'YouTube' },
-                                { icon: Send, url: '#', label: 'Telegram' },
-                                { icon: MessageSquare, url: '#', label: 'WhatsApp' }
+                                { icon: Instagram, url: 'https://www.instagram.com/indexgeniusacademy', label: 'Instagram' },
+                                { icon: Youtube, url: 'https://www.youtube.com/@IndexGeniusAcademy', label: 'YouTube' },
+                                { icon: Send, url: 'https://t.me/indexgeniusacademy', label: 'Telegram' },
+                                { icon: MessageSquare, url: `https://wa.me/18292198071`, label: 'WhatsApp' }
                             ].map((social, i) => (
                                 <a
                                     key={i}
                                     href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white hover:bg-black hover:scale-110 transition-all duration-300 shadow-lg shadow-red-600/20"
                                     aria-label={social.label}
                                 >
@@ -71,6 +73,15 @@ const Footer = () => {
                             </li>
                             <li className="flex items-start gap-4 group">
                                 <div className="p-3 bg-red-50 rounded-xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                    <Phone size={16} />
+                                </div>
+                                <div>
+                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">WhatsApp Oficial</p>
+                                    <p className="text-[10px] font-bold text-black uppercase">+1 (829) 219-8071</p>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-4 group">
+                                <div className="p-3 bg-red-50 rounded-xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
                                     <MapPin size={16} />
                                 </div>
                                 <div>
@@ -88,9 +99,14 @@ const Footer = () => {
                             <p className="text-[10px] font-bold text-gray-600 uppercase leading-relaxed tracking-wider">
                                 ¿Listo para dominar los mercados? Sigue nuestra operativa en tiempo real.
                             </p>
-                            <button className="w-full py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] italic flex items-center justify-center gap-3 hover:bg-red-600 transition-all group">
+                            <a
+                                href="https://t.me/indexgeniusacademy"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] italic flex items-center justify-center gap-3 hover:bg-red-600 transition-all group"
+                            >
                                 UNIRSE AL TELEGRAM <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                            </button>
+                            </a>
                         </div>
                     </div>
 
