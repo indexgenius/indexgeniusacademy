@@ -5,7 +5,9 @@ import Testimonials from './components/Testimonials';
 import PaymentMethods from './components/PaymentMethods';
 import AboutUs from './components/AboutUs';
 import Mission from './components/Mission';
+import Partners from './components/Partners';
 import InstallGuide from './components/InstallGuide';
+import Footer from './components/Footer';
 
 
 
@@ -95,15 +97,12 @@ const LandingPage = ({ onShowAuth }) => {
             <Hero />
             <PaymentMethods />
             <AboutUs />
-            <Mission />
             <Services />
             <Testimonials />
             <InstallGuide />
+            <Partners />
 
-            {/* Footer */}
-            <footer id="install" className="p-10 border-t border-red-50 text-center text-[10px] font-black text-gray-400 tracking-[0.5em] uppercase bg-white">
-                © 2026 IndexGenius ACADEMY • GLOBAL TACTICAL NETWORK
-            </footer>
+            <Footer />
         </div>
     );
 };

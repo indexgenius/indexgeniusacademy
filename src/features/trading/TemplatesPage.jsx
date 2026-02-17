@@ -18,7 +18,7 @@ const TemplatesPage = ({ user }) => {
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [templateInfo, setTemplateInfo] = useState({
         url: '',
-        name: 'V4.5 ELITE',
+        name: 'INDEX PRO V1.0',
         size: '84.2 MB'
     });
 
@@ -182,7 +182,7 @@ const TemplatesPage = ({ user }) => {
                         <div className="flex items-center justify-center gap-3 lg:gap-5">
                             <Trophy size={48} className="text-red-600 filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)] hidden lg:block" />
                             <h2 className="text-3xl lg:text-7xl font-black italic tracking-tighter text-white uppercase leading-none">
-                                <span className="text-red-600">ElitePack</span> IndexGenius
+                                <span className="text-red-600">Plantilla</span> IndexPro
                             </h2>
                         </div>
                         <div className="flex items-center justify-center gap-2 lg:gap-3">
@@ -362,24 +362,8 @@ const TemplatesPage = ({ user }) => {
                                         className="text-5xl lg:text-9xl font-black italic tracking-tighter text-white leading-[0.85] uppercase relative"
                                         style={{ textShadow: '0 0 40px rgba(220, 38, 38, 0.6)' }}
                                     >
-                                        INDEX <span className="text-red-600">GENIUS</span>
+                                        INDEX <span className="text-red-600">PRO</span>
                                         <div className="absolute -bottom-4 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600/50 to-transparent" />
-                                        <br />
-                                        <motion.span
-                                            animate={{
-                                                opacity: [1, 0.8, 1, 0.9, 1],
-                                                x: [0, -2, 2, -1, 0]
-                                            }}
-                                            transition={{
-                                                duration: 0.2,
-                                                repeat: Infinity,
-                                                repeatDelay: Math.random() * 5 + 2
-                                            }}
-                                            className="text-transparent border-t-2 border-white/10 pt-2 block"
-                                            style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}
-                                        >
-                                            TERMINAL
-                                        </motion.span>
                                     </motion.h2>
 
                                     <motion.p
@@ -388,13 +372,13 @@ const TemplatesPage = ({ user }) => {
                                         transition={{ delay: 0.2 }}
                                         className="text-gray-500 font-bold tracking-widest text-[10px] lg:text-xs uppercase max-w-lg leading-relaxed italic"
                                     >
-                                        "DESCARGA EL ALGORITMO DE ALTA PRECISIÓN C4. DISEÑADO PARA DOMINAR EL MERCADO DE ÍNDICES SINTÉTICOS CON PRECISIÓN INSTITUCIONAL."
+                                        "Descarga la mejor plantilla para operar los mercados financieros con precisión profesional 🚀📈. Optimiza tus entradas, mejora tu análisis y lleva tu trading al siguiente nivel con Index Genius Template 🔥"
                                     </motion.p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 mt-8 lg:mt-12">
                                     {[
-                                        { label: 'VERSION', value: 'ElitePack IndexGenius Academy.zip', delay: 0.3 },
+                                        { label: 'VERSION', value: 'INDEX PRO V1.0.zip', delay: 0.3 },
                                         { label: 'FORMAT', value: 'MT5 / .ZIP', delay: 0.4 },
                                         { label: 'FILE SIZE', value: '0.3 MB', delay: 0.5 }
                                     ].map((item, idx) => (
@@ -659,7 +643,7 @@ const TemplatesPage = ({ user }) => {
                             className="w-full max-w-4xl bg-black border border-white/10 relative shadow-2xl overflow-hidden rounded-3xl"
                         >
                             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-                                <h3 className="text-xs font-black italic text-white uppercase tracking-widest">GUÍA DE INSTALACIÓN • INDEX GENIUS</h3>
+                                <h3 className="text-xs font-black italic text-white uppercase tracking-widest">GUÍA DE INSTALACIÓN • INDEX PRO</h3>
                                 <button
                                     onClick={() => setShowVideoModal(false)}
                                     className="p-2 hover:bg-red-600 transition-colors rounded-lg"
