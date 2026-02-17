@@ -137,10 +137,10 @@ const Testimonials = () => {
                         href="https://www.trustpilot.com/review/indexgeniusacademy.com"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-3 px-10 py-5 bg-[#00b67a] text-white rounded-full font-black uppercase tracking-[0.2em] italic hover:bg-black hover:scale-105 transition-all duration-300 shadow-xl shadow-[#00b67a]/20 group"
+                        className="inline-flex items-center gap-3 px-6 py-3 sm:px-10 sm:py-5 bg-[#00b67a] text-white rounded-full font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] italic hover:bg-black hover:scale-105 transition-all duration-300 shadow-xl shadow-[#00b67a]/20 group text-[10px] sm:text-[11px] text-center"
                     >
                         Ver todas las reseñas en Trustpilot
-                        <Star className="group-hover:rotate-45 transition-transform" size={18} fill="white" />
+                        <Star className="group-hover:rotate-45 transition-transform hidden sm:block" size={18} fill="white" />
                     </a>
                     <p className="mt-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] opacity-60">
                         Puntuación Excelente de 4.4 basada en testimonios reales

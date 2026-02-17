@@ -642,24 +642,36 @@ const TemplatesPage = ({ user }) => {
                             exit={{ opacity: 0, scale: 0.9 }}
                             className="w-full max-w-4xl bg-black border border-white/10 relative shadow-2xl overflow-hidden rounded-3xl"
                         >
-                            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-                                <h3 className="text-xs font-black italic text-white uppercase tracking-widest">GUÍA DE INSTALACIÓN • INDEX PRO</h3>
+                            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-[#0a0a0a]">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
+                                    <h3 className="text-[10px] font-black italic text-white/60 uppercase tracking-widest">SISTEMA DE MANTENIMIENTO • FEED EN VIVO</h3>
+                                </div>
                                 <button
                                     onClick={() => setShowVideoModal(false)}
-                                    className="p-2 hover:bg-red-600 transition-colors rounded-lg"
+                                    className="p-2 hover:bg-red-600 transition-colors rounded-lg group"
                                 >
-                                    <X size={20} className="text-white" />
+                                    <X size={20} className="text-white group-hover:scale-110 transition-transform" />
                                 </button>
                             </div>
-                            <div className="aspect-video w-full bg-black">
+                            <div className="aspect-video w-full bg-[#050505] relative overflow-hidden">
+                                {/* Scanlines effect */}
+                                <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))', backgroundSize: '100% 2px, 3px 100%' }}></div>
+
                                 <iframe
-                                    className="w-full h-full"
-                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                                    className="w-full h-full relative z-0"
+                                    src="https://www.youtube.com/embed/tPpGDITXpR4?playlist=tPpGDITXpR4&loop=1&autoplay=1&mute=1&modestbranding=1"
                                     title="Tutorial Installation"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
                                 ></iframe>
+
+                                {/* Corner elements */}
+                                <div className="absolute top-6 left-6 w-6 h-6 border-t-2 border-l-2 border-red-600/30"></div>
+                                <div className="absolute top-6 right-6 w-6 h-6 border-t-2 border-r-2 border-red-600/30"></div>
+                                <div className="absolute bottom-6 left-6 w-6 h-6 border-b-2 border-l-2 border-red-600/30"></div>
+                                <div className="absolute bottom-6 right-6 w-6 h-6 border-b-2 border-r-2 border-red-600/30"></div>
                             </div>
                         </motion.div>
                     </div>
