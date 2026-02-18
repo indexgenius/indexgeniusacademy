@@ -17,9 +17,9 @@ const Footer = ({ setView, view }) => {
             : 'bg-white border-t border-gray-100'
             }`}>
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
 
-                    {/* Brand Identity */}
+                    {/* Columna 1 – Identidad */}
                     <div className="space-y-8">
                         <div className="flex items-center gap-4">
                             <img src="/img/logos/IMG_5208.PNG" alt="Bull Logo" className={`w-14 h-14 object-contain transition-all ${isBroker ? 'brightness-125' : 'shadow-2xl shadow-red-600/10'}`} />
@@ -29,15 +29,21 @@ const Footer = ({ setView, view }) => {
                                 </h2>
                             </div>
                         </div>
-                        <p className={`text-[11px] font-bold uppercase tracking-widest leading-loose transition-colors ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>
-                            La academia de trading de mayor precisión en Latinoamérica. Elevamos tu nivel operativo con tecnología de punta y educación institucional de alto impacto.
-                        </p>
+                        <div className="space-y-4">
+                            <p className={`text-[10px] font-bold uppercase tracking-widest leading-loose transition-colors ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>
+                                Infraestructura educativa especializada en mercados financieros globales.
+                            </p>
+                            <div className={`text-[10px] font-black uppercase tracking-[0.2em] transition-colors ${isBroker ? 'text-white' : 'text-black'}`}>
+                                República Dominicana<br />
+                                <span className={isBroker ? 'text-[#8158F6]' : 'text-red-600'}>Global Digital Hub</span>
+                            </div>
+                        </div>
                         <div className="flex items-center gap-4">
                             {[
-                                { icon: Instagram, url: 'https://www.instagram.com/indexgeniusacademy', label: 'Instagram' },
+                                { icon: Instagram, url: 'https://www.instagram.com/eltevenfx', label: 'Instagram' },
                                 { icon: Youtube, url: 'https://www.youtube.com/@IndexGeniusAcademy', label: 'YouTube' },
                                 { icon: Send, url: 'https://t.me/indexgeniusacademy', label: 'Telegram' },
-                                { icon: WhatsAppIcon, url: 'https://wa.me/message/2ENFGBP3XTVJL1', label: 'WhatsApp' }
+                                { icon: WhatsAppIcon, url: 'https://wa.me/18495771017', label: 'WhatsApp' }
                             ].map((social, i) => (
                                 <a
                                     key={i}
@@ -56,47 +62,43 @@ const Footer = ({ setView, view }) => {
                         </div>
                     </div>
 
-                    {/* Quick Access */}
+                    {/* Columna 2 – Navegación */}
                     <div className="space-y-8">
-                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Navegación Táctica</h4>
-                        <ul className="space-y-4">
-                            {['Servicios', 'Testimonios', 'Nosotros'].map((item) => (
-                                <li key={item}>
-                                    <a href={`#${item.toLowerCase()}`} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
-                                        }`}>
-                                        <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'
-                                            }`}></div>
-                                        {item}
-                                    </a>
+                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Navegación</h4>
+                        <ul className="grid grid-cols-1 gap-4">
+                            {[
+                                { name: 'Inicio', action: () => setView('home') },
+                                { name: 'Academia', url: '#services' },
+                                { name: 'Servicios', url: '#services' },
+                                { name: 'Ecosistema', url: '#ecosistema' },
+                                { name: 'Broker Partner', action: () => setView('broker') },
+                                { name: 'Testimonios', url: '#testimonials' },
+                                { name: 'Contacto', url: '#contacto' }
+                            ].map((item) => (
+                                <li key={item.name}>
+                                    {item.action ? (
+                                        <button onClick={item.action} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-left ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'}`}>
+                                            <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'}`}></div>
+                                            {item.name}
+                                        </button>
+                                    ) : (
+                                        <a href={item.url} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'}`}>
+                                            <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'}`}></div>
+                                            {item.name}
+                                        </a>
+                                    )}
                                 </li>
                             ))}
-                            <li>
-                                <button onClick={() => setView('ceo')} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-left ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
-                                    }`}>
-                                    <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'
-                                        }`}></div>
-                                    CEO Steven Castillo
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => setView('broker')} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-left ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
-                                    }`}>
-                                    <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'
-                                        }`}></div>
-                                    Broker Aliado
-                                </button>
-                            </li>
                         </ul>
                     </div>
 
-                    {/* Contact Info */}
+                    {/* Columna 3 – Contacto */}
                     <div className="space-y-8">
-                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Centro de Mando</h4>
+                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Contacto</h4>
                         <ul className="space-y-6">
                             {[
-                                { icon: Mail, label: 'Email Oficial', value: 'soporte@ingenius.academy' },
-                                { icon: Phone, label: 'WhatsApp Oficial', value: '+1 (829) 219-8071' },
-                                { icon: MapPin, label: 'Ubicación', value: 'República Dominicana Global Digital Hub', multiline: true }
+                                { icon: Mail, label: 'Email oficial', value: 'support@indexgeniusacademy.com' },
+                                { icon: Phone, label: 'WhatsApp', value: '+1 (849) 577-1017' }
                             ].map((info, i) => (
                                 <li key={i} className="flex items-start gap-4 group">
                                     <div className={`p-3 rounded-xl transition-colors ${isBroker
@@ -108,37 +110,42 @@ const Footer = ({ setView, view }) => {
                                     <div>
                                         <p className={`text-[8px] font-black uppercase tracking-widest mb-1 transition-colors ${isBroker ? 'text-white/30' : 'text-gray-400'}`}>{info.label}</p>
                                         <p className={`text-[10px] font-bold uppercase leading-relaxed transition-colors ${isBroker ? 'text-white' : 'text-black'}`}>
-                                            {info.multiline ? (
-                                                <>{info.value.split(' ')[0]} {info.value.split(' ')[1]}<br />{info.value.split(' ').slice(2).join(' ')}</>
-                                            ) : info.value}
+                                            {info.value}
                                         </p>
                                     </div>
                                 </li>
                             ))}
+                            <li className="pt-4">
+                                <a
+                                    href="https://t.me/indexgeniusacademy"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`inline-flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest skew-x-[-12deg] transition-all ${isBroker
+                                        ? 'bg-[#8158F6] text-white hover:bg-white hover:text-[#090228]'
+                                        : 'bg-red-600 text-white hover:bg-black'
+                                        }`}
+                                >
+                                    <Send size={14} className="skew-x-[12deg]" />
+                                    <span className="skew-x-[12deg]">Telegram Oficial</span>
+                                </a>
+                                <p className={`mt-2 text-[9px] font-bold uppercase transition-colors ${isBroker ? 'text-white/20' : 'text-gray-400'}`}>Unirse a la comunidad</p>
+                            </li>
                         </ul>
                     </div>
 
-                    {/* Newsletter / CTA */}
+                    {/* Columna 4 – Aviso Legal */}
                     <div className="space-y-8">
-                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Operativa Global</h4>
+                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Aviso de Riesgo</h4>
                         <div className={`p-6 rounded-2xl border transition-all ${isBroker
                             ? 'bg-[#322070]/10 border-[#432C8D]/20'
                             : 'bg-gray-50 border-gray-100'
                             } flex flex-col gap-4`}>
-                            <p className={`text-[10px] font-bold uppercase leading-relaxed tracking-wider transition-colors ${isBroker ? 'text-white/60' : 'text-gray-600'}`}>
-                                ¿Listo para dominar los mercados? Sigue nuestra operativa en tiempo real.
+                            <p className={`text-[10px] font-bold uppercase leading-relaxed tracking-wider transition-colors ${isBroker ? 'text-white/40' : 'text-gray-600'} text-justify`}>
+                                El trading en mercados financieros implica un alto nivel de riesgo y puede no ser adecuado para todos los inversores. IndexGenius Academy es una entidad educativa y no actúa como broker ni administra fondos de terceros.
                             </p>
-                            <a
-                                href="https://t.me/indexgeniusacademy"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] italic flex items-center justify-center gap-3 transition-all group ${isBroker
-                                    ? 'bg-[#8158F6] text-white hover:bg-white hover:text-[#090228]'
-                                    : 'bg-black text-white hover:bg-red-600'
-                                    }`}
-                            >
-                                UNIRSE AL TELEGRAM <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                            </a>
+                            <p className={`text-[10px] font-black uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>
+                                Los resultados pasados no garantizan rendimientos futuros.
+                            </p>
                         </div>
                     </div>
 
@@ -149,13 +156,17 @@ const Footer = ({ setView, view }) => {
                     <div className="flex items-center gap-2">
                         <Globe size={14} className={isBroker ? 'text-[#8158F6]' : 'text-red-600'} />
                         <span className={`text-[9px] font-black tracking-[0.4em] uppercase transition-colors ${isBroker ? 'text-white/20' : 'text-gray-400'}`}>
-                            © {currentYear} IndexGenius ACADEMY • TACTICAL NETWORK SYSTEMS
+                            © 2026 IndexGenius Academy. Todos los derechos reservados.
                         </span>
                     </div>
                     <div className="flex gap-8">
-                        {['Términos', 'Privacidad', 'Legal'].map((item) => (
-                            <a key={item} href="#" className={`text-[8px] font-black uppercase tracking-[0.2em] transition-colors ${isBroker ? 'text-white/20 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
-                                }`}>{item}</a>
+                        {[
+                            { name: 'Términos y Condiciones', url: '#' },
+                            { name: 'Política de Privacidad', url: '#' },
+                            { name: 'Aviso Legal', url: '#' }
+                        ].map((item) => (
+                            <a key={item.name} href={item.url} className={`text-[8px] font-black uppercase tracking-[0.2em] transition-colors ${isBroker ? 'text-white/20 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'
+                                }`}>{item.name}</a>
                         ))}
                     </div>
                 </div>

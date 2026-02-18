@@ -660,7 +660,7 @@ const TemplatesPage = ({ user }) => {
 
                                 <iframe
                                     className="w-full h-full relative z-0"
-                                    src="https://www.youtube.com/embed/tPpGDITXpR4?playlist=tPpGDITXpR4&loop=1&autoplay=1&mute=1&modestbranding=1"
+                                    src="https://drive.google.com/file/d/1lq1XEC4oSoUwNDrS0yt87dWrV1dX2yAi/preview"
                                     title="Tutorial Installation"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

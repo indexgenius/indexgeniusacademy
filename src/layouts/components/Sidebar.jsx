@@ -7,7 +7,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
         { id: 'trading-history', icon: History, label: 'TRADING HISTORY' },
         { id: 'monthly-history', icon: TrendingUp, label: 'MONTHLY HISTORY' },
         { id: 'academy', icon: GraduationCap, label: 'ACADEMY' },
-        { id: 'templates', icon: FileCode, label: 'PLANTILLA' },
+        { id: 'templates', icon: FileCode, label: 'TEMPLATES' },
         { id: 'affiliate', icon: Users, label: 'AFFILIATE' },
         ...(isSupreme ? [{ id: 'supreme', icon: Zap, label: 'SUPREME' }] : []),
         ...(canBroadcast ? [{ id: 'admin', icon: Shield, label: 'ADMIN' }] : []),
