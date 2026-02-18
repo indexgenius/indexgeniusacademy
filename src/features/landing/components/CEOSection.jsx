@@ -30,8 +30,8 @@ const CEOSection = ({ onBack }) => {
                     >
                         <div>
                             <p className="text-[11px] font-black tracking-[0.5em] text-red-600 uppercase mb-4 italic">El Mentor Detrás de la Estrategia</p>
-                            <h3 className="text-4xl lg:text-7xl font-black italic tracking-tighter uppercase text-black leading-none mb-6">
-                                DE SECRETARIO A FUNDADOR DE <br /><span className="text-red-700">INDEXGENIUS ACADEMY</span>
+                            <h3 className="text-3xl lg:text-5xl font-black italic tracking-tighter uppercase text-black leading-none mb-6">
+                                DE SECRETARIO A FUNDADOR DE <span className="text-red-700">INDEXGENIUS ACADEMY</span>
                             </h3>
                             <div className="w-24 h-2 bg-red-600 mb-10"></div>
                         </div>
