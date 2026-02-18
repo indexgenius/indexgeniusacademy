@@ -30,14 +30,13 @@ const CEOSection = ({ onBack }) => {
                     >
                         <div>
                             <p className="text-[11px] font-black tracking-[0.5em] text-red-600 uppercase mb-4 italic">El Mentor Detrás de la Estrategia</p>
-                            <h3 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase text-black leading-none mb-6">
-                                Dominando la <br /><span className="text-red-700">Volatilidad</span>
+                            <h3 className="text-4xl lg:text-7xl font-black italic tracking-tighter uppercase text-black leading-none mb-6">
+                                DE SECRETARIO A FUNDADOR DE <br /><span className="text-red-700">INDEXGENIUS ACADEMY</span>
                             </h3>
                             <div className="w-24 h-2 bg-red-600 mb-10"></div>
                         </div>
 
                         <div className="space-y-6 text-gray-700 font-medium leading-relaxed text-sm lg:text-base max-w-xl h-[400px] overflow-y-auto pr-4 custom-scrollbar">
-                            <h4 className="font-black text-red-600 text-lg uppercase mb-2 sticky top-0 bg-white py-2 z-10">🔴 DE SECRETARIO A FUNDADOR</h4>
                             <p>Yo, <span className="font-bold text-black">Steven Castillo</span>, joven dominicano de 22 años y fundador de <span className="font-bold text-black">IndexGenius Academy</span>, no siempre estuve en los mercados financieros.</p>
                             <p>Antes de dedicarme profesionalmente al trading, trabajé como secretario en un almacén, cumpliendo jornadas de más de 8 horas diarias. Esa etapa me enseñó disciplina, compromiso y responsabilidad. Pero dentro de mí sabía que quería algo diferente. No solo un salario fijo… sino libertad financiera.</p>
                             <p>Al principio cometí errores, tuve pérdidas y entendí que los mercados financieros no se tratan de suerte ni de apuestas. Se tratan de estructura, gestión de riesgo y mentalidad sólida.</p>
