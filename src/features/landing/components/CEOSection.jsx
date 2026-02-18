@@ -36,19 +36,22 @@ const CEOSection = ({ onBack }) => {
                             <div className="w-24 h-2 bg-red-600 mb-10"></div>
                         </div>
 
-                        <div className="space-y-8 text-gray-800 font-bold leading-relaxed italic text-base lg:text-xl max-w-xl">
-                            <p className="border-l-4 border-red-600 pl-6 py-2 bg-red-600/5 shadow-sm">
-                                "Mi misión no es solo enseñar a operar, sino formar mentes disciplinadas capaces de conquistar su propia libertad financiera."
-                            </p>
-                            <p className="text-sm not-italic font-bold text-gray-400 uppercase tracking-[0.2em] leading-loose">
-                                Visionario con más de 7 años de experiencia, Steven ha transformado la manera en que miles de estudiantes en Latinoamérica operan índices sintéticos y divisas a través de <span className="text-black font-black">IndexGenius Academy</span>.
+                        <div className="space-y-6 text-gray-700 font-medium leading-relaxed text-sm lg:text-base max-w-xl h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+                            <h4 className="font-black text-red-600 text-lg uppercase mb-2 sticky top-0 bg-white py-2 z-10">🔴 DE SECRETARIO A FUNDADOR</h4>
+                            <p>Yo, <span className="font-bold text-black">Steven Castillo</span>, joven dominicano de 22 años y fundador de <span className="font-bold text-black">IndexGenius Academy</span>, no siempre estuve en los mercados financieros.</p>
+                            <p>Antes de dedicarme profesionalmente al trading, trabajé como secretario en un almacén, cumpliendo jornadas de más de 8 horas diarias. Esa etapa me enseñó disciplina, compromiso y responsabilidad. Pero dentro de mí sabía que quería algo diferente. No solo un salario fijo… sino libertad financiera.</p>
+                            <p>Al principio cometí errores, tuve pérdidas y entendí que los mercados financieros no se tratan de suerte ni de apuestas. Se tratan de estructura, gestión de riesgo y mentalidad sólida.</p>
+                            <p>Decidí prepararme en serio. Estudié, practiqué y desarrollé un enfoque profesional hasta lograr consistencia. Comprendí que el verdadero éxito en el trading no está en ganar grandes cantidades en un día, sino en proteger el capital y mantener disciplina a largo plazo.</p>
+                            <p>Hoy lidero <span className="font-bold text-black">IndexGenius Academy</span>, una academia de trading enfocada en forex, índices sintéticos y otros mercados financieros, formando traders en República Dominicana y Latinoamérica con una visión clara: resultados sostenibles, educación real y mentalidad profesional.</p>
+                            <p className="border-l-4 border-red-600 pl-4 py-3 bg-red-50 italic text-gray-900 font-bold my-4">
+                                "No vendemos sueños rápidos. Formamos traders con estructura, disciplina y visión. Porque la libertad financiera no se improvisa… se construye."
                             </p>
                         </div>
 
                         {/* Social Connect */}
                         <div className="flex flex-wrap gap-4 pt-4">
                             {[
-                                { icon: Instagram, url: 'https://www.instagram.com/indexgeniusacademy' },
+                                { icon: Instagram, url: 'https://www.instagram.com/eltevenfx' },
                                 { icon: Youtube, url: 'https://www.youtube.com/@IndexGeniusAcademy' },
                                 { icon: Send, url: 'https://t.me/indexgeniusacademy' },
                                 { icon: Linkedin, url: '#' }

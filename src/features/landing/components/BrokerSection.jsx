@@ -64,7 +64,7 @@ const BrokerSection = () => {
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10">
                             <a
-                                href="https://bridgemarkets.com"
+                                href="https://trading.bridgemarkets.global/register?ref=af2fad19-0a06-4b62-8&branchUuid=759c4fa8-df5b-4cdc-97ae-7"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="px-14 py-7 bg-[#8158F6] text-white font-black uppercase italic tracking-widest skew-x-[-12deg] hover:bg-white hover:text-[#060024] transition-all shadow-2xl shadow-[#8158F6]/40 text-sm group"
