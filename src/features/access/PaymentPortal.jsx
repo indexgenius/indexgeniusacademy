@@ -4,7 +4,7 @@ import { db } from '../../firebase';
 import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const PaymentPortal = ({ user, onLogout }) => {
+const PaymentPortal = ({ user, onLogout, isExpired }) => {
     const [paymentMethods, setPaymentMethods] = useState([]);
     const [copied, setCopied] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ const PaymentPortal = ({ user, onLogout }) => {
         setLoading(true);
         const userEmail = user?.email || "SISTEMA_LOCAL_USER";
         const userPhone = user?.phone || "NO REGISTRADO";
-        const message = `HOLA STEVEN. ACABO DE REALIZAR EL PAGO DE MI MEMBRESÍA ELITE.\n\nVALOR: $${finalPrice} USD\nPLAN: ${planName}\nUSUARIO: ${userEmail}\nTELÉFONO: ${userPhone}\n\nPOR FAVOR ACTIVA MI ACCESO.`;
+        const message = `HOLA STEVEN. ACABO DE REALIZAR EL PAGO DE MI ${isExpired ? 'RENOVACIÓN' : 'MEMBRESÍA'} ELITE.\n\nVALOR: $${finalPrice} USD\nPLAN: ${planName}\nUSUARIO: ${userEmail}\nTELÉFONO: ${userPhone}\n\nPOR FAVOR ACTIVA MI ACCESO.`;
         const waUrl = `https://wa.me/18292198071?text=${encodeURIComponent(message)}`;
 
         try {
@@ -43,8 +43,8 @@ const PaymentPortal = ({ user, onLogout }) => {
 
         try {
             await addDoc(collection(db, "notifications"), {
-                title: "NUEVO PAGO DE MEMBRESÍA ELITE",
-                message: `El usuario ${userEmail} reportó un pago de $${finalPrice} (${planName}).`,
+                title: isExpired ? "NUEVA RENOVACIÓN DE MEMBRESÍA" : "NUEVO PAGO DE MEMBRESÍA ELITE",
+                message: `El usuario ${userEmail} reportó un pago de $${finalPrice} para ${isExpired ? 'renovación' : 'activación'} (${planName}).`,
                 type: 'subscription_payment',
                 userId: user.uid,
                 userEmail: userEmail,
@@ -92,9 +92,11 @@ const PaymentPortal = ({ user, onLogout }) => {
 
                     <div className="space-y-1 mb-12">
                         <h1 className="text-4xl md:text-5xl font-black italic uppercase leading-tight tracking-tighter text-white">
-                            MEMBERSHIP<br />ACTIVATION
+                            MEMBERSHIP<br />{isExpired ? 'RENEWAL' : 'ACTIVATION'}
                         </h1>
-                        <p className="text-[10px] font-bold text-white/70 uppercase tracking-[0.4em]">CLEARANCE LEVEL: TIER 1 ACCESS</p>
+                        <p className="text-[10px] font-bold text-white/70 uppercase tracking-[0.4em]">
+                            {isExpired ? 'SUBSCRIPTION PERIOD EXPIRED' : 'CLEARANCE LEVEL: TIER 1 ACCESS'}
+                        </p>
                     </div>
 
                     <div className="space-y-6">
@@ -126,45 +128,101 @@ const PaymentPortal = ({ user, onLogout }) => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="space-y-8"
                             >
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">SELECT MEMBERSHIP</h3>
-                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed">
-                                        ACCESS ALL PREMIUM SIGNALS AND FEATURES WITH OUR UNIFIED ELITE PLAN.
-                                    </p>
-                                </div>
+                                {isExpired ? (
+                                    /* RENEWAL SPECIFIC UI */
+                                    <div className="space-y-10">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-[2px] w-12 bg-red-600"></div>
+                                                <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white">RECOVERY PROTOCOL</h3>
+                                            </div>
+                                            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] leading-relaxed max-w-md">
+                                                Your access to the Index Genius tactical node has been disconnected.
+                                                Follow the steps below to re-establish your cryptographical clearance.
+                                            </p>
+                                        </div>
 
-                                {/* ELITE ACCESS CARD */}
-                                <div className="relative group">
-                                    <div className="absolute inset-0 bg-red-600/5 blur-2xl group-hover:bg-red-600/10 transition-all duration-700"></div>
-                                    <div className="relative border-2 border-red-600/50 rounded-lg p-10 overflow-hidden bg-black/50 backdrop-blur-sm">
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div className="space-y-1">
-                                                <h4 className="text-2xl font-black italic uppercase tracking-tighter text-white">ELITE ACCESS</h4>
-                                                <div className="bg-red-600 text-white px-3 py-1 text-[8px] font-black uppercase tracking-widest inline-block skew-x-[-10deg]">
-                                                    FULL BENEFIT UNLOCKED
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {/* Status Card */}
+                                            <div className="bg-white/5 border border-white/10 p-8 relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                                                    <ShieldAlert size={40} className="text-red-600" />
+                                                </div>
+                                                <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest mb-4 block">Current Status</span>
+                                                <div className="text-4xl font-black italic text-red-600 mb-2">TERMINATED</div>
+                                                <div className="bg-red-600/20 text-red-500 px-3 py-1 text-[8px] font-black uppercase tracking-widest inline-block skew-x-[-10deg]">
+                                                    ACCESS DENIED
                                                 </div>
                                             </div>
-                                            <ShieldAlert size={40} className="text-red-600/20" />
-                                        </div>
 
-                                        <div className="flex items-baseline gap-2 mb-2">
-                                            <span className="text-7xl font-black italic tracking-tighter text-white">$25</span>
-                                            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">USDT / LIFETIME</span>
-                                        </div>
-
-                                        <div className="mt-8 space-y-3">
-                                            {["Full Signal Feed", "Educational Vault", "Elite Community", "Priority Support"].map((item, i) => (
-                                                <div key={i} className="flex items-center gap-3">
-                                                    <div className="w-4 h-[1px] bg-red-600"></div>
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item}</span>
+                                            {/* Action Card */}
+                                            <div className="bg-red-600/5 border-2 border-red-600 p-8 relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-3 opacity-20">
+                                                    <Zap size={40} className="text-white" />
                                                 </div>
-                                            ))}
+                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4 block">Recovery Cost</span>
+                                                <div className="text-4xl font-black italic text-white mb-2">$25 <span className="text-sm">USDT</span></div>
+                                                <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">LIFETIME RE-ACTIVATION</div>
+                                            </div>
                                         </div>
 
-                                        {/* Background Icon */}
-                                        <ShieldCheck className="absolute -bottom-10 -right-10 text-white/5 w-48 h-48 pointer-events-none" />
+                                        <div className="space-y-4">
+                                            <div className="bg-white/5 border border-white/10 p-6 flex items-center justify-between group hover:bg-white/10 transition-colors">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-full bg-red-600/20 flex items-center justify-center border border-red-600/50">
+                                                        <Key size={20} className="text-red-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black text-white uppercase tracking-widest">GENERATE NEW CLEARANCE</p>
+                                                        <p className="text-[8px] font-bold text-gray-600 uppercase tracking-widest">RE-ENTRY PERMIT</p>
+                                                    </div>
+                                                </div>
+                                                <Check size={16} className="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    /* STANDARD MEMBERSHIP UI */
+                                    <>
+                                        <div className="space-y-2">
+                                            <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">SELECT MEMBERSHIP</h3>
+                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed">
+                                                ACCESS ALL PREMIUM SIGNALS AND FEATURES WITH OUR UNIFIED ELITE PLAN.
+                                            </p>
+                                        </div>
+
+                                        <div className="relative group">
+                                            <div className="absolute inset-0 bg-red-600/5 blur-2xl group-hover:bg-red-600/10 transition-all duration-700"></div>
+                                            <div className="relative border-2 border-red-600/50 rounded-lg p-10 overflow-hidden bg-black/50 backdrop-blur-sm">
+                                                <div className="flex justify-between items-start mb-6">
+                                                    <div className="space-y-1">
+                                                        <h4 className="text-2xl font-black italic uppercase tracking-tighter text-white">ELITE ACCESS</h4>
+                                                        <div className="bg-red-600 text-white px-3 py-1 text-[8px] font-black uppercase tracking-widest inline-block skew-x-[-10deg]">
+                                                            FULL BENEFIT UNLOCKED
+                                                        </div>
+                                                    </div>
+                                                    <ShieldAlert size={40} className="text-red-600/20" />
+                                                </div>
+
+                                                <div className="flex items-baseline gap-2 mb-2">
+                                                    <span className="text-7xl font-black italic tracking-tighter text-white">$25</span>
+                                                    <span className="text-xs font-black text-gray-400 uppercase tracking-widest">USDT / LIFETIME</span>
+                                                </div>
+
+                                                <div className="mt-8 space-y-3">
+                                                    {["Full Signal Feed", "Educational Vault", "Elite Community", "Priority Support"].map((item, i) => (
+                                                        <div key={i} className="flex items-center gap-3">
+                                                            <div className="w-4 h-[1px] bg-red-600"></div>
+                                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <ShieldCheck className="absolute -bottom-10 -right-10 text-white/5 w-48 h-48 pointer-events-none" />
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
 
                                 {/* BOTTOM ACTION BAR */}
                                 <div className="fixed bottom-0 left-0 w-full bg-white px-8 py-5 flex justify-center items-center z-50">
@@ -172,14 +230,14 @@ const PaymentPortal = ({ user, onLogout }) => {
                                         onClick={() => setStep(2)}
                                         className="w-full max-w-xl group flex justify-between items-center bg-transparent"
                                     >
-                                        <span className="text-black text-xl font-black italic uppercase tracking-tighter group-hover:translate-x-2 transition-transform duration-500">
-                                            PROCEED TO PAYMENT
+                                        <span className="text-black text-xl font-black italic uppercase tracking-tighter group-active:translate-y-1 transition-transform">
+                                            {isExpired ? 'INITIALIZE RECOVERY' : 'PROCEED TO PAYMENT'}
                                         </span>
                                         <ArrowRight className="text-black w-8 h-8 group-hover:translate-x-2 transition-transform duration-500" />
                                     </button>
                                 </div>
 
-                                <div className="h-24"></div> {/* Spacer for fixed footer */}
+                                <div className="h-24"></div>
                             </motion.div>
                         ) : (
                             <motion.div
@@ -194,6 +252,19 @@ const PaymentPortal = ({ user, onLogout }) => {
                                 </button>
 
                                 <div className="space-y-2">
+                                    {isExpired && (
+                                        <div className="mb-6 p-4 bg-red-600/10 border-2 border-red-600 relative overflow-hidden group">
+                                            <div className="absolute inset-0 bg-red-600/5 animate-pulse"></div>
+                                            <div className="relative z-10 flex items-center gap-4">
+                                                <ShieldAlert className="text-red-600 animate-bounce" size={24} />
+                                                <div>
+                                                    <p className="text-xs font-black italic tracking-widest text-white uppercase">CONNECTION TERMINATED</p>
+                                                    <p className="text-[8px] font-bold text-red-600/80 uppercase tracking-widest">Your access period has reached zero. Renewal required.</p>
+                                                </div>
+                                            </div>
+                                            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-red-600 animate-scan"></div>
+                                        </div>
+                                    )}
                                     <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">PAYMENT INJECTION</h3>
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed">
                                         SELECT A PROTOCOL AND SECURE YOUR ACCESS TO THE TERMINAL.

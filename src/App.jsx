@@ -22,7 +22,7 @@ import SupremeDashboard from './features/admin/SupremeDashboard';
 
 // Access & Protection
 import PendingApproval from './features/access/PendingApproval';
-import SubscriptionExpired from './features/access/SubscriptionExpired';
+// import SubscriptionExpired from './features/access/SubscriptionExpired';
 import PaymentPortal from './features/access/PaymentPortal';
 import PromoModal from './features/notifications/PromoModal';
 import NotificationPromptModal from './features/notifications/NotificationPromptModal';
@@ -204,7 +204,7 @@ function App() {
     return false;
   };
 
-  if (isExpired()) return <SubscriptionExpired user={user} onLogout={logout} />;
+  if (isExpired()) return <PaymentPortal user={user} onLogout={logout} isExpired={true} />;
 
 
 
