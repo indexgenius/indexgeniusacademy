@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 const Hero = ({ view }) => {
     const isBroker = view === 'broker';
     return (
-        <section className={`relative min-h-screen flex flex-col items-center justify-start text-center overflow-hidden pt-32 lg:pt-48 pb-0 transition-colors duration-500 ${isBroker ? 'bg-[#090228]' : 'bg-white'}`}>
-
-
+        <section className={`relative min-h-[85vh] flex flex-col items-center justify-start text-center overflow-hidden pt-28 lg:pt-40 pb-0 transition-colors duration-500 ${isBroker ? 'bg-[#090228]' : 'bg-white'}`}>
 
             {/* Subtle 3D SVG Background Elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
@@ -72,62 +70,74 @@ const Hero = ({ view }) => {
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="relative z-30 max-w-[1600px] mx-auto px-6 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 lg:gap-20 items-center mt-4 lg:mt-0"
+                className="relative z-30 max-w-7xl mx-auto px-6 lg:px-12 w-full flex flex-col items-center justify-center text-center mt-4 lg:mt-8"
             >
-                {/* FUSED CINEMATIC VIDEO - BLENDS WITH WHITE */}
-                <div className="order-2 lg:order-2 flex justify-center lg:justify-start">
-                    <div className="relative w-full lg:w-[120%] lg:-ml-[10%] aspect-[16/10] overflow-hidden">
-                        {/* Cinematic Bull Video with Blend and Filter to eliminate borders */}
-                        <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className={`absolute inset-0 w-full h-full object-contain contrast-[1.1] brightness-[1.05] transition-all duration-500 ${isBroker ? 'mix-blend-lighten opacity-80' : 'mix-blend-multiply'}`}
-                            style={{
-                                maskImage: 'radial-gradient(circle, black 60%, transparent 95%)',
-                                WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 95%)'
-                            }}
-                        >
-                            <source src="/img/toro3d/hero_bull_cinematic.mp4" type="video/mp4" />
-                        </video>
-                    </div>
+                {/* LARGE BACKGROUND WATERMARK - CENTERED */}
+                <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0 opacity-[0.03]">
+                    <h2 className="text-[120px] md:text-[300px] lg:text-[500px] font-black italic tracking-tighter leading-none uppercase text-black select-none">
+                        INDEX<br />GENIUS
+                    </h2>
                 </div>
 
-                {/* Text Content */}
-                <div className="order-1 lg:order-1 text-left">
-                    <div className="bg-white/90 backdrop-blur-md px-4 py-8 lg:p-14 rounded-none border-l-[12px] border-l-red-600 border-y-0 border-r-0 shadow-2xl shadow-gray-100/50">
+                <div className="relative z-10 flex flex-col items-center space-y-10 lg:py-10">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-6 flex flex-col items-center"
+                    >
 
-
-                        <h1 className="diseno-futurista mb-6 leading-[0.8] text-left text-black">
-                            DOMINA LOS<br />
-                            <span className="sinteticos-rojo text-[45px] sm:text-7xl lg:text-[130px] tracking-tighter">SINTÉTICOS</span>
+                        <h1 className="diseno-futurista leading-[0.85] text-black text-center">
+                            INFRAESTRUCTURA <br />
+                            <span className="text-red-600">PROFESIONAL</span><br />
+                            PARA TRADERS.
                         </h1>
 
-                        <p className="font-bold uppercase tracking-[0.1em] text-[12px] lg:text-base leading-relaxed mb-12 text-gray-500 max-w-xl">
-                            La Academia de trading más avanzada de Latinoamérica. <span className="text-red-600 font-black">SEÑALES EN TIEMPO REAL</span>, formación de alto nivel y tecnología de grado institucional.
+                        <p className="text-lg lg:text-xl font-bold text-gray-500 uppercase tracking-tight leading-relaxed max-w-2xl italic mx-auto">
+                            Domina los mercados con ejecución de grado institucional y herramientas diseñadas para la <span className="text-black font-black underline decoration-red-600 decoration-4 underline-offset-4">máxima rentabilidad</span>.
                         </p>
+                    </motion.div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
-                            <button
-                                onClick={() => document.getElementById('install').scrollIntoView({ behavior: 'smooth' })}
-                                className={`px-10 py-5 font-black italic text-xs lg:text-sm tracking-[0.4em] uppercase transition-all skew-x-[-12deg] shadow-2xl flex items-center justify-center gap-4 group ${isBroker
-                                    ? 'bg-[#8158F6] text-white hover:bg-white hover:text-[#090228] shadow-[#8158F6]/20'
-                                    : 'bg-red-600 text-white hover:bg-black shadow-red-600/20'
-                                    }`}
+                    {/* Features List - Centered */}
+                    <div className="flex flex-wrap justify-center gap-6 max-w-4xl">
+                        {[
+                            { label: "Señales Pro", desc: "Tiempo Real" },
+                            { label: "Educación", desc: "Paso a Paso" },
+                            { label: "Software", desc: "Exclusivo" },
+                            { label: "Soporte", desc: "Élite 24/7" }
+                        ].map((feature, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1 * i }}
+                                className="flex items-center gap-4 bg-gray-50/50 p-6 border-l-4 border-red-600 min-w-[200px] group hover:bg-white hover:shadow-xl transition-all"
                             >
-                                ACCESO TOTAL <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                            </button>
-                            <button
-                                onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })}
-                                className={`px-10 py-5 border-2 font-black italic text-xs lg:text-sm tracking-[0.4em] uppercase transition-all skew-x-[-12deg] flex items-center justify-center gap-4 bg-transparent ${isBroker
-                                    ? 'border-[#8158F6] text-[#8158F6] hover:bg-[#8158F6] hover:text-white'
-                                    : 'border-red-600 text-red-600 hover:bg-red-600 hover:text-white'
-                                    }`}
-                            >
-                                EXPLORAR
-                            </button>
-                        </div>
+                                <div className="space-y-0.5 text-left">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-red-600">{feature.label}</h4>
+                                    <p className="text-xs font-bold text-black uppercase tracking-widest">{feature.desc}</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-6 pt-10">
+                        <button
+                            onClick={() => document.getElementById('install').scrollIntoView({ behavior: 'smooth' })}
+                            className="px-10 py-5 bg-red-600 text-white font-black italic text-xs lg:text-sm uppercase tracking-[0.3em] skew-x-[-12deg] shadow-[0_15px_30px_rgba(220,38,38,0.25)] hover:bg-black hover:scale-105 transition-all group relative overflow-hidden"
+                        >
+                            <span className="relative z-10 flex items-center gap-4">
+                                EMPEZAR AHORA
+                                <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </button>
+
+                        <button
+                            onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })}
+                            className="px-8 py-4 border-2 border-black text-black font-black italic text-[10px] lg:text-xs tracking-[0.2em] uppercase transition-all skew-x-[-12deg] hover:bg-black hover:text-white"
+                        >
+                            VER SERVICIOS
+                        </button>
                     </div>
                 </div>
             </motion.div>

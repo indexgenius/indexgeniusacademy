@@ -70,9 +70,8 @@ const LandingPage = ({ onShowAuth }) => {
                                 <>
                                     <a href="#services" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">SERVICIOS</a>
                                     <a href="#testimonials" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">TESTIMONIOS</a>
-                                    <button onClick={() => handleViewChange('ceo')} className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">CEO STEVEN</button>
-                                    <button onClick={() => handleViewChange('broker')} className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">BROKER</button>
-                                    <a href="#about" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">NOSOTROS</a>
+                                    <button onClick={() => handleViewChange('ceo')} className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">NOSOTROS</button>
+                                    <button onClick={() => handleViewChange('broker')} className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">ALIADOS</button>
                                 </>
                             )}
                         </div>
@@ -99,8 +98,8 @@ const LandingPage = ({ onShowAuth }) => {
                     {/* Mobile Navigation Menu */}
                     {isMenuOpen && (
                         <div className={`absolute top-full left-0 w-full mt-4 p-6 rounded-2xl border shadow-2xl backdrop-blur-xl flex flex-col gap-4 lg:hidden ${view === 'broker'
-                                ? 'bg-[#090228]/95 border-[#432C8D]/30 text-white'
-                                : 'bg-white/95 border-gray-100 text-black'
+                            ? 'bg-[#090228]/95 border-[#432C8D]/30 text-white'
+                            : 'bg-white/95 border-gray-100 text-black'
                             }`}>
                             <div className="flex flex-col gap-2 font-black italic tracking-[0.2em] text-xs">
                                 {view !== 'home' ? (
@@ -117,9 +116,8 @@ const LandingPage = ({ onShowAuth }) => {
                                     <>
                                         <a href="#services" onClick={() => setIsMenuOpen(false)} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>SERVICIOS</a>
                                         <a href="#testimonials" onClick={() => setIsMenuOpen(false)} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>TESTIMONIOS</a>
-                                        <button onClick={() => handleViewChange('ceo')} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>CEO STEVEN</button>
-                                        <button onClick={() => handleViewChange('broker')} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>BROKER</button>
-                                        <a href="#about" onClick={() => setIsMenuOpen(false)} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>NOSOTROS</a>
+                                        <button onClick={() => handleViewChange('ceo')} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>NOSOTROS</button>
+                                        <button onClick={() => handleViewChange('broker')} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>ALIADOS</button>
                                     </>
                                 )}
                                 <button
@@ -183,7 +181,7 @@ const LandingPage = ({ onShowAuth }) => {
                     <InstallGuide view={view} />
                 </>
             ) : view === 'ceo' ? (
-                <CEOSection onBack={() => handleViewChange('home')} view={view} />
+                <CEOSection onBack={() => handleViewChange('home')} view={view} onShowAuth={onShowAuth} />
             ) : (
                 <BrokerSection onBack={() => handleViewChange('home')} />
             )}
