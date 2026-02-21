@@ -27,46 +27,44 @@ const BrokerSection = () => {
                     </motion.div>
 
                     {/* Premium Partnership Composite */}
-                    <div className="flex flex-col items-center justify-center mb-16">
+                    <div className="flex flex-col items-center justify-center mb-10 lg:mb-16">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            className="relative group p-8 lg:p-12 bg-white/[0.02] border border-white/5 backdrop-blur-xl rounded-2xl flex flex-col md:flex-row items-center gap-8 lg:gap-16 shadow-[0_0_100px_rgba(129,88,246,0.1)] transition-all hover:bg-white/[0.04] hover:border-[#8158F6]/20"
+                            className="relative group p-4 lg:p-12 bg-white/[0.02] border border-white/5 backdrop-blur-xl rounded-2xl flex flex-row items-center justify-center gap-4 md:gap-16 shadow-[0_0_100px_rgba(129,88,246,0.1)] transition-all hover:bg-white/[0.04] hover:border-[#8158F6]/20"
                         >
                             {/* Glow Effect behind */}
                             <div className="absolute inset-0 bg-gradient-to-r from-red-600/5 via-transparent to-[#8158F6]/5 rounded-2xl pointer-events-none"></div>
 
                             {/* Our Side */}
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="h-16 lg:h-24 flex items-center justify-center">
+                            <div className="flex flex-col items-center gap-2 lg:gap-4">
+                                <div className="h-8 lg:h-24 flex items-center justify-center">
                                     <img
                                         src="/img/logos/IMG_5208.PNG"
                                         alt="IndexGenius Academy"
                                         className="h-full object-contain filter drop-shadow-[0_0_30px_rgba(220,38,38,0.4)]"
                                     />
                                 </div>
-                                <span className="text-[10px] font-black tracking-[0.3em] text-gray-500 uppercase">The Academy</span>
+                                <span className="text-[6px] lg:text-[10px] font-black tracking-[0.2em] lg:tracking-[0.3em] text-gray-500 uppercase">Academy</span>
                             </div>
 
                             {/* Tactical Cross */}
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="w-px h-12 lg:h-16 bg-gradient-to-b from-transparent via-[#8158F6]/50 to-transparent"></div>
-                                <div className="text-2xl lg:text-4xl font-black italic text-[#8158F6] drop-shadow-[0_0_15px_rgba(129,88,246,0.8)] skew-x-[-12deg]">
+                            <div className="flex items-center">
+                                <div className="text-lg lg:text-4xl font-black italic text-[#8158F6] drop-shadow-[0_0_15px_rgba(129,88,246,0.8)] skew-x-[-12deg]">
                                     X
                                 </div>
-                                <div className="w-px h-12 lg:h-16 bg-gradient-to-b from-transparent via-[#8158F6]/50 to-transparent"></div>
                             </div>
 
                             {/* Partner Side */}
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="h-14 lg:h-20 flex items-center justify-center">
+                            <div className="flex flex-col items-center gap-2 lg:gap-4">
+                                <div className="h-6 lg:h-20 flex items-center justify-center">
                                     <img
                                         src="/img/metodos/logos/logo_bridge_morado.png"
                                         alt="Bridge Markets"
                                         className="h-full object-contain filter drop-shadow-[0_0_40px_rgba(129,88,246,0.3)] brightness-125"
                                     />
                                 </div>
-                                <span className="text-[10px] font-black tracking-[0.3em] text-gray-500 uppercase">The Infrastructure</span>
+                                <span className="text-[6px] lg:text-[10px] font-black tracking-[0.2em] lg:tracking-[0.3em] text-gray-500 uppercase">Infrastructure</span>
                             </div>
                         </motion.div>
                     </div>
@@ -78,11 +76,11 @@ const BrokerSection = () => {
                             whileInView={{ opacity: 1, scale: 1 }}
                             className="space-y-4"
                         >
-                            <h2 className="text-4xl lg:text-7xl font-black italic tracking-tighter uppercase leading-[0.9] text-white">
+                            <h2 className="text-3xl md:text-5xl lg:text-7xl font-black italic tracking-tighter uppercase leading-[0.9] text-white">
                                 Nuestro Aliado <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8158F6] to-white italic pr-4">Estratégico</span>
                             </h2>
-                            <p className="text-[11px] lg:text-sm font-black tracking-[0.3em] text-[#8158F6] uppercase">BridgeMarkets x IndexGenius Academy</p>
+                            <p className="text-[10px] md:text-[11px] lg:text-sm font-black tracking-[0.3em] text-[#8158F6] uppercase">BridgeMarkets x IndexGenius Academy</p>
                         </motion.div>
 
                         <div className="space-y-6">
@@ -152,10 +150,10 @@ const BrokerSection = () => {
                         href="https://trading.bridgemarkets.global/register?ref=af2fad19-0a06-4b62-8&branchUuid=759c4fa8-df5b-4cdc-97ae-7"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-6 px-12 py-8 bg-red-600 text-white font-black italic text-sm lg:text-lg uppercase tracking-[0.4em] skew-x-[-12deg] hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(220,38,38,0.3)] group relative overflow-hidden"
+                        className="inline-flex items-center gap-4 lg:gap-6 px-8 py-5 lg:px-12 lg:py-8 bg-[#8158F6] text-white font-black italic text-[10px] lg:text-lg uppercase tracking-[0.2em] lg:tracking-[0.4em] skew-x-[-12deg] hover:bg-white hover:text-black transition-all shadow-[0_0_40px_rgba(129,88,246,0.3)] group relative overflow-hidden"
                     >
                         <span className="relative z-10">OPERAR CON NUESTRO ALIADO OFICIAL</span>
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform relative z-10" />
+                        <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 group-hover:translate-x-2 transition-transform relative z-10" />
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     </a>
 

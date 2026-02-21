@@ -12,7 +12,7 @@ const PaymentMethods = ({ view }) => {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className={`text-4xl lg:text-6xl font-black italic tracking-tighter uppercase mb-6 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}
+                        className={`text-3xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase mb-6 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}
                     >
                         ECOSISTEMA <span className={isBroker ? 'text-[#8158F6]' : 'text-red-600'}>INDEXGENIUS</span>
                     </motion.h3>

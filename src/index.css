@@ -226,18 +226,25 @@
 
 .diseno-futurista {
   font-family: 'Archivo Black', sans-serif;
-  font-size: clamp(1.8rem, 6vw, 72px);
+  font-size: clamp(1.4rem, 8vw, 72px);
   font-weight: 950;
   text-transform: uppercase;
-  line-height: 0.8;
+  line-height: 0.85;
   color: var(--text-primary);
   font-style: italic;
   transform: skewX(-12deg);
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   margin: 0;
   display: inline-block;
-  padding-right: 40px;
-  /* Prevent text clipping due to skew */
+  padding-right: 15px;
+  /* Reduced for mobile */
+}
+
+@media (min-width: 768px) {
+  .diseno-futurista {
+    padding-right: 40px;
+    letter-spacing: -2px;
+  }
 }
 
 .light-mode .diseno-futurista {

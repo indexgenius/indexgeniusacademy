@@ -9,8 +9,8 @@ const InstallGuide = () => {
     return (
         <section id="install" className="px-6 lg:px-20 py-32 relative overflow-hidden bg-white">
             <div className="max-w-5xl mx-auto">
-                <motion.div className="mb-16 text-center" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }}>
-                    <h3 className="text-5xl lg:text-7xl font-black italic tracking-tighter uppercase mb-6 text-black">
+                <motion.div className="mb-12 lg:mb-16 text-center px-4" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }}>
+                    <h3 className="text-4xl md:text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-6 text-black">
                         GUÍA DE <span className="text-red-700">INSTALACIÓN</span>
                     </h3>
                     <div className="w-24 h-1.5 bg-red-600 mx-auto mb-8"></div>

@@ -74,7 +74,7 @@ const Hero = ({ view }) => {
             >
                 {/* LARGE BACKGROUND WATERMARK - CENTERED */}
                 <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0 opacity-[0.03]">
-                    <h2 className="text-[120px] md:text-[300px] lg:text-[500px] font-black italic tracking-tighter leading-none uppercase text-black select-none">
+                    <h2 className="text-[80px] md:text-[300px] lg:text-[500px] font-black italic tracking-tighter leading-none uppercase text-black select-none text-center">
                         INDEX<br />GENIUS
                     </h2>
                 </div>
@@ -86,13 +86,13 @@ const Hero = ({ view }) => {
                         className="space-y-6 flex flex-col items-center"
                     >
 
-                        <h1 className="diseno-futurista leading-[0.85] text-black text-center">
+                        <h1 className="diseno-futurista leading-[0.85] text-black text-center text-4xl md:text-6xl lg:text-7xl">
                             INFRAESTRUCTURA <br />
                             <span className="text-red-600">PROFESIONAL</span><br />
                             PARA TRADERS.
                         </h1>
 
-                        <p className="text-lg lg:text-xl font-bold text-gray-500 uppercase tracking-tight leading-relaxed max-w-2xl italic mx-auto">
+                        <p className="text-base md:text-lg lg:text-xl font-bold text-gray-500 uppercase tracking-tight leading-relaxed max-w-2xl italic mx-auto px-4">
                             Domina los mercados con ejecución de grado institucional y herramientas diseñadas para la <span className="text-black font-black underline decoration-red-600 decoration-4 underline-offset-4">máxima rentabilidad</span>.
                         </p>
                     </motion.div>

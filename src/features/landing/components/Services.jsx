@@ -37,15 +37,15 @@ const Services = ({ view }) => {
             <TacticalEvolution stage={2} view={view} />
             <div className="max-w-7xl mx-auto relative z-10">
                 <motion.div
-                    className="text-center mb-24"
+                    className="text-center mb-16 lg:mb-24 px-4"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: false }}
                 >
-                    <h2 className={`text-5xl lg:text-8xl font-black italic tracking-tighter uppercase mb-6 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
+                    <h2 className={`text-4xl md:text-6xl lg:text-8xl font-black italic tracking-tighter uppercase mb-6 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
                         NUESTROS <span className={isBroker ? 'text-[#8158F6]' : 'text-red-700'}>SERVICIOS</span>
                     </h2>
-                    <div className={`w-24 h-2 mx-auto transition-colors duration-500 ${isBroker ? 'bg-[#8158F6]' : 'bg-red-600'}`}></div>
+                    <div className={`w-20 lg:w-24 h-2 mx-auto transition-colors duration-500 ${isBroker ? 'bg-[#8158F6]' : 'bg-red-600'}`}></div>
                 </motion.div>
 
                 <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -53,8 +53,8 @@ const Services = ({ view }) => {
                         <motion.div
                             key={i}
                             className={`group relative p-10 border transition-all duration-500 shadow-xl shadow-gray-100/50 ${isBroker
-                                    ? 'bg-[#322070]/10 border-[#432C8D]/20 hover:border-[#8158F6] shadow-[#8158F6]/5'
-                                    : 'bg-white border-gray-100 hover:shadow-2xl hover:border-red-600'
+                                ? 'bg-[#322070]/10 border-[#432C8D]/20 hover:border-[#8158F6] shadow-[#8158F6]/5'
+                                : 'bg-white border-gray-100 hover:shadow-2xl hover:border-red-600'
                                 }`}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}

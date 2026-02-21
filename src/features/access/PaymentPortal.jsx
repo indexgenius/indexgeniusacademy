@@ -279,9 +279,9 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                                 <div className="flex justify-between items-center mb-4">
                                                     <div className="flex items-center gap-4 text-white">
                                                         <div className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center">
-                                                            {pm.icon === 'usdt' && <img src="/img/metodos/logos/usdt_hq.svg" className="w-6 h-6" />}
-                                                            {pm.icon === 'binance' && <img src="/img/metodos/logos/bnb_hq.svg" className="w-6 h-6" />}
-                                                            {pm.icon === 'bitcoin' && <img src="/img/metodos/logos/btc_hq.svg" className="w-6 h-6" />}
+                                                            {pm.icon === 'usdt' && <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-6 h-6" />}
+                                                            {pm.icon === 'binance' && <img src="/img/metodos/logos/Binance_logo.svg.png" className="w-6 h-6" />}
+                                                            {pm.icon === 'bitcoin' && <img src="/img/metodos/logos/Bitcoin_logo.svg.png" className="w-6 h-6" />}
                                                             {pm.icon === 'bancolombia' && <img src="/img/metodos/logos/Logo_Bancolombia.svg.png" className="w-6 h-6 object-contain" />}
                                                             {pm.icon === 'nequi' && <img src="/img/metodos/logos/nequi-37254.png" className="w-6 h-6 object-contain" />}
                                                             {!['usdt', 'binance', 'bitcoin', 'bancolombia', 'nequi'].includes(pm.icon) && <Zap size={20} className="text-red-600" />}

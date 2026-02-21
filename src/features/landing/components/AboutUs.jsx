@@ -8,39 +8,39 @@ const AboutUs = ({ setView, view }) => {
         <section className={`px-6 lg:px-20 py-32 relative overflow-hidden transition-colors duration-500 ${isBroker ? 'bg-[#090228]' : 'bg-white'}`}>
             <TacticalEvolution stage={0} view={view} />
             <div className="max-w-6xl mx-auto text-center relative z-10">
-                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} className="mb-24">
-                    <h2 className={`text-5xl lg:text-7xl font-black italic tracking-tighter uppercase mb-8 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} className="mb-16 lg:mb-24 px-4">
+                    <h2 className={`text-4xl md:text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-6 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
                         QUIENES <span className={isBroker ? 'text-[#8158F6]' : 'text-red-700'}>SOMOS</span>
                     </h2>
-                    <div className={`w-24 h-1.5 mx-auto mb-12 transition-colors duration-500 ${isBroker ? 'bg-[#8158F6]' : 'bg-red-600'}`}></div>
-                    <p className={`font-black uppercase tracking-[0.15em] text-sm lg:text-xl leading-relaxed max-w-4xl mx-auto mb-8 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
+                    <div className={`w-20 lg:w-24 h-1.5 mx-auto mb-10 transition-colors duration-500 ${isBroker ? 'bg-[#8158F6]' : 'bg-red-600'}`}></div>
+                    <p className={`font-black uppercase tracking-[0.15em] text-xs md:text-sm lg:text-xl leading-relaxed max-w-4xl mx-auto mb-8 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
                         INDEXGENIUS <span className={isBroker ? 'text-[#8158F6]' : 'text-red-600'}>ACADEMY</span> ES LA ACADEMIA DE TRADING MÁS AVANZADA DE LATINOAMÉRICA PARA OPERAR ÍNDICES SINTÉTICOS.
                     </p>
-                    <p className={`font-bold uppercase tracking-widest text-xs lg:text-sm leading-loose max-w-3xl mx-auto transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>
+                    <p className={`font-bold uppercase tracking-widest text-[10px] md:text-xs lg:text-sm leading-loose max-w-3xl mx-auto transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>
                         FUNDADA POR <button onClick={() => setView('ceo')} className={`${isBroker ? 'text-[#8158F6]' : 'text-red-600'} font-black hover:underline transition-all`}>STEVEN CASTILLO</button>, TRADER PROFESIONAL CON MÁS DE <span className={`${isBroker ? 'text-[#8158F6]' : 'text-red-600'} font-black`}>7 AÑOS DE EXPERIENCIA</span> COMPROBADA EN MERCADOS FINANCIEROS.
                     </p>
                 </motion.div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                    <div className={`transition-all group p-10 border shadow-2xl transition-all duration-500 ${isBroker
-                            ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
-                            : 'bg-white border-red-50 shadow-gray-100'
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10 px-4">
+                    <div className={`transition-all group p-6 lg:p-10 border shadow-2xl transition-all duration-500 ${isBroker
+                        ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
+                        : 'bg-white border-red-50 shadow-gray-100'
                         }`}>
-                        <h4 className={`text-5xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}><CountUp end={1500} duration={3} suffix="+" enableKFormat={true} /></h4>
-                        <p className={`font-black uppercase tracking-[0.3em] text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>TRADERS ACTIVOS</p>
+                        <h4 className={`text-4xl md:text-6xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}><CountUp end={1500} duration={3} suffix="+" enableKFormat={true} /></h4>
+                        <p className={`font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>TRADERS ACTIVOS</p>
                     </div>
-                    <div className={`transition-all group p-10 border shadow-2xl transition-all duration-500 ${isBroker
-                            ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
-                            : 'bg-white border-red-50 shadow-gray-100'
+                    <div className={`transition-all group p-6 lg:p-10 border shadow-2xl transition-all duration-500 ${isBroker
+                        ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
+                        : 'bg-white border-red-50 shadow-gray-100'
                         }`}>
-                        <h4 className={`text-5xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}><CountUp end={80} duration={3} suffix="%" /></h4>
-                        <p className={`font-black uppercase tracking-[0.3em] text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>PRECISIÓN DE SEÑALES</p>
+                        <h4 className={`text-4xl md:text-6xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}><CountUp end={80} duration={3} suffix="%" /></h4>
+                        <p className={`font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>PRECISIÓN DE SEÑALES</p>
                     </div>
-                    <div className={`transition-all group p-10 border shadow-2xl transition-all duration-500 ${isBroker
-                            ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
-                            : 'bg-white border-red-50 shadow-gray-100'
+                    <div className={`transition-all group p-6 lg:p-10 border shadow-2xl transition-all duration-500 ${isBroker
+                        ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
+                        : 'bg-white border-red-50 shadow-gray-100'
                         }`}>
-                        <h4 className={`text-5xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>24/7</h4>
-                        <p className={`font-black uppercase tracking-[0.3em] text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>SOPORTE GLOBAL</p>
+                        <h4 className={`text-4xl md:text-6xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>24/7</h4>
+                        <p className={`font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>SOPORTE GLOBAL</p>
                     </div>
                 </div>
             </div>

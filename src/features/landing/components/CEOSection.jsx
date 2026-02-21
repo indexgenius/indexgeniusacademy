@@ -19,7 +19,7 @@ const CEOSection = ({ onBack, onShowAuth }) => {
                         <motion.h2
                             initial={{ opacity: 0, scale: 0.8 }}
                             whileInView={{ opacity: 0.05, scale: 1 }}
-                            className="text-[120px] md:text-[250px] lg:text-[450px] font-black italic tracking-tighter text-red-600 leading-none uppercase skew-x-[-12deg]"
+                            className="text-[80px] md:text-[250px] lg:text-[450px] font-black italic tracking-tighter text-red-600 leading-none uppercase skew-x-[-12deg]"
                         >
                             STEVEN
                         </motion.h2>
@@ -33,7 +33,7 @@ const CEOSection = ({ onBack, onShowAuth }) => {
                     >
                         <div className="space-y-2">
                             <p className="text-[10px] font-black tracking-[0.4em] text-red-600 uppercase italic">Nuestra Historia</p>
-                            <h2 className="text-4xl lg:text-7xl font-black italic tracking-tighter uppercase text-black leading-none">
+                            <h2 className="text-3xl md:text-5xl lg:text-7xl font-black italic tracking-tighter uppercase text-black leading-none">
                                 DE SECRETARIO A <br /><span className="text-red-700">FUNDADOR</span>
                             </h2>
                         </div>
@@ -71,7 +71,7 @@ const CEOSection = ({ onBack, onShowAuth }) => {
                     </motion.div>
 
                     {/* Right Column: Founder Portrait */}
-                    <div className="relative h-[400px] lg:h-[750px] flex items-center justify-center order-1 lg:order-2">
+                    <div className="relative h-[300px] sm:h-[400px] lg:h-[750px] flex items-center justify-center order-1 lg:order-2">
                         <motion.div
                             initial={{ y: 50, opacity: 0 }}
                             whileInView={{ y: 0, opacity: 1 }}
@@ -216,7 +216,7 @@ const CEOSection = ({ onBack, onShowAuth }) => {
 
                     {/* Massive background watermark */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none select-none opacity-[0.03] z-[-1]">
-                        <h2 className="text-[120px] lg:text-[300px] font-black italic uppercase tracking-tighter text-black">AUTHORITY</h2>
+                        <h2 className="text-[60px] md:text-[120px] lg:text-[300px] font-black italic uppercase tracking-tighter text-black">AUTHORITY</h2>
                     </div>
                 </div>
 

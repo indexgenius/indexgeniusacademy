@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import PricingSection from './components/PricingSection';
 import Testimonials from './components/Testimonials';
 import PaymentMethods from './components/PaymentMethods';
 import AboutUs from './components/AboutUs';
@@ -69,6 +70,7 @@ const LandingPage = ({ onShowAuth }) => {
                             ) : (
                                 <>
                                     <a href="#services" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">SERVICIOS</a>
+                                    <a href="#pricing" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">PLANES</a>
                                     <a href="#testimonials" className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">TESTIMONIOS</a>
                                     <button onClick={() => handleViewChange('ceo')} className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">NOSOTROS</button>
                                     <button onClick={() => handleViewChange('broker')} className="px-5 py-2 hover:bg-red-600 hover:text-white transition-all uppercase skew-x-[-12deg]">ALIADOS</button>
@@ -115,6 +117,7 @@ const LandingPage = ({ onShowAuth }) => {
                                 ) : (
                                     <>
                                         <a href="#services" onClick={() => setIsMenuOpen(false)} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>SERVICIOS</a>
+                                        <a href="#pricing" onClick={() => setIsMenuOpen(false)} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>PLANES</a>
                                         <a href="#testimonials" onClick={() => setIsMenuOpen(false)} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>TESTIMONIOS</a>
                                         <button onClick={() => handleViewChange('ceo')} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>NOSOTROS</button>
                                         <button onClick={() => handleViewChange('broker')} className={`p-4 text-center rounded-xl transition-all uppercase ${view === 'broker' ? 'hover:bg-[#8158F6]/20' : 'hover:bg-red-50 text-gray-600'}`}>ALIADOS</button>
@@ -177,6 +180,7 @@ const LandingPage = ({ onShowAuth }) => {
                     <PaymentMethods view={view} />
                     <AboutUs setView={handleViewChange} view={view} />
                     <Services view={view} />
+                    <PricingSection onShowAuth={onShowAuth} />
                     <Testimonials view={view} />
                     <InstallGuide view={view} />
                 </>
