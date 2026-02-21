@@ -79,26 +79,26 @@ const Hero = ({ view }) => {
                     </h2>
                 </div>
 
-                <div className="relative z-10 flex flex-col items-center space-y-10 lg:py-10">
+                <div className="relative z-10 flex flex-col items-center space-y-6 md:space-y-10 lg:py-10">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6 flex flex-col items-center"
+                        className="space-y-4 md:space-y-6 flex flex-col items-center"
                     >
 
-                        <h1 className="diseno-futurista leading-[0.85] text-black text-center text-4xl md:text-6xl lg:text-7xl">
+                        <h1 className="diseno-futurista leading-[0.85] text-black text-center text-3xl md:text-6xl lg:text-7xl">
                             INFRAESTRUCTURA <br />
                             <span className="text-red-600">PROFESIONAL</span><br />
                             PARA TRADERS.
                         </h1>
 
-                        <p className="text-base md:text-lg lg:text-xl font-bold text-gray-500 uppercase tracking-tight leading-relaxed max-w-2xl italic mx-auto px-4">
+                        <p className="text-sm md:text-lg lg:text-xl font-bold text-gray-500 uppercase tracking-tight leading-relaxed max-w-2xl italic mx-auto px-6">
                             Domina los mercados con ejecución de grado institucional y herramientas diseñadas para la <span className="text-black font-black underline decoration-red-600 decoration-4 underline-offset-4">máxima rentabilidad</span>.
                         </p>
                     </motion.div>
 
-                    {/* Features List - Centered */}
-                    <div className="flex flex-wrap justify-center gap-6 max-w-4xl">
+                    {/* Features List - Grid layout for better mobile space */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-5xl w-full px-4 md:px-0">
                         {[
                             { label: "Señales Pro", desc: "Tiempo Real" },
                             { label: "Educación", desc: "Paso a Paso" },
@@ -110,11 +110,11 @@ const Hero = ({ view }) => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 * i }}
-                                className="flex items-center gap-4 bg-gray-50/50 p-6 border-l-4 border-red-600 min-w-[200px] group hover:bg-white hover:shadow-xl transition-all"
+                                className="flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-4 bg-gray-50/50 p-4 md:p-6 border-l-4 border-red-600 group hover:bg-white hover:shadow-xl transition-all"
                             >
-                                <div className="space-y-0.5 text-left">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-red-600">{feature.label}</h4>
-                                    <p className="text-xs font-bold text-black uppercase tracking-widest">{feature.desc}</p>
+                                <div className="space-y-0.5 text-center md:text-left">
+                                    <h4 className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-red-600">{feature.label}</h4>
+                                    <p className="text-[10px] md:text-xs font-bold text-black uppercase tracking-widest leading-none md:leading-normal">{feature.desc}</p>
                                 </div>
                             </motion.div>
                         ))}
