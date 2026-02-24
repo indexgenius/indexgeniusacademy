@@ -22,7 +22,7 @@ const NotificationBroadcaster = () => {
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
             if (!token) throw new Error("UNAUTHORIZED: COMMANDER TOKEN MISSING");
 
-            const response = await fetch('https://ingenus-fx.vercel.app/api/broadcast', {
+            const response = await fetch('https://indexgeniusacademy.com/api/broadcast', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

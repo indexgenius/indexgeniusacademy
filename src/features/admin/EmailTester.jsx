@@ -27,7 +27,7 @@ const EmailTester = ({ adminUser }) => {
             htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, "PasswordSegura123!");
 
             // Send via API endpoint
-            const res = await fetch('https://ingenus-fx.vercel.app/api/auth/send-welcome-email', {
+            const res = await fetch('https://indexgeniusacademy.com/api/auth/send-welcome-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

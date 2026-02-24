@@ -1,1 +1,0 @@
-importScripts('https://cdn.webpushblaze.com/webpushblaze-sw.js');

@@ -49,7 +49,7 @@ const UserManagement = ({ adminUser }) => {
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
 
             // 1. Send push notification
-            fetch('https://ingenus-fx.vercel.app/api/broadcast', {
+            fetch('https://indexgeniusacademy.com/api/broadcast', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const UserManagement = ({ adminUser }) => {
                     // for now pointing to vercel, but maybe it's not deployed yet.
                     // Instead we use the local running Vite path if available
                     // For now, hardcode URL to Vercel where the logic executes in backend
-                    await fetch('https://ingenus-fx.vercel.app/api/auth/send-welcome-email', {
+                    await fetch('https://indexgeniusacademy.com/api/auth/send-welcome-email', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ const UserManagement = ({ adminUser }) => {
             });
 
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
-            fetch('https://ingenus-fx.vercel.app/api/broadcast', {
+            fetch('https://indexgeniusacademy.com/api/broadcast', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

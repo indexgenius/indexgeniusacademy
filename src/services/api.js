@@ -1,6 +1,6 @@
 import { auth } from '../firebase';
 
-const VERCEL_API_URL = import.meta.env.VITE_API_URL || 'https://ingenus-fx.vercel.app/api';
+const VERCEL_API_URL = import.meta.env.VITE_API_URL || 'https://indexgeniusacademy.com/api';
 
 /**
  * Generic fetch wrapper for our backend API

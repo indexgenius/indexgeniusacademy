@@ -88,7 +88,7 @@ const AcademyManager = ({ user }) => {
                         await Promise.all(subscribedUsers.docs.map(async (userDoc) => {
                             const userData = userDoc.data();
                             if (userData.fcmToken || userData.oneSignalId) {
-                                fetch('https://ingenus-fx.vercel.app/api/broadcast', {
+                                fetch('https://indexgeniusacademy.com/api/broadcast', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                                     body: JSON.stringify({

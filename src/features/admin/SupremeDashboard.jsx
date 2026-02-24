@@ -209,7 +209,7 @@ const SupremeDashboard = ({ user: adminUser }) => {
         setIsBroadcasting(true);
         try {
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
-            await fetch('https://ingenus-fx.vercel.app/api/broadcast', {
+            await fetch('https://indexgeniusacademy.com/api/broadcast', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({
