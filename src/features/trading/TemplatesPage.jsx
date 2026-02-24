@@ -56,7 +56,7 @@ const TemplatesPage = ({ user }) => {
     }, [user]);
 
     // Unified membership price
-    const finalPrice = 25;
+    const finalPrice = 50;
     const planName = 'ELITE FULL ACCESS';
     const isAdmin = user?.canBroadcast || user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.email?.toLowerCase() === 'pipoapaza@gmail.com';
 
