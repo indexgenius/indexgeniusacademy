@@ -42,7 +42,7 @@ const PLANS = [
 ];
 
 const CLOUDINARY_CLOUD_NAME = "ddfx8syri";
-const CLOUDINARY_UPLOAD_PRESET = "perfil_users";
+const CLOUDINARY_UPLOAD_PRESET = "facturas";
 
 const PaymentPortal = ({ user, onLogout, isExpired }) => {
     const [paymentMethods, setPaymentMethods] = useState([]);
