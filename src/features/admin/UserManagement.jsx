@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldCheck, Check, Trash2, StopCircle, Users } from 'lucide-react';
+import { Search, ShieldCheck, Check, Trash2, StopCircle, Users, Image, ExternalLink } from 'lucide-react';
 import { db, auth } from '../../firebase';
 import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -43,7 +43,9 @@ const UserManagement = ({ adminUser }) => {
                 subscriptionActive: true,
                 subscriptionStart: now,
                 subscriptionEnd: expiry,
-                approvedAt: serverTimestamp()
+                approvedAt: serverTimestamp(),
+                receiptUrl: null,
+                paymentReported: null
             });
 
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
@@ -196,31 +198,53 @@ const UserManagement = ({ adminUser }) => {
                 <h3 className="text-sm font-black text-yellow-500 uppercase tracking-widest animate-pulse">PENDING APPROVALS ({pendingUsers.length})</h3>
                 {pendingUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">NO PENDING REQUESTS</p>}
                 {pendingUsers.map(u => (
-                    <div key={u.id} className="bg-white/5 p-4 flex justify-between items-center border-l-2 border-yellow-500">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
-                                {u.photoURL ? (
-                                    <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                    <Users size={16} className="text-gray-600" />
-                                )}
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold text-white uppercase">{u.email}</p>
-                                <div className="flex items-center gap-2">
-                                    <p className="text-[9px] text-gray-500 uppercase tracking-wider">{u.displayName}</p>
-                                    {u.referredBy && (
-                                        <span className="text-[8px] font-black text-red-600 bg-red-600/10 px-2 py-0.5 border border-red-600/20 uppercase tracking-tighter">
-                                            REFERRED BY: {u.referredBy.substring(0, 8)}
-                                        </span>
+                    <div key={u.id} className="bg-white/5 p-4 border-l-2 border-yellow-500 space-y-3">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                                    {u.photoURL ? (
+                                        <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Users size={16} className="text-gray-600" />
                                     )}
                                 </div>
+                                <div>
+                                    <p className="text-xs font-bold text-white uppercase">{u.email}</p>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <p className="text-[9px] text-gray-500 uppercase tracking-wider">{u.displayName}</p>
+                                        {u.selectedPlan && (
+                                            <span className="text-[8px] font-black text-yellow-500 bg-yellow-500/10 px-2 py-0.5 border border-yellow-500/20 uppercase tracking-tighter">
+                                                {u.selectedPlan} — ${u.membershipPrice || '?'}
+                                            </span>
+                                        )}
+                                        {u.referredBy && (
+                                            <span className="text-[8px] font-black text-red-600 bg-red-600/10 px-2 py-0.5 border border-red-600/20 uppercase tracking-tighter">
+                                                REF: {u.referredBy.substring(0, 8)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={() => handleApprove(u)} className="px-4 py-2 bg-green-500/20 text-green-500 text-[10px] font-black border border-green-500/50 hover:bg-green-500 hover:text-black transition-all uppercase tracking-widest">ACCEPT</button>
+                                <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENY</button>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <button onClick={() => handleApprove(u)} className="px-4 py-2 bg-green-500/20 text-green-500 text-[10px] font-black border border-green-500/50 hover:bg-green-500 hover:text-black transition-all uppercase tracking-widest">ACCEPT</button>
-                            <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENY</button>
-                        </div>
+
+                        {/* Receipt Preview */}
+                        {u.receiptUrl && (
+                            <div className="flex items-center gap-3 bg-black/40 border border-white/5 p-3 rounded">
+                                <a href={u.receiptUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                                    <img src={u.receiptUrl} alt="Comprobante" className="w-16 h-16 object-cover rounded border border-white/10 hover:border-yellow-500 transition-colors cursor-pointer" />
+                                </a>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[9px] font-black text-yellow-500 uppercase tracking-widest flex items-center gap-1"><Image size={10} /> COMPROBANTE DE PAGO</p>
+                                    <a href={u.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-[8px] text-blue-400 hover:text-blue-300 uppercase tracking-wider underline flex items-center gap-1 mt-1">
+                                        VER EN TAMAÑO COMPLETO <ExternalLink size={8} />
+                                    </a>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
