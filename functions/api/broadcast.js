@@ -2,7 +2,7 @@ export async function onRequestOptions() {
     return new Response(null, {
         status: 204,
         headers: {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': 'https://indexgeniusacademy.com',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         }
@@ -10,9 +10,9 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost(context) {
-    const { request } = context;
+    const { request, env } = context;
     const corsHeaders = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://indexgeniusacademy.com',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
@@ -53,7 +53,7 @@ export async function onRequestPost(context) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Basic os_v2_app_aqcg4l5agvfirgcccr6pkaojhb7bgowau2duxc5zllpihjluzxww2guf7iu6kisqnzxekqbxzm2b2okuz23rfqtzfpw5ospqi4yqhfq'
+                'Authorization': `Basic ${env.ONESIGNAL_REST_API_KEY}`
             },
             body: JSON.stringify(payload)
         });

@@ -1,6 +1,6 @@
 export async function onRequestOptions(context) {
     const corsHeaders = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://indexgeniusacademy.com',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
@@ -12,7 +12,7 @@ export async function onRequestOptions(context) {
 
 export async function onRequestPost({ request, env }) {
     const corsHeaders = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://indexgeniusacademy.com',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
@@ -27,8 +27,14 @@ export async function onRequestPost({ request, env }) {
         }
         const { email, name, htmlContent } = body;
 
-        // Resend API Key hidden properly
-        const apiKey = env.RESEND_API_KEY || "re_aTdXg4tq_tLQFVFA249x2h9YUACVrrngy";
+        // Resend API Key from Cloudflare environment variable only
+        const apiKey = env.RESEND_API_KEY;
+        if (!apiKey) {
+            return new Response(JSON.stringify({ success: false, error: 'RESEND_API_KEY not configured' }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+        }
 
         // IMPORTANTE: Al usar "onboarding@resend.dev" como remitente en una cuenta nueva, 
         // Resend de momento SOLO te permitirá enviar correos AL MISMO CORREO con el que creaste tu cuenta de Resend.
