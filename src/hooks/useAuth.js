@@ -23,7 +23,19 @@ export const useAuth = () => {
             setLoading(false);
         });
 
-        return () => unsubscribe();
+        // Session enforcement — detect if another device logs in
+        const unsubSession = authService.subscribeToSessionCheck(user.uid, () => {
+            alert('⚠️ Se detectó un inicio de sesión en otro dispositivo. Tu sesión ha sido cerrada.');
+            authService.forceLogout('duplicate_session').then(() => {
+                setUser(null);
+                window.location.reload();
+            });
+        });
+
+        return () => {
+            unsubscribe();
+            unsubSession();
+        };
     }, [user?.uid]);
 
     const login = async (firebaseUser) => {

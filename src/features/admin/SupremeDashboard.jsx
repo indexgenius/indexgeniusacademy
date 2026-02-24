@@ -29,11 +29,18 @@ import {
     Skull,
     BellRing,
     ExternalLink,
-    Link2
+    Link2,
+    Mail,
+    Wifi,
+    Monitor,
+    Smartphone,
+    Globe,
+    Ban
 } from 'lucide-react';
 import { db, auth } from '../../firebase';
 import { collection, query, onSnapshot, orderBy, where, limit, getDocs, updateDoc, doc, deleteDoc, serverTimestamp, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import EmailTester from './EmailTester';
 
 const SupremeDashboard = ({ user: adminUser }) => {
     const [stats, setStats] = useState({
@@ -317,7 +324,9 @@ const SupremeDashboard = ({ user: adminUser }) => {
                     {[
                         { id: 'overview', icon: Activity },
                         { id: 'users', icon: Users },
+                        { id: 'sessions', icon: Wifi },
                         { id: 'command', icon: Zap },
+                        { id: 'email', icon: Mail },
                         { id: 'logs', icon: Terminal }
                     ].map(t => (
                         <button
@@ -650,6 +659,161 @@ const SupremeDashboard = ({ user: adminUser }) => {
                                 </div>
                             ))}
                         </div>
+                    </motion.div>
+                )}
+
+                {view === 'sessions' && (
+                    <motion.div
+                        key="sessions"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="space-y-8"
+                    >
+                        <div className="space-y-2">
+                            <h3 className="text-2xl font-black italic tracking-tighter text-white uppercase">
+                                SESIONES <span className="text-red-600">ACTIVAS</span>
+                            </h3>
+                            <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                                MONITOREO DE IP Y DISPOSITIVOS — DETECCIÓN DE CREDENCIALES COMPARTIDAS
+                            </p>
+                        </div>
+
+                        {/* Session Search */}
+                        <div className="relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-red-600 transition-colors" size={18} />
+                            <input
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                placeholder="BUSCAR POR EMAIL, IP O DISPOSITIVO..."
+                                className="w-full bg-white/5 border border-white/10 p-5 pl-12 text-sm font-black italic tracking-tighter uppercase outline-none focus:border-red-600/50 transition-all placeholder:text-gray-800"
+                            />
+                        </div>
+
+                        {/* Session Stats */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {[
+                                { label: 'SESIONES ACTIVAS', value: users.filter(u => u.activeSession).length, icon: Wifi, color: 'text-green-500' },
+                                { label: 'IPs ÚNICAS', value: [...new Set(users.filter(u => u.lastIP).map(u => u.lastIP))].length, icon: Globe, color: 'text-blue-500' },
+                                { label: 'MOBILE', value: users.filter(u => u.activeSession?.device === 'Mobile').length, icon: Smartphone, color: 'text-yellow-500' },
+                                { label: 'DESKTOP', value: users.filter(u => u.activeSession?.device === 'Desktop').length, icon: Monitor, color: 'text-white' },
+                            ].map((s, i) => (
+                                <div key={i} className="bg-black border border-white/5 p-5">
+                                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">{s.label}</p>
+                                    <p className={`text-3xl font-black italic ${s.color}`}>{s.value}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Sessions List */}
+                        <div className="space-y-3">
+                            {users
+                                .filter(u => u.activeSession || u.lastIP)
+                                .filter(u => {
+                                    if (!searchTerm) return true;
+                                    const term = searchTerm.toLowerCase();
+                                    return u.email?.toLowerCase().includes(term) ||
+                                        u.lastIP?.includes(term) ||
+                                        u.activeSession?.device?.toLowerCase().includes(term) ||
+                                        u.activeSession?.browser?.toLowerCase().includes(term);
+                                })
+                                .sort((a, b) => {
+                                    const dateA = a.activeSession?.startedAt ? new Date(a.activeSession.startedAt) : new Date(0);
+                                    const dateB = b.activeSession?.startedAt ? new Date(b.activeSession.startedAt) : new Date(0);
+                                    return dateB - dateA;
+                                })
+                                .slice(0, visibleCount)
+                                .map(u => {
+                                    // Check if same IP is used by multiple users (credential sharing flag)
+                                    const sameIPUsers = users.filter(other => other.id !== u.id && other.lastIP === u.lastIP && u.lastIP && u.lastIP !== 'unknown');
+                                    const isSuspicious = sameIPUsers.length > 0;
+
+                                    return (
+                                        <div key={u.id} className={`border p-5 space-y-3 transition-all ${isSuspicious ? 'border-red-600/50 bg-red-600/5' : 'border-white/5 bg-white/[0.02] hover:bg-white/5'}`}>
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-red-600 flex items-center justify-center font-black italic text-lg shrink-0">
+                                                        {u.email?.[0].toUpperCase()}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-xs font-black text-white uppercase truncate">{u.email}</p>
+                                                        <p className="text-[8px] font-bold text-gray-600 uppercase tracking-widest">{u.displayName}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {isSuspicious && (
+                                                        <span className="text-[7px] font-black text-red-500 bg-red-500/10 border border-red-500/20 px-2 py-1 uppercase tracking-widest animate-pulse flex items-center gap-1">
+                                                            <AlertCircle size={10} /> SOSPECHOSO
+                                                        </span>
+                                                    )}
+                                                    <span className={`text-[7px] font-black px-2 py-1 uppercase tracking-widest ${u.subscriptionActive ? 'text-green-500 bg-green-500/10 border border-green-500/20' : 'text-gray-500 bg-white/5 border border-white/10'}`}>
+                                                        {u.subscriptionActive ? 'ACTIVO' : 'INACTIVO'}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Session Details */}
+                                            <div className="flex flex-wrap gap-4 text-[9px] font-bold text-gray-400 uppercase tracking-widest bg-black/40 p-3 border border-white/5">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Globe size={10} className="text-blue-500" />
+                                                    <span>IP: <span className="text-white font-black">{u.lastIP || 'N/A'}</span></span>
+                                                </div>
+                                                {u.activeSession && (
+                                                    <>
+                                                        <div className="flex items-center gap-1.5">
+                                                            {u.activeSession.device === 'Mobile' ? <Smartphone size={10} className="text-yellow-500" /> : <Monitor size={10} className="text-white" />}
+                                                            <span>{u.activeSession.device}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span>{u.activeSession.browser}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span>{u.activeSession.os}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <Clock size={10} className="text-gray-600" />
+                                                            <span>{new Date(u.activeSession.startedAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            {/* Suspicious warning */}
+                                            {isSuspicious && (
+                                                <div className="bg-red-600/10 border border-red-600/20 p-3 text-[8px] font-black text-red-500 uppercase tracking-widest">
+                                                    ⚠️ MISMA IP QUE: {sameIPUsers.map(s => s.email).join(', ')}
+                                                </div>
+                                            )}
+
+                                            {/* Force disconnect */}
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={async () => {
+                                                        if (!confirm(`¿FORZAR CIERRE DE SESIÓN PARA ${u.email}?`)) return;
+                                                        await updateDoc(doc(db, 'users', u.id), {
+                                                            activeSession: { token: 'FORCE_LOGOUT_' + Date.now(), ip: 'forced', device: 'system', browser: 'system', os: 'system', startedAt: new Date().toISOString() }
+                                                        });
+                                                        alert('SESIÓN TERMINADA — EL USUARIO SERÁ DESCONECTADO.');
+                                                    }}
+                                                    className="px-4 py-2 text-[8px] font-black uppercase tracking-widest border border-red-600/30 text-red-500 hover:bg-red-600 hover:text-white transition-all flex items-center gap-1.5"
+                                                >
+                                                    <Ban size={10} /> FORZAR CIERRE
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    </motion.div>
+                )}
+
+                {view === 'email' && (
+                    <motion.div
+                        key="email"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="max-w-2xl mx-auto"
+                    >
+                        <EmailTester adminUser={adminUser} />
                     </motion.div>
                 )}
             </AnimatePresence>

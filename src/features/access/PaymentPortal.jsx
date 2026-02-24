@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Copy, ShieldCheck, Zap, ArrowRight, Lock, MessageSquare, Crown, Star, ShieldAlert, Upload, Image, X } from 'lucide-react';
+import { Check, Copy, ShieldCheck, Zap, ArrowRight, Lock, MessageSquare, Crown, Star, ShieldAlert, Upload, Image, X, Tag, Percent } from 'lucide-react';
 import { db } from '../../firebase';
-import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const PLANS = [
@@ -50,16 +50,22 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [receiptUrl, setReceiptUrl] = useState('');
-    const [step, setStep] = useState(1); // 1: Plan Select, 2: Payment Methods, 3: Upload Receipt
+    const [step, setStep] = useState(1);
+
+    // Discount code state
+    const [discountCode, setDiscountCode] = useState('');
+    const [discountApplied, setDiscountApplied] = useState(null); // { type, value, code }
+    const [discountLoading, setDiscountLoading] = useState(false);
+    const [discountError, setDiscountError] = useState('');
 
     // Pre-select plan from landing page
     const [selectedPlan, setSelectedPlan] = useState(() => {
         const saved = localStorage.getItem('selectedPlan');
         if (saved) {
             const parsed = JSON.parse(saved);
-            return PLANS.find(p => p.id === parsed.id) || PLANS[1]; // default to PRO
+            return PLANS.find(p => p.id === parsed.id) || PLANS[1];
         }
-        return PLANS[1]; // default to INDEX PRO
+        return PLANS[1];
     });
 
     useEffect(() => {
@@ -70,9 +76,91 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
     }, []);
 
     useEffect(() => {
-        // Clean up selectedPlan from localStorage after reading
         localStorage.removeItem('selectedPlan');
     }, []);
+
+    // Calculate final price
+    const getFinalPrice = () => {
+        if (!selectedPlan) return 0;
+        let price = selectedPlan.price;
+        if (discountApplied) {
+            if (discountApplied.type === 'percentage') {
+                price = price - (price * discountApplied.value / 100);
+            } else if (discountApplied.type === 'fixed') {
+                price = Math.max(0, price - discountApplied.value);
+            }
+        }
+        return Math.round(price);
+    };
+
+    // Validate discount code
+    const applyDiscountCode = async () => {
+        if (!discountCode.trim()) return;
+        setDiscountLoading(true);
+        setDiscountError('');
+
+        try {
+            const q = query(
+                collection(db, "discount_codes"),
+                where("code", "==", discountCode.trim().toUpperCase()),
+                where("active", "==", true)
+            );
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                setDiscountError('Código inválido o expirado');
+                setDiscountApplied(null);
+                setDiscountLoading(false);
+                return;
+            }
+
+            const codeDoc = snapshot.docs[0];
+            const codeData = codeDoc.data();
+
+            // Check max uses
+            if (codeData.maxUses && codeData.currentUses >= codeData.maxUses) {
+                setDiscountError('Este código ya alcanzó su límite de usos');
+                setDiscountApplied(null);
+                setDiscountLoading(false);
+                return;
+            }
+
+            // Check expiration
+            if (codeData.expiresAt && codeData.expiresAt.toDate() < new Date()) {
+                setDiscountError('Este código ha expirado');
+                setDiscountApplied(null);
+                setDiscountLoading(false);
+                return;
+            }
+
+            // Check valid plans
+            if (codeData.validPlans && codeData.validPlans.length > 0 && !codeData.validPlans.includes(selectedPlan.id)) {
+                setDiscountError(`Este código no aplica para ${selectedPlan.name}`);
+                setDiscountApplied(null);
+                setDiscountLoading(false);
+                return;
+            }
+
+            setDiscountApplied({
+                type: codeData.type,
+                value: codeData.value,
+                code: codeData.code,
+                docId: codeDoc.id
+            });
+            setDiscountError('');
+        } catch (err) {
+            console.error("Discount code error:", err);
+            setDiscountError('Error al validar el código');
+        } finally {
+            setDiscountLoading(false);
+        }
+    };
+
+    const removeDiscount = () => {
+        setDiscountApplied(null);
+        setDiscountCode('');
+        setDiscountError('');
+    };
 
     const handleCopy = (text, id) => {
         navigator.clipboard.writeText(text);
@@ -119,9 +207,9 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         const userEmail = user?.email || "SISTEMA_LOCAL_USER";
         const userPhone = user?.phone || "NO REGISTRADO";
         const planName = selectedPlan.name;
-        const finalPrice = selectedPlan.price;
+        const finalPrice = getFinalPrice();
 
-        const message = `HOLA STEVEN. ACABO DE REALIZAR EL PAGO DE MI ${isExpired ? 'RENOVACIÓN' : 'MEMBRESÍA'}.\n\nVALOR: $${finalPrice} USD\nPLAN: ${planName}\nUSUARIO: ${userEmail}\nTELÉFONO: ${userPhone}\nCOMPROBANTE: ${receiptUrl}\n\nPOR FAVOR ACTIVA MI ACCESO.`;
+        const message = `HOLA STEVEN. ACABO DE REALIZAR EL PAGO DE MI ${isExpired ? 'RENOVACIÓN' : 'MEMBRESÍA'}.\n\nVALOR: $${finalPrice} USD\nPLAN: ${planName}${discountApplied ? `\nCÓDIGO: ${discountApplied.code} (${discountApplied.type === 'percentage' ? discountApplied.value + '%' : '$' + discountApplied.value} desc.)` : ''}\nUSUARIO: ${userEmail}\nTELÉFONO: ${userPhone}\nCOMPROBANTE: ${receiptUrl}\n\nPOR FAVOR ACTIVA MI ACCESO.`;
         const waUrl = `https://wa.me/18292198071?text=${encodeURIComponent(message)}`;
 
         try {
@@ -133,7 +221,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         try {
             await addDoc(collection(db, "notifications"), {
                 title: isExpired ? "NUEVA RENOVACIÓN" : `NUEVO PAGO - ${planName}`,
-                message: `${userEmail} reportó pago de $${finalPrice} para ${planName}.`,
+                message: `${userEmail} reportó pago de $${finalPrice} para ${planName}.${discountApplied ? ` Código: ${discountApplied.code}` : ''}`,
                 type: 'subscription_payment',
                 userId: user.uid,
                 userEmail: userEmail,
@@ -149,8 +237,20 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                 selectedPlan: planName,
                 selectedPlanId: selectedPlan.id,
                 membershipPrice: finalPrice,
+                originalPrice: selectedPlan.price,
+                discountCode: discountApplied?.code || null,
                 receiptUrl: receiptUrl
             });
+
+            // Increment discount code usage
+            if (discountApplied?.docId) {
+                const codeRef = doc(db, "discount_codes", discountApplied.docId);
+                const snapshot = await getDocs(query(collection(db, "discount_codes"), where("code", "==", discountApplied.code)));
+                if (!snapshot.empty) {
+                    const currentUses = snapshot.docs[0].data().currentUses || 0;
+                    await updateDoc(codeRef, { currentUses: currentUses + 1 });
+                }
+            }
         } catch (e) {
             console.error(e);
             alert("Error al procesar el reporte. Intenta de nuevo.");
@@ -176,25 +276,25 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                             <span className="hidden md:block text-[8px] font-black uppercase tracking-[0.3em] leading-tight text-white">INDEX<br />GENIUS</span>
                         </div>
                         <div className="text-right">
-                            <h2 className="text-2xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">SECURE</h2>
-                            <h2 className="text-2xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">TERMINAL</h2>
+                            <h2 className="text-2xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">PORTAL</h2>
+                            <h2 className="text-2xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">DE PAGO</h2>
                         </div>
                     </div>
 
                     <div className="space-y-1 mb-12">
                         <h1 className="text-4xl md:text-5xl font-black italic uppercase leading-tight tracking-tighter text-white">
-                            MEMBERSHIP<br />{isExpired ? 'RENEWAL' : 'ACTIVATION'}
+                            {isExpired ? 'RENOVAR' : 'ACTIVAR'}<br />MEMBRESÍA
                         </h1>
                         <p className="text-[10px] font-bold text-white/70 uppercase tracking-[0.4em]">
-                            {isExpired ? 'SUBSCRIPTION PERIOD EXPIRED' : 'SELECT YOUR ACCESS LEVEL'}
+                            {isExpired ? 'TU SUSCRIPCIÓN HA EXPIRADO' : 'SELECCIONA TU NIVEL DE ACCESO'}
                         </p>
                     </div>
 
                     <div className="space-y-6">
                         {[
-                            { num: 1, label: 'SELECT PLAN' },
-                            { num: 2, label: 'PAYMENT METHOD' },
-                            { num: 3, label: 'UPLOAD RECEIPT' }
+                            { num: 1, label: 'ELEGIR PLAN' },
+                            { num: 2, label: 'MÉTODO DE PAGO' },
+                            { num: 3, label: 'SUBIR COMPROBANTE' }
                         ].map(s => (
                             <div key={s.num} className="flex items-center gap-4">
                                 <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-black text-xs transition-all duration-500 ${step === s.num ? 'border-white bg-white text-red-600' : step > s.num ? 'border-white/60 bg-white/20 text-white' : 'border-white/40 text-white/40'}`}>{step > s.num ? '✓' : s.num}</div>
@@ -204,7 +304,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                     </div>
 
                     <button onClick={onLogout} className="mt-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/60 hover:text-white transition-colors flex items-center gap-2">
-                        ABORT SESSION <span className="text-white/30 text-[8px]">[LOGOUT]</span>
+                        CERRAR SESIÓN <span className="text-white/30 text-[8px]">[SALIR]</span>
                     </button>
                 </div>
             </div>
@@ -214,13 +314,13 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                 <div className="max-w-xl mx-auto">
                     <AnimatePresence mode="wait">
 
-                        {/* ═══ STEP 1: PLAN SELECTION ═══ */}
+                        {/* ═══ PASO 1: SELECCIÓN DE PLAN ═══ */}
                         {step === 1 && (
                             <motion.div key="plan-select" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                 <div className="space-y-2">
-                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">{isExpired ? 'RECOVERY PROTOCOL' : 'SELECT PLAN'}</h3>
+                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">{isExpired ? 'RENOVAR ACCESO' : 'ELIGE TU PLAN'}</h3>
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed">
-                                        {isExpired ? 'Re-establish your access to the IndexGenius ecosystem' : 'Choose your access level to unlock the terminal'}
+                                        {isExpired ? 'Restablece tu acceso al ecosistema IndexGenius' : 'Selecciona tu nivel para desbloquear la plataforma'}
                                     </p>
                                 </div>
 
@@ -228,7 +328,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                     {PLANS.map((plan) => (
                                         <button
                                             key={plan.id}
-                                            onClick={() => setSelectedPlan(plan)}
+                                            onClick={() => { setSelectedPlan(plan); removeDiscount(); }}
                                             className={`w-full relative border-2 p-6 text-left transition-all duration-300 group ${plan.style} ${selectedPlan?.id === plan.id ? 'border-red-600 bg-red-600/5' : ''}`}
                                         >
                                             {plan.popular && (
@@ -255,12 +355,51 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                                 ))}
                                             </div>
 
-                                            {/* Selection indicator */}
                                             {selectedPlan?.id === plan.id && (
                                                 <div className="absolute top-1/2 -left-[1px] -translate-y-1/2 w-1 h-8 bg-red-600 rounded-r"></div>
                                             )}
                                         </button>
                                     ))}
+                                </div>
+
+                                {/* Discount Code */}
+                                <div className="border border-white/10 p-5 space-y-3">
+                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Tag size={12} /> ¿TIENES UN CÓDIGO DE DESCUENTO?
+                                    </p>
+                                    {discountApplied ? (
+                                        <div className="flex items-center justify-between bg-green-500/10 border border-green-500/30 p-3 rounded">
+                                            <div className="flex items-center gap-2">
+                                                <Percent size={14} className="text-green-500" />
+                                                <span className="text-xs font-black text-green-500 uppercase">
+                                                    {discountApplied.code} — {discountApplied.type === 'percentage' ? `${discountApplied.value}% OFF` : `$${discountApplied.value} OFF`}
+                                                </span>
+                                            </div>
+                                            <button onClick={removeDiscount} className="text-red-500 hover:text-white transition-colors">
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={discountCode}
+                                                onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                                                placeholder="INGRESA TU CÓDIGO"
+                                                className="flex-1 bg-white/5 border border-white/10 px-4 py-3 text-xs font-bold text-white uppercase tracking-widest outline-none focus:border-red-600 transition-colors placeholder:text-gray-600"
+                                            />
+                                            <button
+                                                onClick={applyDiscountCode}
+                                                disabled={discountLoading || !discountCode.trim()}
+                                                className="px-5 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-40"
+                                            >
+                                                {discountLoading ? '...' : 'APLICAR'}
+                                            </button>
+                                        </div>
+                                    )}
+                                    {discountError && (
+                                        <p className="text-[9px] font-black text-red-500 uppercase tracking-widest">{discountError}</p>
+                                    )}
                                 </div>
 
                                 {/* Bottom action */}
@@ -272,9 +411,12 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                     >
                                         <div className="text-left">
                                             <span className="text-black text-xl font-black italic uppercase tracking-tighter group-active:translate-y-1 transition-transform block">
-                                                PROCEED TO PAYMENT
+                                                CONTINUAR AL PAGO
                                             </span>
-                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{selectedPlan?.name} — ${selectedPlan?.price.toLocaleString()} USD</span>
+                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                                {selectedPlan?.name} — ${getFinalPrice().toLocaleString()} USD
+                                                {discountApplied && <span className="text-green-600 ml-2">({discountApplied.code})</span>}
+                                            </span>
                                         </div>
                                         <ArrowRight className="text-black w-8 h-8 group-hover:translate-x-2 transition-transform duration-500" />
                                     </button>
@@ -283,23 +425,26 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                             </motion.div>
                         )}
 
-                        {/* ═══ STEP 2: PAYMENT METHODS ═══ */}
+                        {/* ═══ PASO 2: MÉTODOS DE PAGO ═══ */}
                         {step === 2 && (
                             <motion.div key="payment-methods" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                                 <button onClick={() => setStep(1)} className="text-[10px] font-black text-white/40 hover:text-white uppercase tracking-widest flex items-center gap-2 transition-colors">
-                                    ← BACK TO PLANS
+                                    ← VOLVER A PLANES
                                 </button>
 
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">PAYMENT METHOD</h3>
+                                        <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">MÉTODO DE PAGO</h3>
                                         <div className="text-right">
                                             <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest block">{selectedPlan?.name}</span>
-                                            <span className="text-lg font-black italic text-red-500">${selectedPlan?.price.toLocaleString()} USD</span>
+                                            {discountApplied && (
+                                                <span className="text-[8px] font-black text-gray-600 line-through block">${selectedPlan?.price.toLocaleString()} USD</span>
+                                            )}
+                                            <span className="text-lg font-black italic text-red-500">${getFinalPrice().toLocaleString()} USD</span>
                                         </div>
                                     </div>
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed">
-                                        Select a payment method and send the exact amount
+                                        Selecciona un método y envía el monto exacto
                                     </p>
                                 </div>
 
@@ -341,7 +486,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                         className="w-full max-w-xl group flex justify-between items-center"
                                     >
                                         <span className="text-black text-xl font-black italic uppercase tracking-tighter">
-                                            ALREADY PAID? UPLOAD RECEIPT
+                                            ¿YA PAGASTE? SUBE TU COMPROBANTE
                                         </span>
                                         <ArrowRight className="text-black w-8 h-8 group-hover:translate-x-2 transition-transform duration-500" />
                                     </button>
@@ -350,17 +495,17 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                             </motion.div>
                         )}
 
-                        {/* ═══ STEP 3: UPLOAD RECEIPT ═══ */}
+                        {/* ═══ PASO 3: SUBIR COMPROBANTE ═══ */}
                         {step === 3 && (
                             <motion.div key="upload-receipt" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                                 <button onClick={() => setStep(2)} className="text-[10px] font-black text-white/40 hover:text-white uppercase tracking-widest flex items-center gap-2 transition-colors">
-                                    ← BACK TO PAYMENT
+                                    ← VOLVER AL PAGO
                                 </button>
 
                                 <div className="space-y-2">
-                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">UPLOAD RECEIPT</h3>
+                                    <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">SUBIR COMPROBANTE</h3>
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed">
-                                        Upload your payment proof to verify and activate your {selectedPlan?.name} access
+                                        Sube tu comprobante de pago para verificar y activar tu acceso {selectedPlan?.name}
                                     </p>
                                 </div>
 
@@ -375,8 +520,14 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-2xl font-black italic text-red-500">${selectedPlan?.price.toLocaleString()}</span>
+                                            {discountApplied && (
+                                                <span className="text-sm font-black italic text-gray-600 line-through block">${selectedPlan?.price.toLocaleString()}</span>
+                                            )}
+                                            <span className="text-2xl font-black italic text-red-500">${getFinalPrice().toLocaleString()}</span>
                                             <span className="block text-[7px] font-black text-gray-500 uppercase">{selectedPlan?.period}</span>
+                                            {discountApplied && (
+                                                <span className="text-[7px] font-black text-green-500 uppercase">CÓDIGO: {discountApplied.code}</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -434,7 +585,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                         className="w-full max-w-xl group flex justify-between items-center disabled:opacity-50"
                                     >
                                         <span className="text-white text-xl font-black italic uppercase tracking-tighter group-active:translate-y-1 transition-transform">
-                                            {loading ? 'PROCESSING...' : 'CONFIRM & ACTIVATE'}
+                                            {loading ? 'PROCESANDO...' : 'CONFIRMAR Y ACTIVAR'}
                                         </span>
                                         <MessageSquare className="text-white w-8 h-8 group-hover:scale-110 transition-transform" />
                                     </button>
