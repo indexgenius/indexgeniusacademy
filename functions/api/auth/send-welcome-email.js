@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env }) {
         // IMPORTANTE: Al usar "onboarding@resend.dev" como remitente en una cuenta nueva, 
         // Resend de momento SOLO te permitirá enviar correos AL MISMO CORREO con el que creaste tu cuenta de Resend.
         const resendPayload = {
-            from: "IndexGenius Academy <onboarding@resend.dev>",
+            from: "IndexGenius Academy <facturas@indexgeniusacademy.com>",
             to: [email],
             subject: "Bienvenido a IndexGenius Academy - Credenciales y Factura",
             html: htmlContent
