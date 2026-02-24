@@ -27,7 +27,14 @@ export async function onRequestPost({ request, env }) {
         }
         const { email, name, htmlContent } = body;
 
-        const apiKey = env.VITE_BREVO_API_KEY || "xsmtpsib-261dd60e8b6481f6f1eec39317ebc4fa4083771df54725a67b6ed11a5f451304-Eq61uP7qeE50wRtx";
+        const apiKey = env.VITE_BREVO_API_KEY || env.BREVO_API_KEY;
+
+        if (!apiKey) {
+            return new Response(JSON.stringify({ success: false, error: 'API Key not configured in Cloudflare Environment variables' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+        }
 
         const brevoPayload = {
             sender: { name: "IndexGenius Academy", email: "soporte@indexgeniusacademy.com" },
