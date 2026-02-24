@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, Megaphone, ShieldCheck, BookOpen, Key, Users, Wallet, Bell, Image as ImageIcon, Video } from 'lucide-react';
+import { Radio, Megaphone, ShieldCheck, BookOpen, Key, Users, Wallet, Bell, Image as ImageIcon, Video, Mail } from 'lucide-react';
 import NotificationBroadcaster from './NotificationBroadcaster';
 
 // Sub-modules
@@ -13,6 +13,7 @@ import AccessKeys from './AccessKeys';
 import PromoManager from './PromoManager';
 import MembershipControl from './MembershipControl';
 import BroadcastLive from '../live/BroadcastLive';
+import EmailTester from './EmailTester';
 
 const AdminPage = ({ user, broadcastSignal }) => {
     const [subTab, setSubTab] = useState('signals');
@@ -29,6 +30,7 @@ const AdminPage = ({ user, broadcastSignal }) => {
         { id: 'keys', icon: Key, label: 'ACCESS KEYS' },
         { id: 'memberships', icon: BookOpen, label: 'MEMBERSHIPS' },
         { id: 'payments', icon: Wallet, label: 'PAYMENT MGMT' },
+        { id: 'email-test', icon: Mail, label: 'EMAIL TESTER' },
     ];
 
     return (
@@ -69,6 +71,7 @@ const AdminPage = ({ user, broadcastSignal }) => {
                 {subTab === 'keys' && <AccessKeys user={user} />}
                 {subTab === 'memberships' && <MembershipControl />}
                 {subTab === 'payments' && <PaymentControl />}
+                {subTab === 'email-test' && <EmailTester adminUser={user} />}
             </div>
         </div>
     );

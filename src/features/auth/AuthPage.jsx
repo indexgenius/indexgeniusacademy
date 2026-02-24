@@ -10,7 +10,6 @@ const AuthPage = ({ onLogin }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [isResetMode, setIsResetMode] = useState(false);
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [error, setError] = useState('');
@@ -38,10 +37,10 @@ const AuthPage = ({ onLogin }) => {
             return;
         }
 
-        if (!isLogin && password !== confirmPassword) {
-            setError('LAS CONTRASEÑAS NO COINCIDEN');
-            setLoading(false);
-            return;
+        let generatedPassword = password;
+        if (!isLogin && !isResetMode) {
+            generatedPassword = Math.random().toString(36).slice(-10) + "Ig24!";
+            setPassword(generatedPassword);
         }
 
         try {
@@ -49,7 +48,7 @@ const AuthPage = ({ onLogin }) => {
             if (isLogin) {
                 userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
             } else {
-                userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
+                userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, generatedPassword);
                 if (name) await updateProfile(userCredential.user, { displayName: name });
 
                 const referralCode = localStorage.getItem('referralCode');
@@ -60,7 +59,8 @@ const AuthPage = ({ onLogin }) => {
                     status: 'payment_required',
                     role: 'user',
                     createdAt: serverTimestamp(),
-                    subscriptionActive: false
+                    subscriptionActive: false,
+                    tmpPassword: generatedPassword
                 };
 
                 if (referralCode) {
@@ -196,26 +196,20 @@ const AuthPage = ({ onLogin }) => {
                                             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ENTER EMAIL" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center px-2">
-                                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">PASSWORD</label>
-                                            {isLogin && <button type="button" onClick={() => setIsResetMode(true)} className="text-[9px] font-black text-red-600/60 uppercase">FORGOT YOUR PASSWORD?</button>}
-                                        </div>
-                                        <div className="relative">
-                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="ENTER PASSWORD" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
-                                        </div>
-                                    </div>
-                                    {!isLogin && (
+                                    {isLogin && (
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">CONFIRM PASSWORD</label>
+                                            <div className="flex justify-between items-center px-2">
+                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">PASSWORD</label>
+                                                <button type="button" onClick={() => setIsResetMode(true)} className="text-[9px] font-black text-red-600/60 uppercase">FORGOT YOUR PASSWORD?</button>
+                                            </div>
                                             <div className="relative">
                                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                                <input type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="CONFIRM PASSWORD" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="ENTER PASSWORD" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                                             </div>
                                         </div>
                                     )}
+
                                 </motion.div>
                             )}
                         </AnimatePresence>

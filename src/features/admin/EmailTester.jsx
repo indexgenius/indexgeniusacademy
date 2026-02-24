@@ -1,0 +1,115 @@
+import React, { useState } from 'react';
+import { Mail, Check, AlertTriangle, Send } from 'lucide-react';
+
+const EmailTester = ({ adminUser }) => {
+    const [testEmail, setTestEmail] = useState('');
+    const [status, setStatus] = useState('idle'); // idle, loading, success, error
+    const [responseMsg, setResponseMsg] = useState('');
+
+    const handleTestEmail = async (e) => {
+        e.preventDefault();
+        if (!testEmail) return;
+
+        setStatus('loading');
+        setResponseMsg('');
+
+        try {
+            // Fetch HTML template
+            const responseHtml = await fetch('/testemail.html');
+            if (!responseHtml.ok) throw new Error("No se pudo cargar testemail.html de la carpeta public");
+            let htmlContent = await responseHtml.text();
+
+            // Populate mock data
+            htmlContent = htmlContent.replace(/{{USER_NAME}}/g, "Tester Admin");
+            htmlContent = htmlContent.replace(/{{PLAN_NAME}}/g, "PLAN DE PRUEBA VIP");
+            htmlContent = htmlContent.replace(/{{PLAN_PRICE}}/g, "0.00");
+            htmlContent = htmlContent.replace(/{{USER_EMAIL}}/g, testEmail);
+            htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, "PasswordSegura123!");
+
+            // Send via API endpoint
+            const res = await fetch('https://ingenus-fx.vercel.app/api/auth/send-welcome-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: testEmail,
+                    name: "Tester Admin",
+                    htmlContent: htmlContent
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                setStatus('success');
+                setResponseMsg('¡Correo enviado con éxito a ' + testEmail + '!');
+            } else {
+                throw new Error(data.error || 'Error desconocido al enviar el email');
+            }
+
+        } catch (error) {
+            console.error("Test Email Error:", error);
+            setStatus('error');
+            setResponseMsg(error.message);
+        }
+    };
+
+    return (
+        <div className="bg-black border border-white/10 p-6 lg:p-10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 blur-[80px] pointer-events-none"></div>
+
+            <div className="flex items-center gap-3 mb-6 relative z-10">
+                <div className="w-10 h-10 rounded-full bg-red-600/20 border border-red-600/50 flex items-center justify-center">
+                    <Mail size={20} className="text-red-600" />
+                </div>
+                <div>
+                    <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">EMAIL & FACTURA TESTER</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Prueba el envío de correos y adjuntos vía Brevo</p>
+                </div>
+            </div>
+
+            <form onSubmit={handleTestEmail} className="space-y-4 max-w-lg relative z-10">
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">Ingresa correo de destino</label>
+                    <input
+                        type="email"
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        placeholder="tu-correo@gmail.com"
+                        className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none focus:border-red-600 focus:bg-white/10 transition-all"
+                        required
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="w-full py-4 bg-red-600 text-white font-black italic text-xs tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                    {status === 'loading' ? 'ENVIANDO...' : 'ENVIAR CORREO DE PRUEBA'} <Send size={16} />
+                </button>
+            </form>
+
+            {status === 'success' && (
+                <div className="mt-6 bg-green-500/10 border border-green-500 p-4 flex items-center gap-4 animate-pulse">
+                    <Check className="text-green-500 flex-shrink-0" />
+                    <div>
+                        <p className="text-xs font-bold text-green-500 uppercase">{responseMsg}</p>
+                        <p className="text-[9px] text-green-500/70 uppercase">Revisa tu bandeja de entrada o spam.</p>
+                    </div>
+                </div>
+            )}
+
+            {status === 'error' && (
+                <div className="mt-6 bg-red-500/10 border border-red-500 p-4 flex items-center gap-4">
+                    <AlertTriangle className="text-red-500 flex-shrink-0" />
+                    <div>
+                        <p className="text-xs font-bold text-red-500 uppercase">FALLO EN EL ENVÍO</p>
+                        <p className="text-[9px] text-red-500/70">{responseMsg}</p>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default EmailTester;

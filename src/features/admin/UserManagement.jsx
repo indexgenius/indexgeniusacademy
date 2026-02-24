@@ -47,6 +47,8 @@ const UserManagement = ({ adminUser }) => {
             });
 
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+
+            // 1. Send push notification
             fetch('https://ingenus-fx.vercel.app/api/broadcast', {
                 method: 'POST',
                 headers: {
@@ -60,7 +62,53 @@ const UserManagement = ({ adminUser }) => {
                 })
             }).catch(console.error);
 
-            alert("USER APPROVED & NOTIFIED");
+            // 2. Fetch the email template, replace data, and send email via Brevo
+            try {
+                const responseHtml = await fetch('/testemail.html');
+                if (responseHtml.ok) {
+                    let htmlContent = await responseHtml.text();
+
+                    const planName = userDoc.selectedPlan || 'ELITE ACCESS';
+                    const planPrice = userDoc.membershipPrice || '25';
+                    const userName = userDoc.displayName || 'Traders';
+                    const userEmail = userDoc.email || '';
+                    const generatedPassword = userDoc.tmpPassword || 'Contacta a soporte';
+
+                    htmlContent = htmlContent.replace(/{{USER_NAME}}/g, userName);
+                    htmlContent = htmlContent.replace(/{{PLAN_NAME}}/g, planName);
+                    htmlContent = htmlContent.replace(/{{PLAN_PRICE}}/g, planPrice);
+                    htmlContent = htmlContent.replace(/{{USER_EMAIL}}/g, userEmail);
+                    htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, generatedPassword);
+
+                    // Note: Ideally the endpoint is on production, but we might test locally
+                    // If local Vite server isn't proxying /api, we map it manually or to vercel
+                    // for now pointing to vercel, but maybe it's not deployed yet.
+                    // Instead we use the local running Vite path if available
+                    // For now, hardcode URL to Vercel where the logic executes in backend
+                    await fetch('https://ingenus-fx.vercel.app/api/auth/send-welcome-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: userEmail,
+                            name: userName,
+                            htmlContent: htmlContent
+                        })
+                    }).catch(console.error);
+                }
+            } catch (err) {
+                console.error("Error preparing email:", err);
+            }
+
+            // Remove temporary password for security
+            if (userDoc.tmpPassword) {
+                await updateDoc(doc(db, "users", userDoc.id), {
+                    tmpPassword: null
+                });
+            }
+
+            alert("USER APPROVED, NOTIFIED & EMAIL SENT");
         } catch (e) {
             alert("APPROVAL FAILED: " + e.message);
         }
