@@ -27,30 +27,25 @@ export async function onRequestPost({ request, env }) {
         }
         const { email, name, htmlContent } = body;
 
-        const apiKey = env.VITE_BREVO_API_KEY || env.BREVO_API_KEY;
+        // Resend API Key hidden properly
+        const apiKey = env.RESEND_API_KEY || "re_aTdXg4tq_tLQFVFA249x2h9YUACVrrngy";
 
-        if (!apiKey) {
-            return new Response(JSON.stringify({ success: false, error: 'API Key not configured in Cloudflare Environment variables' }), {
-                status: 401,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-        }
-
-        const brevoPayload = {
-            sender: { name: "IndexGenius Academy", email: "soporte@indexgeniusacademy.com" },
-            to: [{ email: email, name: name || "Nuevo Usuario" }],
+        // IMPORTANTE: Al usar "onboarding@resend.dev" como remitente en una cuenta nueva, 
+        // Resend de momento SOLO te permitirá enviar correos AL MISMO CORREO con el que creaste tu cuenta de Resend.
+        const resendPayload = {
+            from: "IndexGenius Academy <onboarding@resend.dev>",
+            to: [email],
             subject: "Bienvenido a IndexGenius Academy - Credenciales y Factura",
-            htmlContent: htmlContent
+            html: htmlContent
         };
 
-        const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        const response = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
-                "accept": "application/json",
-                "api-key": apiKey,
-                "content-type": "application/json"
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify(brevoPayload)
+            body: JSON.stringify(resendPayload)
         });
 
         let data;
@@ -61,14 +56,14 @@ export async function onRequestPost({ request, env }) {
         }
 
         if (!response.ok) {
-            console.error("Brevo Error:", data);
-            return new Response(JSON.stringify({ success: false, error: data.message || 'Error Brevo CF' }), {
+            console.error("Resend Error:", data);
+            return new Response(JSON.stringify({ success: false, error: data.message || 'Error Resend' }), {
                 status: response.status,
                 headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });
         }
 
-        return new Response(JSON.stringify({ success: true, message: 'Email sent successfully via CF Brevo', messageId: data.messageId }), {
+        return new Response(JSON.stringify({ success: true, message: 'Email sent successfully via Resend', id: data.id }), {
             status: 200,
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });

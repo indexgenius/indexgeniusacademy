@@ -6,26 +6,26 @@ import TacticalEvolution from './TacticalEvolution';
 const services = [
     {
         icon: Shield,
-        title: "SEGURIDAD TOTAL",
-        desc: "PROTEGEMOS TU CAPITAL CON ESTRATEGIAS DE GESTIÓN DE RIESGO DE NIVEL INSTITUCIONAL.",
+        title: "GESTIÓN Y CONTROL DE RIESGO",
+        desc: "APLICAMOS PRINCIPIOS ESTRUCTURADOS DE GESTIÓN PARA PROTEGER CAPITAL Y OPTIMIZAR RENDIMIENTO",
         color: "text-red-600"
     },
     {
         icon: Zap,
-        title: "SEÑALES PREMIUM",
-        desc: "ACCESO 24/7 A NUESTRAS ALERTAS DE ALTA PRECISIÓN EN TIEMPO REAL.",
+        title: "SEÑALES ESTRATÉGICAS EN TIEMPO REAL",
+        desc: "ALERTAS OPERATIVAS BASADAS EN ANÁLISIS TÉCNICO Y ESTRUCTURA INSTITUCIONAL DEL MERCADO",
         color: "text-red-600"
     },
     {
         icon: TrendingUp,
-        title: "RETAIL TRADING",
-        desc: "APRENDE LAS METODOLOGÍAS QUE USAN LOS GRANDES FONDOS DE INVERSIÓN.",
+        title: "FORMACIÓN PROFESIONAL EN TRADING",
+        desc: "METODOLOGÍA ESTRUCTURADA PARA OPERAR FOREX E ÍNDICES CON DISCIPLINA Y GESTIÓN AVANZADA",
         color: "text-red-600"
     },
     {
         icon: Users,
-        title: "COMUNIDAD ÉLITE",
-        desc: "ÚNETE A MILES DE TRADERS QUE YA ESTÁN DOMINANDO EL MERCADO.",
+        title: "COMUNIDAD PRIVADA DE ALTO RENDIMIENTO",
+        desc: "ACCESO A UN ENTORNO EXCLUSIVO DE TRADERS ENFOCADOS EN CONSISTENCIA Y CRECIMIENTO SOSTENIBLE",
         color: "text-red-600"
     }
 ];
@@ -43,7 +43,7 @@ const Services = ({ view }) => {
                     viewport={{ once: false }}
                 >
                     <h2 className={`text-4xl md:text-6xl lg:text-8xl font-black italic tracking-tighter uppercase mb-6 transition-colors duration-500 ${isBroker ? 'text-white' : 'text-black'}`}>
-                        NUESTROS <span className={isBroker ? 'text-[#8158F6]' : 'text-red-700'}>SERVICIOS</span>
+                        ECOSISTEMA <span className={isBroker ? 'text-[#8158F6]' : 'text-red-700'}>INDEXGENIUS</span>
                     </h2>
                     <div className={`w-20 lg:w-24 h-2 mx-auto transition-colors duration-500 ${isBroker ? 'bg-[#8158F6]' : 'bg-red-600'}`}></div>
                 </motion.div>
@@ -80,6 +80,16 @@ const Services = ({ view }) => {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* Connecting line to plans */}
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: false }}
+                    className={`text-center mt-14 text-[9px] lg:text-[11px] font-bold uppercase tracking-[0.2em] italic transition-colors duration-500 ${isBroker ? 'text-white/30' : 'text-gray-400'}`}
+                >
+                    La infraestructura que respalda cada uno de nuestros planes <span className={isBroker ? 'text-[#8158F6] font-black' : 'text-red-600 font-black'}>INDEX ONE</span>, <span className={isBroker ? 'text-[#8158F6] font-black' : 'text-red-600 font-black'}>INDEX PRO</span> e <span className={isBroker ? 'text-[#8158F6] font-black' : 'text-red-600 font-black'}>INDEX BLACK</span>
+                </motion.p>
             </div>
 
             {/* Unified Section Separator (White to Gray Gradient) */}

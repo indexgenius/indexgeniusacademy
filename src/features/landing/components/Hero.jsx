@@ -89,11 +89,11 @@ const Hero = ({ view }) => {
                         <h1 className="diseno-futurista leading-[0.85] text-black text-center text-3xl md:text-6xl lg:text-7xl">
                             INFRAESTRUCTURA <br />
                             <span className="text-red-600">PROFESIONAL</span><br />
-                            PARA TRADERS.
+                            PARA TRADERS
                         </h1>
 
                         <p className="text-sm md:text-lg lg:text-xl font-bold text-gray-500 uppercase tracking-tight leading-relaxed max-w-2xl italic mx-auto px-6">
-                            Domina los mercados con ejecución de grado institucional y herramientas diseñadas para la <span className="text-black font-black underline decoration-red-600 decoration-4 underline-offset-4">máxima rentabilidad</span>.
+                            Domina los mercados con ejecución de grado institucional y herramientas diseñadas para la <span className="text-black font-black underline decoration-red-600 decoration-4 underline-offset-4">máxima rentabilidad</span>
                         </p>
                     </motion.div>
 
