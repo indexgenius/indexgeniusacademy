@@ -58,10 +58,10 @@ const CEOSection = ({ onBack, onShowAuth }) => {
                         {/* Social Connect */}
                         <div className="flex flex-wrap gap-4 pt-6">
                             {[
-                                { icon: Instagram, url: 'https://www.instagram.com/eltevenfx' },
+                                { icon: Instagram, url: 'https://www.instagram.com/stevencastilloreal' },
                                 { icon: Youtube, url: 'https://www.youtube.com/@IndexGeniusAcademy' },
                                 { icon: Send, url: 'https://t.me/indexgeniusacademy' },
-                                { icon: Linkedin, url: '#' }
+                                { icon: Linkedin, url: 'https://www.linkedin.com/in/stevencastilloreal/' }
                             ].map((social, i) => (
                                 <a key={i} href={social.url} target="_blank" rel="noopener noreferrer" className="w-12 rotate-[-12deg] h-12 border-2 border-gray-100 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all shadow-sm rounded-none">
                                     <social.icon size={18} className="rotate-[12deg]" />

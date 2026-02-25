@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CountUp } from './Animations';
 import TacticalEvolution from './TacticalEvolution';
+
 const AboutUs = ({ setView, view }) => {
     const isBroker = view === 'broker';
     return (
@@ -20,30 +20,8 @@ const AboutUs = ({ setView, view }) => {
                         FUNDADA POR <button onClick={() => setView('ceo')} className={`${isBroker ? 'text-[#8158F6]' : 'text-red-600'} font-black hover:underline transition-all`}>STEVEN CASTILLO</button>, TRADER PROFESIONAL CON MÁS DE <span className={`${isBroker ? 'text-[#8158F6]' : 'text-red-600'} font-black`}>7 AÑOS DE EXPERIENCIA</span> COMPROBADA EN MERCADOS FINANCIEROS.
                     </p>
                 </motion.div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10 px-4">
-                    <div className={`transition-all group p-6 lg:p-10 border shadow-2xl transition-all duration-500 ${isBroker
-                        ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
-                        : 'bg-white border-red-50 shadow-gray-100'
-                        }`}>
-                        <h4 className={`text-4xl md:text-6xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}><CountUp end={1500} duration={3} suffix="+" enableKFormat={true} /></h4>
-                        <p className={`font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>TRADERS ACTIVOS</p>
-                    </div>
-                    <div className={`transition-all group p-6 lg:p-10 border shadow-2xl transition-all duration-500 ${isBroker
-                        ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
-                        : 'bg-white border-red-50 shadow-gray-100'
-                        }`}>
-                        <h4 className={`text-4xl md:text-6xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}><CountUp end={80} duration={3} suffix="%" /></h4>
-                        <p className={`font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>PRECISIÓN DE SEÑALES</p>
-                    </div>
-                    <div className={`transition-all group p-6 lg:p-10 border shadow-2xl transition-all duration-500 ${isBroker
-                        ? 'bg-[#322070]/10 border-[#432C8D]/20 shadow-[#8158F6]/5'
-                        : 'bg-white border-red-50 shadow-gray-100'
-                        }`}>
-                        <h4 className={`text-4xl md:text-6xl lg:text-7xl font-black italic mb-4 transition-colors duration-500 ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>24/7</h4>
-                        <p className={`font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] transition-colors duration-500 ${isBroker ? 'text-white/40' : 'text-gray-500'}`}>SOPORTE GLOBAL</p>
-                    </div>
-                </div>
             </div>
+
             {/* Unified Section Separator (White to Gray Gradient) */}
             <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-20">
                 <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[60px] lg:h-[120px]">

@@ -49,7 +49,7 @@ const GroupsPage = ({ user }) => {
                                 )}
                             </div>
                             <div className="min-w-0">
-                                <h3 className="text-xl sm:text-3xl font-black italic text-white uppercase truncate max-w-[250px] sm:max-w-none">{g.name}</h3>
+                                <h3 className="text-xl sm:text-3xl font-black italic text-white uppercase pr-2">{g.name}</h3>
                                 <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2 sm:mt-1">
                                     <span className="bg-red-600 text-[8px] font-black px-2 py-1">{g.status}</span>
                                     {subscriptions[g.id] && <span className="bg-green-600 text-[8px] font-black px-2 py-1">SUBSCRIBED</span>}

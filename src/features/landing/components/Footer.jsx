@@ -40,7 +40,7 @@ const Footer = ({ setView, view }) => {
                         </div>
                         <div className="flex items-center gap-4">
                             {[
-                                { icon: Instagram, url: 'https://www.instagram.com/eltevenfx', label: 'Instagram' },
+                                { icon: Instagram, url: 'https://www.instagram.com/stevencastilloreal', label: 'Instagram' },
                                 { icon: Youtube, url: 'https://www.youtube.com/@IndexGeniusAcademy', label: 'YouTube' },
                                 { icon: Send, url: 'https://t.me/indexgeniusacademy', label: 'Telegram' },
                                 { icon: WhatsAppIcon, url: 'https://wa.me/18495771017', label: 'WhatsApp' }
@@ -64,7 +64,7 @@ const Footer = ({ setView, view }) => {
 
                     {/* Columna 2 – Navegación */}
                     <div className="space-y-8">
-                        <h4 className={`text-xs font-black tracking-[0.3em] uppercase italic transition-colors ${isBroker ? 'text-[#8158F6]' : 'text-red-600'}`}>Navegación</h4>
+                        <h4 className="text-xs font-black tracking-[0.3em] uppercase italic transition-colors text-red-600">Navegación</h4>
                         <ul className="grid grid-cols-1 gap-4">
                             {[
                                 { name: 'Inicio', action: () => setView('home') },
@@ -77,13 +77,13 @@ const Footer = ({ setView, view }) => {
                             ].map((item) => (
                                 <li key={item.name}>
                                     {item.action ? (
-                                        <button onClick={item.action} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-left ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'}`}>
-                                            <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'}`}></div>
+                                        <button onClick={item.action} className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-left text-gray-400 hover:text-red-600">
+                                            <div className="w-1 h-1 transition-colors bg-gray-200 group-hover:bg-red-600"></div>
                                             {item.name}
                                         </button>
                                     ) : (
-                                        <a href={item.url} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors ${isBroker ? 'text-white/60 hover:text-[#8158F6]' : 'text-gray-400 hover:text-red-600'}`}>
-                                            <div className={`w-1 h-1 transition-colors ${isBroker ? 'bg-[#432C8D] group-hover:bg-[#8158F6]' : 'bg-gray-200 group-hover:bg-red-600'}`}></div>
+                                        <a href={item.url} className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group transition-colors text-gray-400 hover:text-red-600">
+                                            <div className="w-1 h-1 transition-colors bg-gray-200 group-hover:bg-red-600"></div>
                                             {item.name}
                                         </a>
                                     )}
