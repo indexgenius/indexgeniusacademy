@@ -6,27 +6,28 @@ const TacticalEvolution = ({ stage = 0 }) => {
 
     useEffect(() => {
         const canvas = canvasRef.current;
+        if (!canvas) return;
         const ctx = canvas.getContext('2d', { alpha: true });
         let animationFrameId;
         let particles = [];
         let fallingSquares = [];
 
-        // Stage-based configuration
-        const config = {
+        // All possible configurations
+        const configs = {
             0: { // Quienes Somos (Neural Network Only)
-                particleCount: 20,
+                particleCount: 25,
                 squareCount: 0,
                 gridOpacity: 0,
                 connectionOpacity: 0.2,
                 particleOpacity: 0.3,
                 showSquares: false
             },
-            1: { // Nuestra Mision (Transition)
+            1: { // Nuestra Misión (Neural Network Only)
                 particleCount: 50,
                 squareCount: 0,
                 gridOpacity: 0,
-                connectionOpacity: 0.35,
-                particleOpacity: 0.5,
+                connectionOpacity: 0.3,
+                particleOpacity: 0.4,
                 showSquares: false
             },
             2: { // Nuestros Servicios (Network Only)
@@ -37,8 +38,9 @@ const TacticalEvolution = ({ stage = 0 }) => {
                 particleOpacity: 0.7,
                 showSquares: false
             }
-        }[stage] || config[0];
+        };
 
+        const config = configs[stage] || configs[0];
         const connectionDistance = 150;
         const mouse = { x: null, y: null, radius: 200 };
 
@@ -120,8 +122,7 @@ const TacticalEvolution = ({ stage = 0 }) => {
                 this.rotation += this.rotSpeed;
                 if (this.alpha < 0.2) this.alpha += 0.005;
 
-                // Fusion logic: squares are more likely to fuse in stage 1
-                const fusionChance = stage === 0 ? 0.002 : 0.01;
+                const fusionChance = 0.005;
                 if (!this.fused && this.y > canvas.height * 0.4 && Math.random() < fusionChance) {
                     this.fused = true;
                     if (particles.length < config.particleCount + 30) {
@@ -134,6 +135,7 @@ const TacticalEvolution = ({ stage = 0 }) => {
 
             draw() {
                 if (!config.showSquares) return;
+
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
@@ -147,7 +149,6 @@ const TacticalEvolution = ({ stage = 0 }) => {
                 ctx.stroke();
                 ctx.restore();
 
-                // Connect squares to particles
                 for (let p of particles) {
                     const dx = this.x - p.x;
                     const dy = this.y - p.y;
@@ -184,7 +185,9 @@ const TacticalEvolution = ({ stage = 0 }) => {
             particles = [];
             fallingSquares = [];
             for (let i = 0; i < config.particleCount; i++) particles.push(new Particle());
-            for (let i = 0; i < config.squareCount; i++) fallingSquares.push(new FallingSquare());
+            if (config.showSquares) {
+                for (let i = 0; i < config.squareCount; i++) fallingSquares.push(new FallingSquare());
+            }
         };
 
         const animate = () => {
@@ -193,10 +196,12 @@ const TacticalEvolution = ({ stage = 0 }) => {
 
             drawGrid();
 
-            fallingSquares.forEach(s => {
-                s.update();
-                s.draw();
-            });
+            if (config.showSquares) {
+                fallingSquares.forEach(s => {
+                    s.update();
+                    s.draw();
+                });
+            }
 
             for (let i = 0; i < particles.length; i++) {
                 const p1 = particles[i];
