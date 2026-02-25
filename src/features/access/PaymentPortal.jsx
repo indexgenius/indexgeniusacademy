@@ -263,29 +263,29 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         <div className="min-h-screen bg-black text-white font-space selection:bg-red-600 flex flex-col items-center">
 
             {/* RED TERMINAL HEADER */}
-            <div className="w-full bg-[#E50914] pt-12 pb-16 px-8 relative overflow-hidden">
+            <div className="w-full bg-[#E50914] pt-8 pb-10 px-8 relative overflow-hidden">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 pointer-events-none">
-                    <ShieldCheck size={400} strokeWidth={1} />
+                    <ShieldCheck size={300} strokeWidth={1} />
                 </div>
 
                 <div className="max-w-xl mx-auto relative z-10">
-                    <div className="flex justify-between items-start mb-12">
+                    <div className="flex justify-between items-start mb-8">
                         <div className="flex items-center gap-3">
-                            <img src="/img/logos/IMG_5208.PNG" className="w-10 h-10 object-contain" alt="logo" />
-                            <div className="h-8 w-[1px] bg-white/30 hidden md:block"></div>
-                            <span className="hidden md:block text-[8px] font-black uppercase tracking-[0.3em] leading-tight text-white">INDEX<br />GENIUS</span>
+                            <img src="/img/logos/IMG_5208.PNG" className="w-8 h-8 object-contain" alt="logo" />
+                            <div className="h-6 w-[1px] bg-white/30 hidden md:block"></div>
+                            <span className="hidden md:block text-[7px] font-black uppercase tracking-[0.3em] leading-tight text-white">INDEX<br />GENIUS</span>
                         </div>
                         <div className="text-right">
-                            <h2 className="text-2xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">PORTAL</h2>
-                            <h2 className="text-2xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">DE PAGO</h2>
+                            <h2 className="text-xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">PORTAL</h2>
+                            <h2 className="text-xl font-black italic uppercase leading-none tracking-tighter shadow-sm text-white">DE PAGO</h2>
                         </div>
                     </div>
 
-                    <div className="space-y-1 mb-12">
-                        <h1 className="text-4xl md:text-5xl font-black italic uppercase leading-tight tracking-tighter text-white">
+                    <div className="space-y-1 mb-8">
+                        <h1 className="text-3xl md:text-4xl font-black italic uppercase leading-tight tracking-tighter text-white">
                             {isExpired ? 'RENOVAR' : 'ACTIVAR'}<br />MEMBRESÍA
                         </h1>
-                        <p className="text-[10px] font-bold text-white/70 uppercase tracking-[0.4em]">
+                        <p className="text-[9px] font-bold text-white/70 uppercase tracking-[0.4em]">
                             {isExpired ? 'TU SUSCRIPCIÓN HA EXPIRADO' : 'SELECCIONA TU NIVEL DE ACCESO'}
                         </p>
                     </div>
@@ -310,7 +310,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
             </div>
 
             {/* BLACK CONTENT AREA */}
-            <div className="w-full flex-1 bg-black px-8 py-12">
+            <div className="w-full flex-1 bg-black px-8 py-8">
                 <div className="max-w-xl mx-auto">
                     <AnimatePresence mode="wait">
 
