@@ -13,9 +13,9 @@ const AcademyManager = ({ user }) => {
     const [videosList, setVideosList] = useState([]);
 
     const LEVEL_OPTIONS = [
-        { value: 'BEGINNER', label: 'BEGINNER' },
-        { value: 'INTERMEDIATE', label: 'INTERMEDIATE' },
-        { value: 'ADVANCED', label: 'ADVANCED' },
+        { value: 'BEGINNER', label: 'PRINCIPIANTE' },
+        { value: 'INTERMEDIATE', label: 'INTERMEDIO' },
+        { value: 'ADVANCED', label: 'AVANZADO' },
         { value: 'ELITE (VIP)', label: 'ELITE (VIP)' },
     ];
 
@@ -39,7 +39,7 @@ const AcademyManager = ({ user }) => {
 
     const handleDeployLesson = async () => {
         if (!academyForm.title || (!videoBlob && academyForm.type === 'UPLOAD' && !academyForm.id) || (academyForm.type === 'LINK' && !academyForm.url)) {
-            alert("COMPLETE ALL FIELDS");
+            alert("COMPLETE TODOS LOS CAMPOS");
             return;
         }
 
@@ -54,7 +54,7 @@ const AcademyManager = ({ user }) => {
                 if (academyForm.type === 'LINK' && academyForm.url) updateData.videoUrl = academyForm.url;
                 if (academyForm.duration) updateData.duration = parseFloat(academyForm.duration).toFixed(2);
                 await updateDoc(doc(db, "academy_videos", academyForm.id), updateData);
-                alert("INTEL UPDATED SUCCESSFULLY");
+                alert("INFORMACIÓN ACTUALIZADA CON ÉXITO");
                 setAcademyForm({ title: '', level: 'BEGINNER', type: 'UPLOAD', module: '', url: '', duration: '' });
                 setVideoBlob(null);
             } else {
@@ -92,8 +92,8 @@ const AcademyManager = ({ user }) => {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                                     body: JSON.stringify({
-                                        title: "🎓 NEW INTEL UPLOADED",
-                                        body: `New lesson in ${moduleName}: ${academyForm.title}`,
+                                        title: "🎓 NUEVA CLASE DISPONIBLE",
+                                        body: `Nueva lección en ${moduleName}: ${academyForm.title}`,
                                         data: { type: 'ACADEMY', module: moduleName },
                                         targetUser: userData.uid
                                     })
@@ -101,7 +101,7 @@ const AcademyManager = ({ user }) => {
                             }
                         }));
                     }
-                    alert("TACTICAL LESSON DEPLOYED");
+                    alert("LECCIÓN TÁCTICA DESPLEGADA");
                     setAcademyForm({ title: '', level: 'BEGINNER', type: 'UPLOAD', module: '', url: '', duration: '' });
                     setVideoBlob(null);
                 }
@@ -111,26 +111,26 @@ const AcademyManager = ({ user }) => {
     };
 
     const handleDeleteVideo = async (id) => {
-        if (!confirm('CONFIRM INTEL DESTRUCTION?')) return;
+        if (!confirm('¿CONFIRMAR DESTRUCCIÓN DE CLASE?')) return;
         await deleteDoc(doc(db, "academy_videos", id));
     };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8">
             <div className="space-y-6">
-                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest">DEPLOY INTELLIGENCE</h3>
+                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest">DESPLEGAR INTELIGENCIA</h3>
                 <div className="bg-black border border-white/5 p-6 space-y-4">
                     <div className="flex gap-2 p-1 bg-white/5 border border-white/5 mb-4">
                         {['UPLOAD', 'LINK'].map(type => (
                             <button key={type} onClick={() => setAcademyForm({ ...academyForm, type })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${academyForm.type === type ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}>
-                                {type === 'UPLOAD' ? 'GALLERY UPLOAD' : 'YOUTUBE LINK'}
+                                {type === 'UPLOAD' ? 'SUBIR ARCHIVO' : 'ENLACE YOUTUBE'}
                             </button>
                         ))}
                     </div>
-                    <input placeholder="MODULE TITLE" value={academyForm.title} onChange={e => setAcademyForm({ ...academyForm, title: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
+                    <input placeholder="TÍTULO DE LA CLASE" value={academyForm.title} onChange={e => setAcademyForm({ ...academyForm, title: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none" />
                     <div className="grid grid-cols-3 gap-4">
-                        <input placeholder="MODULE NAME" value={academyForm.module || ''} onChange={e => setAcademyForm({ ...academyForm, module: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none uppercase" />
-                        <input type="number" placeholder="MINUTES" value={academyForm.duration || ''} onChange={e => setAcademyForm({ ...academyForm, duration: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none uppercase" title="Manual Duration for Links" />
+                        <input placeholder="NOMBRE DEL MÓDULO" value={academyForm.module || ''} onChange={e => setAcademyForm({ ...academyForm, module: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none uppercase" />
+                        <input type="number" placeholder="MINUTOS" value={academyForm.duration || ''} onChange={e => setAcademyForm({ ...academyForm, duration: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none uppercase" title="Manual Duration for Links" />
                         <TacticalSelect
                             options={LEVEL_OPTIONS}
                             value={academyForm.level}
@@ -142,7 +142,7 @@ const AcademyManager = ({ user }) => {
                             <input type="file" id="gallery-upload" accept="video/*" className="hidden" onChange={(e) => setVideoBlob(e.target.files[0])} />
                             <label htmlFor="gallery-upload" className="w-full h-32 border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer bg-white/[0.02]">
                                 <Upload className="text-gray-500 mb-2" />
-                                <span className="text-[10px] font-black text-gray-500 uppercase">{videoBlob ? videoBlob.name : 'SELECT INTEL FILE'}</span>
+                                <span className="text-[10px] font-black text-gray-500 uppercase">{videoBlob ? videoBlob.name : 'SELECCIONAR ARCHIVO'}</span>
                             </label>
                         </div>
                     ) : (
@@ -150,7 +150,7 @@ const AcademyManager = ({ user }) => {
                             <input placeholder="YOUTUBE URL" value={academyForm.url || ''} onChange={e => setAcademyForm({ ...academyForm, url: e.target.value })} className="w-full bg-white/5 border border-white/10 p-4 text-xs font-black text-white outline-none" />
                             {academyForm.url && (
                                 <div className="p-4 bg-white/5 border border-white/10 space-y-2">
-                                    <p className="text-[8px] font-black text-gray-500 uppercase">Live Intel Preview:</p>
+                                    <p className="text-[8px] font-black text-gray-500 uppercase">Vista Previa:</p>
                                     <div className="aspect-video bg-black flex items-center justify-center overflow-hidden border border-white/5">
                                         {academyForm.url.includes('youtube') || academyForm.url.includes('youtu.be') ? (
                                             <img src={getYouTubeThumbnail(academyForm.url)} className="w-full h-auto max-h-full object-contain" alt="YouTube Preview" />
@@ -163,13 +163,13 @@ const AcademyManager = ({ user }) => {
                         </div>
                     )}
                     <button onClick={handleDeployLesson} disabled={uploading} className="w-full py-4 bg-red-600 text-white text-xs font-black tracking-widest uppercase hover:bg-white hover:text-black transition-all">
-                        {uploading ? 'SYNCING...' : (academyForm.id ? 'UPDATE INTELLIGENCE' : 'AUTHORIZE DEPLOYMENT')}
+                        {uploading ? 'SINCRONIZANDO...' : (academyForm.id ? 'ACTUALIZAR CLASE' : 'AUTORIZAR DESPLIEGUE')}
                     </button>
                 </div>
             </div>
 
             <div className="lg:col-span-2 space-y-4 pt-8 border-t border-white/5">
-                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest">ACTIVE INTELLIGENCE LOG</h3>
+                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest">REGISTRO DE CLASES ACTIVAS</h3>
                 <div className="grid grid-cols-1 gap-4">
                     {videosList.map(video => (
                         <div key={video.id} className="p-4 bg-white/5 border border-white/10 flex justify-between items-center group">

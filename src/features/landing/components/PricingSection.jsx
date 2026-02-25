@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, Shield, Zap, Star, Crown, ArrowRight, Lock } from 'lucide-react';
+import { Check, Shield, Zap, Star, Crown, ArrowRight, Lock, Gem } from 'lucide-react';
 
 const PricingSection = ({ onShowAuth }) => {
     const selectPlan = (planId, planName, price, period) => {
         localStorage.setItem('selectedPlan', JSON.stringify({ id: planId, name: planName, price, period }));
-        onShowAuth();
+        onShowAuth('register');
     };
 
     const plans = [
@@ -191,6 +191,41 @@ const PricingSection = ({ onShowAuth }) => {
 
                             {/* Tactical decorative accent corner */}
                             <div className={`absolute top-0 right-0 w-2 h-2 ${plan.popular ? 'bg-red-600' : plan.id === 'index-black' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-red-600/30'} transition-colors`}></div>
+
+                            {/* 💎 STATIC LUXURY FRAME - INDEX BLACK 💎 */}
+                            {plan.id === 'index-black' && (
+                                <div className="absolute inset-0 pointer-events-none overflow-visible">
+                                    {/* Corner Black Diamonds (Static Neon) */}
+                                    {[
+                                        { top: '12px', left: '12px' }, { top: '12px', right: '12px' },
+                                        { bottom: '12px', left: '12px' }, { bottom: '12px', right: '12px' }
+                                    ].map((pos, idx) => (
+                                        <div
+                                            key={`static-gem-${idx}`}
+                                            className="absolute z-10"
+                                            style={{
+                                                ...pos,
+                                                filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.8))'
+                                            }}
+                                        >
+                                            <div className="">
+                                                <Gem size={14} className="text-white fill-white" />
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Static Snowflakes on Top Frame */}
+                                    <div className="absolute top-0 left-0 w-full flex justify-around px-10 -translate-y-1/2 opacity-40">
+                                        <span className="text-white text-xs">❄</span>
+                                        <span className="text-white text-[10px]">❄</span>
+                                        <span className="text-white text-xs">❄</span>
+                                        <span className="text-white text-[10px]">❄</span>
+                                    </div>
+
+                                    {/* White Neon Frame Border */}
+                                    <div className="absolute inset-0 border-[1px] border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.05)]"></div>
+                                </div>
+                            )}
                         </motion.div>
                     ))}
                 </div>
@@ -258,25 +293,25 @@ const PricingSection = ({ onShowAuth }) => {
                                                     <Check size={14} className="text-green-600" strokeWidth={3} />
                                                 </span>
                                             ) : (
-                                                <span className="text-sm font-black text-red-300">✕</span>
+                                                <span className="text-sm font-black text-red-600">✕</span>
                                             )}
                                         </td>
                                         <td className="text-center py-4 lg:py-5 px-3 lg:px-6 bg-red-600/[0.02]">
                                             {row.pro ? (
-                                                <span className="inline-flex items-center justify-center w-6 h-6 bg-red-50 rounded-full">
-                                                    <Check size={14} className="text-red-600" strokeWidth={3} />
+                                                <span className="inline-flex items-center justify-center w-6 h-6 bg-green-50 rounded-full">
+                                                    <Check size={14} className="text-green-600" strokeWidth={3} />
                                                 </span>
                                             ) : (
-                                                <span className="text-sm font-black text-red-300">✕</span>
+                                                <span className="text-sm font-black text-red-600">✕</span>
                                             )}
                                         </td>
                                         <td className="text-center py-4 lg:py-5 px-3 lg:px-6">
                                             {row.black ? (
-                                                <span className="inline-flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full">
-                                                    <Check size={14} className="text-black" strokeWidth={3} />
+                                                <span className="inline-flex items-center justify-center w-6 h-6 bg-green-50 rounded-full">
+                                                    <Check size={14} className="text-green-600" strokeWidth={3} />
                                                 </span>
                                             ) : (
-                                                <span className="text-sm font-black text-red-300">✕</span>
+                                                <span className="text-sm font-black text-red-600">✕</span>
                                             )}
                                         </td>
                                     </tr>

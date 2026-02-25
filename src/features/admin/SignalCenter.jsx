@@ -150,7 +150,7 @@ const SignalCenter = ({ broadcastSignal }) => {
                         onClick={() => { setBroker('DERIV'); setSignalForm(prev => ({ ...prev, pair: 'BOOM 1000' })); }}
                         className={`flex-1 py-4 lg:py-3 text-[11px] lg:text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white shadow-red-glow/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        DERIV PLATFORM
+                        PLATAFORMA DERIV
                     </button>
                     <button
                         onClick={() => { setBroker('WELTRADE'); setSignalForm(prev => ({ ...prev, pair: 'GainX 1000' })); }}
@@ -163,27 +163,27 @@ const SignalCenter = ({ broadcastSignal }) => {
                 <div className="bg-black/80 border border-white/5 p-6 backdrop-blur-md relative overflow-hidden">
                     <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-6 flex items-center gap-3 italic">
                         <div className="w-2 h-2 bg-red-600 animate-pulse"></div>
-                        {editingSignalId ? 'UPDATE BROADCAST CONFIG' : `${broker} SIGNAL BUILDER`}
+                        {editingSignalId ? 'ACTUALIZAR CONFIGURACIÓN DE SEÑAL' : `CONSTRUCTOR DE SEÑALES ${broker}`}
                     </h3>
                     <form onSubmit={sendSignal} className="space-y-6 relative z-10">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-1.5 order-1 md:order-none">
                                 <TacticalSelect
-                                    label="TARGET ASSET"
+                                    label="ACTIVO OBJETIVO"
                                     options={PAIR_OPTIONS}
                                     value={signalForm.pair}
                                     onChange={val => setSignalForm({ ...signalForm, pair: val })}
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">OPERATION</label>
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">OPERACIÓN</label>
                                 <div className="flex gap-1 bg-black/40 p-1 border border-white/10">
-                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'BUY' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'BUY' ? 'bg-red-600 text-white' : 'text-gray-600 hover:text-white'}`}>{broker === 'DERIV' ? 'BUY (BOOM)' : 'BUY (LONG)'}</button>
-                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'SELL' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'SELL' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-white'}`}>{broker === 'DERIV' ? 'SELL (CRASH)' : 'SELL (SHORT)'}</button>
+                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'BUY' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'BUY' ? 'bg-red-600 text-white' : 'text-gray-600 hover:text-white'}`}>{broker === 'DERIV' ? 'COMPRA (BOOM)' : 'COMPRA (LONG)'}</button>
+                                    <button type="button" onClick={() => setSignalForm({ ...signalForm, type: 'SELL' })} className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${signalForm.type === 'SELL' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-white'}`}>{broker === 'DERIV' ? 'VENTA (CRASH)' : 'VENTA (SHORT)'}</button>
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">ENTRY PRICE</label>
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">PRECIO DE ENTRADA</label>
                                 <input type="text" value={signalForm.entry} onChange={e => setSignalForm({ ...signalForm, entry: e.target.value })} className="w-full bg-white/5 border border-white/10 p-3 text-xs font-black text-white outline-none" />
                             </div>
                         </div>
@@ -262,7 +262,7 @@ const SignalCenter = ({ broadcastSignal }) => {
 
                         <div className="flex gap-2">
                             <button disabled={broadcasting} className={`flex-1 py-5 text-white font-black italic text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-4 ${broker === 'DERIV' ? 'bg-red-600' : 'bg-blue-600'}`}>
-                                {broadcasting ? 'TRANSMITTING...' : (editingSignalId ? 'UPDATE BROADCAST' : 'EXECUTE BROADCAST')}
+                                {broadcasting ? 'TRANSMITIENDO...' : (editingSignalId ? 'ACTUALIZAR SEÑAL' : 'EJECUTAR TRANSMISIÓN')}
                                 {!broadcasting && <Rocket size={18} />}
                             </button>
                             {editingSignalId && (
@@ -276,7 +276,7 @@ const SignalCenter = ({ broadcastSignal }) => {
                     {broker === 'DERIV' ? (
                         <>
                             <div className="bg-red-950/20 border border-red-900/40 p-5">
-                                <p className="text-[10px] font-black text-red-600 uppercase mb-4 italic">BOOM TACTICAL ZONE</p>
+                                <p className="text-[10px] font-black text-red-600 uppercase mb-4 italic">ZONA TÁCTICA BOOM</p>
                                 <div className="grid grid-cols-3 gap-2">
                                     {['BOOM 1000', 'BOOM 900', 'BOOM 600', 'BOOM 500', 'BOOM 300'].map(p => (
                                         <button key={p} onClick={() => quickSignal(p, 'BUY')} className="py-4 bg-red-600/10 border border-red-600/20 text-xs font-black hover:bg-red-600 hover:text-white transition-all">{p.split(' ')[1]}</button>
@@ -284,7 +284,7 @@ const SignalCenter = ({ broadcastSignal }) => {
                                 </div>
                             </div>
                             <div className="bg-blue-950/20 border border-blue-900/40 p-5">
-                                <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">CRASH TACTICAL ZONE</p>
+                                <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">ZONA TÁCTICA CRASH</p>
                                 <div className="grid grid-cols-3 gap-2">
                                     {['CRASH 1000', 'CRASH 900', 'CRASH 600', 'CRASH 500', 'CRASH 300'].map(p => (
                                         <button key={p} onClick={() => quickSignal(p, 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-xs font-black hover:bg-blue-600 hover:text-white transition-all">{p.split(' ')[1]}</button>
@@ -295,7 +295,7 @@ const SignalCenter = ({ broadcastSignal }) => {
                     ) : (
                         <>
                             <div className="bg-blue-950/20 border border-blue-900/40 p-5 col-span-2">
-                                <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">WELTRADE QUICK ENTRY (GAINX/PAINX)</p>
+                                <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">ENTRADA RÁPIDA WELTRADE (GAINX/PAINX)</p>
                                 <div className="grid grid-cols-4 lg:grid-cols-6 gap-2">
                                     {['GainX 600', 'GainX 800', 'GainX 1000', 'GainX 1200', 'PainX 400', 'PainX 600', 'PainX 800', 'PainX 1200'].map(p => (
                                         <button key={p} onClick={() => quickSignal(p, p.startsWith('G') ? 'BUY' : 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-[9px] font-black hover:bg-blue-600 hover:text-white transition-all">{p}</button>
@@ -308,7 +308,7 @@ const SignalCenter = ({ broadcastSignal }) => {
             </div>
 
             <div className="xl:col-span-4 space-y-4">
-                <h3 className="text-sm font-black text-gray-600 uppercase tracking-widest flex items-center gap-2"><Clock size={14} /> RECENT LOGS</h3>
+                <h3 className="text-sm font-black text-gray-600 uppercase tracking-widest flex items-center gap-2"><Clock size={14} /> REGISTROS RECIENTES</h3>
                 <div className="space-y-3 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
                     {recentSignals.map(sig => (
                         <div key={sig.id} className="bg-black/40 border border-white/5 p-4 group hover:border-red-600/30 transition-all">
@@ -322,21 +322,21 @@ const SignalCenter = ({ broadcastSignal }) => {
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase">ENTRY: <span className="text-white">{sig.entry}</span></p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase">ENTRADA: <span className="text-white">{sig.entry}</span></p>
                                         {/* Status Badge */}
                                         {sig.status === 'WON' && (
                                             <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-green-600/20 text-green-400 border border-green-600/30">
-                                                WIN
+                                                GANADA
                                             </span>
                                         )}
                                         {sig.status === 'LOST' && (
                                             <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-red-600/20 text-red-400 border border-red-600/30">
-                                                LOSS
+                                                PERDIDA
                                             </span>
                                         )}
                                         {sig.status === 'ACTIVE' && (
                                             <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-yellow-600/20 text-yellow-400 border border-yellow-600/30 animate-pulse">
-                                                ACTIVE
+                                                ACTIVA
                                             </span>
                                         )}
                                     </div>

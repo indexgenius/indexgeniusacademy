@@ -53,10 +53,10 @@ const CellManager = () => {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
             <form onSubmit={createCell} className="space-y-4 bg-black border border-white/5 p-6">
-                <input placeholder="CELL NAME" value={groupName} onChange={e => setGroupName(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3 text-white outline-none" />
-                <input placeholder="LINK" value={groupLink} onChange={e => setGroupLink(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3 text-white outline-none" />
-                <textarea placeholder="DESC" value={groupDesc} onChange={e => setGroupDesc(e.target.value)} className="w-full h-24 bg-white/5 border border-white/10 p-3 text-white outline-none" />
-                <button className="w-full py-3 bg-red-600 text-white font-black uppercase text-xs">ACTIVATE CELL</button>
+                <input placeholder="NOMBRE DE LA CÉLULA" value={groupName} onChange={e => setGroupName(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3 text-white outline-none" />
+                <input placeholder="ENLACE" value={groupLink} onChange={e => setGroupLink(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3 text-white outline-none" />
+                <textarea placeholder="DESCRIPCIÓN" value={groupDesc} onChange={e => setGroupDesc(e.target.value)} className="w-full h-24 bg-white/5 border border-white/10 p-3 text-white outline-none" />
+                <button className="w-full py-3 bg-red-600 text-white font-black uppercase text-xs">ACTIVAR CÉLULA</button>
             </form>
             <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {groupsList.map((g, idx) => (
@@ -68,7 +68,7 @@ const CellManager = () => {
                         <div className="flex flex-col gap-2">
                             <button onClick={() => moveGroup(idx, 'up')} className="p-1 bg-white/5"><ChevronUp size={14} /></button>
                             <button onClick={() => moveGroup(idx, 'down')} className="p-1 bg-white/5"><ChevronDown size={14} /></button>
-                            <button onClick={async () => { if (confirm('DELETE?')) await deleteDoc(doc(db, "groups", g.id)) }} className="p-1 text-red-600"><Trash2 size={14} /></button>
+                            <button onClick={async () => { if (confirm('¿ELIMINAR?')) await deleteDoc(doc(db, "groups", g.id)) }} className="p-1 text-red-600"><Trash2 size={14} /></button>
                         </div>
                     </div>
                 ))}

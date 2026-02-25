@@ -2,18 +2,18 @@ import { LayoutDashboard, Users, User, Settings, LogOut, TrendingUp, Zap, Menu, 
 
 const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, isSupreme, unreadAnnouncements = 0 }) => {
     const menuItems = [
-        { id: 'dashboard', icon: LayoutDashboard, label: 'SIGNALS' },
-        { id: 'live-classes', icon: Video, label: 'LIVE CLASSES' },
-        { id: 'trading-history', icon: History, label: 'TRADING HISTORY' },
-        { id: 'monthly-history', icon: TrendingUp, label: 'MONTHLY HISTORY' },
-        { id: 'academy', icon: GraduationCap, label: 'ACADEMY' },
-        { id: 'templates', icon: FileCode, label: 'TEMPLATES' },
-        { id: 'affiliate', icon: Users, label: 'AFFILIATE' },
+        { id: 'dashboard', icon: LayoutDashboard, label: 'SEÑALES' },
+        { id: 'live-classes', icon: Video, label: 'CLASES EN VIVO' },
+        { id: 'trading-history', icon: History, label: 'HISTORIAL TRADING' },
+        { id: 'monthly-history', icon: TrendingUp, label: 'HISTORIAL MENSUAL' },
+        { id: 'academy', icon: GraduationCap, label: 'ACADEMIA' },
+        { id: 'templates', icon: FileCode, label: 'PLANTILLAS' },
+        { id: 'affiliate', icon: Users, label: 'AFILIADOS' },
         ...(isSupreme ? [{ id: 'supreme', icon: Zap, label: 'SUPREME' }] : []),
         ...(canBroadcast ? [{ id: 'admin', icon: Shield, label: 'ADMIN' }] : []),
-        { id: 'groups', icon: Users, label: 'GROUPS' },
-        { id: 'announcements', icon: Megaphone, label: 'NEWS', count: unreadAnnouncements },
-        { id: 'profile', icon: User, label: 'PROFILE' },
+        { id: 'groups', icon: Users, label: 'GRUPOS' },
+        { id: 'announcements', icon: Megaphone, label: 'NOTICIAS', count: unreadAnnouncements },
+        { id: 'profile', icon: User, label: 'PERFIL' },
     ];
 
     const handleTabClick = (id) => {
@@ -33,7 +33,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
             )}
 
             <aside
-                className={`w-64 h-screen bg-black border-r border-white/5 flex flex-col fixed left-0 top-0 transition-transform duration-500 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`w-64 h-screen bg-black border-r border-white/5 flex flex-col fixed left-0 top-0 transition-transform duration-500 ease-in-out lg:translate-x-0 overflow-y-auto custom-scrollbar ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 style={{ zIndex: 9999 }}
             >
                 <div className="p-6 lg:p-10 flex flex-col items-start gap-4">
@@ -79,7 +79,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
                 <div className="p-6 lg:p-8 space-y-4">
                     <div className="p-4 bg-white/5 border border-white/5 rounded-none flex items-center gap-3">
                         <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
-                        <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">SIGNAL BOT: ON</span>
+                        <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">CORRIENDO SEÑALES: ON</span>
                     </div>
 
                     <button
@@ -87,7 +87,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
                         className="w-full flex items-center gap-4 px-6 py-3 text-gray-500 hover:text-red-500 transition-colors uppercase font-black text-[10px] tracking-widest text-left"
                     >
                         <LogOut size={16} />
-                        <span>LOGOUT SESSION</span>
+                        <span>CERRAR SESIÓN</span>
                     </button>
                 </div>
             </aside>

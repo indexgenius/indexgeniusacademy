@@ -26,22 +26,22 @@ const AccessKeys = ({ user }) => {
     return (
         <div className="space-y-8 pt-8">
             <div className="bg-black border border-white/10 p-8 text-center max-w-xl mx-auto">
-                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest mb-4">GENERATE ACCESS KEY</h3>
+                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest mb-4">GENERAR LLAVE DE ACCESO</h3>
                 <div className="text-4xl font-mono font-bold text-white mb-6 select-all">{generatedKey || '____-____-____'}</div>
                 <button onClick={generateNewKey} disabled={loading} className="px-8 py-3 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">
-                    {loading ? 'GENERATING...' : 'GENERATE NEW KEY'}
+                    {loading ? 'GENERANDO...' : 'GENERAR NUEVA LLAVE'}
                 </button>
             </div>
 
             <div className="bg-black border border-white/10 p-8">
-                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest mb-6">ACTIVE CLEARANCE KEYS</h3>
+                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest mb-6">LLAVES DE ACCESO ACTIVAS</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {keys.map(k => (
                         <div key={k.id} className="p-4 bg-white/5 border border-white/10 flex justify-between items-center group">
                             <div>
                                 <p className={`font-mono font-bold ${k.valid ? 'text-green-500' : 'text-gray-600'}`}>{k.id}</p>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className={`text-[8px] font-black px-2 py-0.5 ${k.valid ? 'bg-green-600/10 text-green-500' : 'bg-red-600/10 text-red-600'}`}>{k.valid ? 'VALID' : 'USED'}</span>
+                                    <span className={`text-[8px] font-black px-2 py-0.5 ${k.valid ? 'bg-green-600/10 text-green-500' : 'bg-red-600/10 text-red-600'}`}>{k.valid ? 'VALÍDA' : 'USADA'}</span>
                                     <span className="text-[8px] text-gray-600 uppercase">{k.createdAt?.toMillis() ? new Date(k.createdAt.toMillis()).toLocaleDateString() : 'N/A'}</span>
                                 </div>
                             </div>

@@ -32,7 +32,7 @@ const UserManagement = ({ adminUser }) => {
     }, []);
 
     const handleApprove = async (userDoc) => {
-        if (!confirm(`APPROVE ACCESS FOR ${userDoc.email}?`)) return;
+        if (!confirm(`¿APROBAR ACCESO PARA ${userDoc.email}?`)) return;
         try {
             const now = new Date();
             const expiry = new Date();
@@ -58,8 +58,8 @@ const UserManagement = ({ adminUser }) => {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title: "ACCESS GRANTED",
-                    body: "WELCOME TO INDEX GENIUS GOLD. YOUR ACCOUNT IS ACTIVE.",
+                    title: "ACCESO CONCEDIDO",
+                    body: "BIENVENIDO A INDEX GENIUS ACADEMY. TU CUENTA ESTÁ ACTIVA.",
                     targetEmail: userDoc.email
                 })
             }).catch(console.error);
@@ -110,23 +110,23 @@ const UserManagement = ({ adminUser }) => {
                 });
             }
 
-            alert("USER APPROVED, NOTIFIED & EMAIL SENT");
+            alert("USUARIO APROBADO, NOTIFICADO Y CORREO ENVIADO");
         } catch (e) {
-            alert("APPROVAL FAILED: " + e.message);
+            alert("FALLO EN LA APROBACIÓN: " + e.message);
         }
     };
 
     const handleReject = async (uid) => {
-        if (!confirm("DENY ACCESS? THIS CANNOT BE UNDONE EASILY.")) return;
+        if (!confirm("¿DENEGAR ACCESO? ESTO NO SE PUEDE DESHACER FÁCILMENTE.")) return;
         try {
             await updateDoc(doc(db, "users", uid), { status: 'rejected' });
         } catch (e) {
-            alert("REJECTION FAILED: " + e.message);
+            alert("FALLO EN EL RECHAZO: " + e.message);
         }
     };
 
     const handleRenew = async (userDoc) => {
-        if (!confirm(`CONFIRM RENEWAL FOR ${userDoc.email}?`)) return;
+        if (!confirm(`¿CONFIRMAR RENOVACIÓN PARA ${userDoc.email}?`)) return;
         try {
             const now = new Date();
             const expiry = new Date();
@@ -148,15 +148,15 @@ const UserManagement = ({ adminUser }) => {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title: "SUBSCRIPTION RENEWED",
-                    body: "YOUR TACTICAL ACCESS HAS BEEN EXTENDED FOR 30 DAYS.",
+                    title: "SUSCRIPCIÓN RENOVADA",
+                    body: "TU ACCESO TÁCTICO HA SIDO EXTENDIDO POR 30 DÍAS.",
                     targetEmail: userDoc.email
                 })
             }).catch(console.error);
 
-            alert("RENEWAL SUCCESSFUL");
+            alert("RENOVACIÓN EXITOSA");
         } catch (e) {
-            alert("RENEWAL FAILED: " + e.message);
+            alert("FALLO EN LA RENOVACIÓN: " + e.message);
         }
     };
 
@@ -169,20 +169,20 @@ const UserManagement = ({ adminUser }) => {
                 subscriptionEnd: expiryDate,
                 subscriptionActive: expiryDate > new Date()
             });
-            alert("EXPIRY UPDATED");
+            alert("EXPIRACIÓN ACTUALIZADA");
             setEditingUser(null);
         } catch (e) {
-            alert("UPDATE FAILED: " + e.message);
+            alert("FALLO EN LA ACTUALIZACIÓN: " + e.message);
         }
     };
 
     const handleDeleteUser = async (uid) => {
-        if (!confirm("PERMANENTLY DELETE USER? THIS CANNOT BE UNDONE.")) return;
+        if (!confirm("¿ELIMINAR PERMANENTEMENTE AL USUARIO? ESTO NO SE PUEDE DESHACER.")) return;
         try {
             await deleteDoc(doc(db, "users", uid));
-            alert("USER ELIMINATED FROM DATABASE");
+            alert("USUARIO ELIMINADO DE LA BASE DE DATOS");
         } catch (e) {
-            alert("DELETION FAILED: " + e.message);
+            alert("FALLO EN LA ELIMINACIÓN: " + e.message);
         }
     };
 
@@ -193,10 +193,10 @@ const UserManagement = ({ adminUser }) => {
 
     return (
         <div className="max-w-2xl mx-auto space-y-8 pt-8">
-            {/* PENDING LIST */}
+            {/* LISTA PENDIENTE */}
             <div className="space-y-4 mb-8 border-b border-white/10 pb-8">
-                <h3 className="text-sm font-black text-yellow-500 uppercase tracking-widest animate-pulse">PENDING APPROVALS ({pendingUsers.length})</h3>
-                {pendingUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">NO PENDING REQUESTS</p>}
+                <h3 className="text-sm font-black text-yellow-500 uppercase tracking-widest animate-pulse">APROBACIONES PENDIENTES ({pendingUsers.length})</h3>
+                {pendingUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">SIN SOLICITUDES PENDIENTES</p>}
                 {pendingUsers.map(u => (
                     <div key={u.id} className="bg-white/5 p-4 border-l-2 border-yellow-500 space-y-3">
                         <div className="flex justify-between items-center">
@@ -226,8 +226,8 @@ const UserManagement = ({ adminUser }) => {
                                 </div>
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={() => handleApprove(u)} className="px-4 py-2 bg-green-500/20 text-green-500 text-[10px] font-black border border-green-500/50 hover:bg-green-500 hover:text-black transition-all uppercase tracking-widest">ACCEPT</button>
-                                <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENY</button>
+                                <button onClick={() => handleApprove(u)} className="px-4 py-2 bg-green-500/20 text-green-500 text-[10px] font-black border border-green-500/50 hover:bg-green-500 hover:text-black transition-all uppercase tracking-widest">ACEPTAR</button>
+                                <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENEGAR</button>
                             </div>
                         </div>
 
@@ -249,10 +249,10 @@ const UserManagement = ({ adminUser }) => {
                 ))}
             </div>
 
-            {/* RENEWAL LIST */}
+            {/* LISTA DE RENOVACIÓN */}
             <div className="space-y-4 mb-8 border-b border-white/10 pb-8">
-                <h3 className="text-sm font-black text-blue-500 uppercase tracking-widest animate-pulse">RENEWAL REQUESTS ({renewalUsers.length})</h3>
-                {renewalUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">NO RENEWAL REQUESTS</p>}
+                <h3 className="text-sm font-black text-blue-500 uppercase tracking-widest animate-pulse">SOLICITUDES DE RENOVACIÓN ({renewalUsers.length})</h3>
+                {renewalUsers.length === 0 && <p className="text-[10px] text-gray-600 italic tracking-widest">SIN SOLICITUDES DE RENOVACIÓN</p>}
                 {renewalUsers.map(u => (
                     <div key={u.id} className="bg-white/5 p-4 flex justify-between items-center border-l-2 border-blue-500">
                         <div className="flex items-center gap-4">
@@ -265,24 +265,24 @@ const UserManagement = ({ adminUser }) => {
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-white uppercase">{u.email}</p>
-                                <p className="text-[9px] text-gray-500 uppercase tracking-wider">REQUESTED RENEWAL</p>
+                                <p className="text-[9px] text-gray-500 uppercase tracking-wider">SOLICITÓ RENOVACIÓN</p>
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={() => handleRenew(u)} className="px-4 py-2 bg-blue-500/20 text-blue-500 text-[10px] font-black border border-blue-500/50 hover:bg-blue-500 hover:text-black transition-all uppercase tracking-widest">RENEW 30 DAYS</button>
-                            <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENY</button>
+                            <button onClick={() => handleRenew(u)} className="px-4 py-2 bg-blue-500/20 text-blue-500 text-[10px] font-black border border-blue-500/50 hover:bg-blue-500 hover:text-black transition-all uppercase tracking-widest">RENOVAR 30 DÍAS</button>
+                            <button onClick={() => handleReject(u.id)} className="px-4 py-2 bg-red-600/20 text-red-600 text-[10px] font-black border border-red-600/50 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">DENEGAR</button>
                         </div>
                     </div>
                 ))}
             </div>
 
             <div className="space-y-6">
-                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest">ADVANCED TACTICAL SEARCH</h3>
+                <h3 className="text-sm font-black text-gray-500 uppercase tracking-widest">BÚSQUEDA TÁCTICA AVANZADA</h3>
                 <div className="flex gap-2">
                     <input
                         value={userFilter}
                         onChange={e => setUserFilter(e.target.value)}
-                        placeholder="FILTER BY EMAIL OR NAME..."
+                        placeholder="FILTRAR POR EMAIL O NOMBRE..."
                         className="flex-1 bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none placeholder:text-gray-600 focus:border-red-600 transition-colors"
                     />
                     <div className="p-4 bg-white/5 text-gray-600 border border-white/10">
@@ -304,13 +304,13 @@ const UserManagement = ({ adminUser }) => {
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-xs font-black text-white uppercase truncate">{u.email}</p>
-                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest truncate">{u.displayName || 'ANONYMOUS UNIT'}</p>
+                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest truncate">{u.displayName || 'UNIDAD ANÓNIMA'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${u.subscriptionActive ? 'bg-green-500 animate-pulse' : 'bg-red-600'}`}></div>
                                     <span className="text-[8px] font-black text-gray-500 uppercase">
-                                        {u.subscriptionActive ? 'ACTIVE' : 'EXPIRED'}
+                                        {u.subscriptionActive ? 'ACTIVO' : 'EXPIRADO'}
                                     </span>
                                 </div>
                             </div>
@@ -326,23 +326,23 @@ const UserManagement = ({ adminUser }) => {
                                     }}
                                     className="px-4 py-3 lg:px-3 lg:py-1 bg-blue-600 text-white text-[10px] lg:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20"
                                 >
-                                    EDIT ACCESS
+                                    EDITAR ACCESO
                                 </button>
                                 <button
                                     onClick={() => handleDeleteUser(u.id)}
                                     className="px-4 py-3 lg:px-3 lg:py-1 bg-red-600 text-white text-[10px] lg:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-red-600/20"
                                 >
-                                    DELETE
+                                    ELIMINAR
                                 </button>
                                 <button
                                     onClick={async () => {
                                         const current = u.canBroadcast;
                                         await updateDoc(doc(db, "users", u.id), { canBroadcast: !current });
-                                        alert(`OPERATOR STATUS: ${!current ? 'ON' : 'OFF'}`);
+                                        alert(`ESTADO DEL OPERADOR: ${!current ? 'ENCENDIDO' : 'APAGADO'}`);
                                     }}
                                     className={`px-4 py-3 lg:px-3 lg:py-1 text-[10px] lg:text-[9px] font-black uppercase tracking-widest border-2 ${u.canBroadcast ? 'border-red-600 text-red-600 bg-red-600/10' : 'border-white/20 text-white/40 bg-black/40'}`}
                                 >
-                                    {u.canBroadcast ? 'DISABLE OPS' : 'ENABLE OPS'}
+                                    {u.canBroadcast ? 'DESACTIVAR OPS' : 'ACTIVAR OPS'}
                                 </button>
                             </div>
                         </div>
@@ -354,13 +354,13 @@ const UserManagement = ({ adminUser }) => {
                 <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-6">
                     <div className="bg-black border border-white/5 p-8 max-w-md w-full space-y-6 shadow-red-glow">
                         <div className="flex justify-between items-start">
-                            <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">RE-CONFIGURE ACCESS</h3>
+                            <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">RE-CONFIGURAR ACCESO</h3>
                             <button onClick={() => setEditingUser(null)} className="text-gray-500 hover:text-white"><StopCircle /></button>
                         </div>
                         <p className="text-xs text-gray-500 font-bold uppercase">{editingUser.email}</p>
                         <form onSubmit={handleUpdateExpiry} className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">EXPIRATION DATE</label>
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">FECHA DE EXPIRACIÓN</label>
                                 <input
                                     type="date"
                                     value={editExpiry}
@@ -369,7 +369,7 @@ const UserManagement = ({ adminUser }) => {
                                 />
                             </div>
                             <button className="w-full py-4 bg-red-600 text-white font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
-                                AUTHORIZE UPDATE
+                                AUTORIZAR ACTUALIZACIÓN
                             </button>
                         </form>
                     </div>

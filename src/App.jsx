@@ -170,6 +170,12 @@ function App() {
   }, [isAdmin, reconnectTrigger]);
 
   const [showAuth, setShowAuth] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState('login');
+
+  const triggerAuth = (mode = 'login') => {
+    setAuthInitialMode(mode);
+    setShowAuth(true);
+  };
 
   // --- GATING LOGIC ---
   // 0. If it's a Reset Password flow
@@ -178,17 +184,19 @@ function App() {
   // 1. If no user, handle Landing vs Login
   if (!user) {
     if (!isStandalone && !showAuth) {
-      return <Landing onShowAuth={() => setShowAuth(true)} />;
+      return <Landing onShowAuth={(mode) => triggerAuth(mode)} />;
     }
-    return <Login onLogin={(u) => {
-      login(u);
-      setShowAuth(false);
-      // If user is brand new (created just now or payment_required), 
-      // we might want to flag that they should see the guide
-      if (u.status === 'payment_required') {
-        localStorage.setItem('show_onboarding', 'true');
-      }
-    }} />;
+    return <Login
+      initialMode={authInitialMode}
+      onLogin={(u) => {
+        login(u);
+        setShowAuth(false);
+        // If user is brand new (created just now or payment_required), 
+        // we might want to flag that they should see the guide
+        if (u.status === 'payment_required') {
+          localStorage.setItem('show_onboarding', 'true');
+        }
+      }} />;
   }
 
   // 2. If user exists, handle status gating

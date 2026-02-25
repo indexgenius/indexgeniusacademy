@@ -206,7 +206,7 @@ const CEOSection = ({ onBack, onShowAuth }) => {
 
                     <div className="pt-8">
                         <button
-                            onClick={onShowAuth}
+                            onClick={() => onShowAuth('register')}
                             className="bg-red-600 text-white px-16 py-8 font-black italic text-sm lg:text-lg uppercase tracking-[0.4em] skew-x-[-12deg] shadow-2xl shadow-red-600/30 hover:bg-black hover:scale-110 transition-all flex items-center justify-center gap-6 mx-auto group"
                         >
                             ÚNETE A LA ACADEMIA

@@ -100,10 +100,10 @@ const Hero = ({ view }) => {
                     {/* Features List - Grid layout for better mobile space */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-5xl w-full px-4 md:px-0">
                         {[
-                            { label: "Señales Pro", desc: "Tiempo Real" },
+                            { label: "Señales", desc: "Tiempo Real" },
                             { label: "Educación", desc: "Paso a Paso" },
                             { label: "Software", desc: "Exclusivo" },
-                            { label: "Soporte", desc: "Élite 24/7" }
+                            { label: "Soporte", desc: "24/7" }
                         ].map((feature, i) => (
                             <motion.div
                                 key={i}
@@ -133,10 +133,10 @@ const Hero = ({ view }) => {
                         </button>
 
                         <button
-                            onClick={() => document.getElementById('services').scrollIntoView({ behavior: 'smooth' })}
+                            onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })}
                             className="px-8 py-4 border-2 border-black text-black font-black italic text-[10px] lg:text-xs tracking-[0.2em] uppercase transition-all skew-x-[-12deg] hover:bg-black hover:text-white"
                         >
-                            VER SERVICIOS
+                            VER PLANES
                         </button>
                     </div>
                 </div>

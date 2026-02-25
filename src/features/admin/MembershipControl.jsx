@@ -39,7 +39,7 @@ const MembershipControl = () => {
     };
 
     const setLifetime = async (userId, userEmail) => {
-        if (!confirm(`GRANT LIFETIME ACCESS TO ${userEmail}?`)) return;
+        if (!confirm(`¿OTORGAR ACCESO DE POR VIDA A ${userEmail}?`)) return;
         setProcessing(true);
         try {
             // Set date to year 9999
@@ -48,7 +48,7 @@ const MembershipControl = () => {
                 subscriptionEnd: Timestamp.fromDate(lifetimeEnd),
                 status: 'approved'
             });
-            alert(`LIFETIME ACCESS GRANTED TO ${userEmail}`);
+            alert(`ACCESO DE POR VIDA OTORGADO A ${userEmail}`);
         } catch (error) {
             console.error(error);
             alert("Error: " + error.message);
@@ -57,7 +57,7 @@ const MembershipControl = () => {
     };
 
     const deactivateUser = async (userId, userEmail) => {
-        if (!confirm(`DEACTIVATE SUBSCRIPTION FOR ${userEmail}? This will expire them immediately.`)) return;
+        if (!confirm(`¿DESACTIVAR SUSCRIPCIÓN PARA ${userEmail}? Esto la expirará inmediatamente.`)) return;
         setProcessing(true);
         try {
             // Set date to yesterday
@@ -67,7 +67,7 @@ const MembershipControl = () => {
                 subscriptionEnd: Timestamp.fromDate(yesterday),
                 status: 'payment_required'
             });
-            alert(`SUBSCRIPTION DEACTIVATED FOR ${userEmail}`);
+            alert(`SUSCRIPCIÓN DESACTIVADA PARA ${userEmail}`);
         } catch (error) {
             console.error(error);
             alert("Error: " + error.message);
@@ -76,11 +76,11 @@ const MembershipControl = () => {
     };
 
     const deleteUser = async (userId, userEmail) => {
-        if (!confirm(`PERMANENTLY DELETE ${userEmail}? THIS CANNOT BE UNDONE. If the user joins again, they will start as a new unit.`)) return;
+        if (!confirm(`¿ELIMINAR PERMANENTEMENTE A ${userEmail}? ESTO NO SE PUEDE DESHACER. Si el usuario se une de nuevo, comenzará como una unidad nueva.`)) return;
         setProcessing(true);
         try {
             await deleteDoc(doc(db, "users", userId));
-            alert(`USER ${userEmail} ELIMINATED FROM SYSTEM`);
+            alert(`USUARIO ${userEmail} ELIMINADO DEL SISTEMA`);
         } catch (error) {
             console.error(error);
             alert("Error: " + error.message);
@@ -89,7 +89,7 @@ const MembershipControl = () => {
     };
 
     const extendMembership = async (userId, userEmail, currentEnd, days) => {
-        if (!confirm(`Add ${days} days to ${userEmail}?`)) return;
+        if (!confirm(`¿Agregar ${days} días a ${userEmail}?`)) return;
         setProcessing(true);
         try {
             let newEnd;
@@ -127,7 +127,7 @@ const MembershipControl = () => {
                 status: 'approved'
             });
 
-            alert(`Added ${days} days to ${userEmail}`);
+            alert(`Se agregaron ${days} días a ${userEmail}`);
         } catch (error) {
             console.error(error);
             alert("Error: " + error.message);
@@ -136,7 +136,7 @@ const MembershipControl = () => {
     };
 
     const extendAllMemberships = async () => {
-        if (!confirm(`WARNING: This will add ${extensionDays} days to ALL ${users.length} users. Are you sure?`)) return;
+        if (!confirm(`ADVERTENCIA: Esto agregará ${extensionDays} días a los ${users.length} usuarios. ¿Está seguro?`)) return;
         setProcessing(true);
         try {
             const batchSize = 500;
@@ -189,7 +189,7 @@ const MembershipControl = () => {
                 await batch.commit();
             }
 
-            alert(`Successfully processed massive extension for all users.`);
+            alert(`Se procesó con éxito la extensión masiva para todos los usuarios.`);
         } catch (error) {
             console.error(error);
             alert("Error in massive update: " + error.message);
@@ -206,12 +206,12 @@ const MembershipControl = () => {
         <div className="space-y-6">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-white/10 pb-6">
                 <div>
-                    <h3 className="text-xl font-black italic text-white uppercase flex items-center gap-2"><Clock className="text-red-600" /> MEMBERSHIP CONTROL</h3>
-                    <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">MANAGE SUBSCRIPTION TIMES & EXTENSIONS</p>
+                    <h3 className="text-xl font-black italic text-white uppercase flex items-center gap-2"><Clock className="text-red-600" /> CONTROL DE MEMBRESÍAS</h3>
+                    <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">GESTIONAR TIEMPOS DE SUSCRIPCIÓN Y EXTENSIONES</p>
                 </div>
 
                 <div className="flex items-center gap-3 w-full lg:w-auto bg-red-900/10 p-4 border border-red-600/20">
-                    <div className="text-[10px] font-black text-red-500 uppercase tracking-widest whitespace-nowrap">MASSIVE RECOVERY:</div>
+                    <div className="text-[10px] font-black text-red-500 uppercase tracking-widest whitespace-nowrap">RECUPERACIÓN MASIVA:</div>
                     <input
                         type="number"
                         value={extensionDays}
@@ -223,7 +223,7 @@ const MembershipControl = () => {
                         disabled={processing}
                         className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 font-black text-[10px] tracking-widest uppercase flex items-center gap-2 transition-all disabled:opacity-50"
                     >
-                        {processing ? 'PROCESSING...' : 'ADD DAYS TO ALL'}
+                        {processing ? 'PROCESANDO...' : 'SUMAR DÍAS A TODOS'}
                     </button>
                 </div>
             </div>
@@ -233,7 +233,7 @@ const MembershipControl = () => {
                     <Search className="text-gray-500" size={18} />
                     <input
                         type="text"
-                        placeholder="SEARCH OPERATOR BY EMAIL OR NAME..."
+                        placeholder="BUSCAR OPERADOR POR EMAIL O NOMBRE..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="bg-transparent w-full text-white font-bold text-sm outline-none placeholder:text-gray-600 uppercase"
@@ -243,10 +243,10 @@ const MembershipControl = () => {
                 <div className="space-y-4">
                     {/* Header - Only Desktop */}
                     <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/10">
-                        <div className="col-span-4">OPERATOR</div>
-                        <div className="col-span-2 text-center">STATUS</div>
-                        <div className="col-span-2 text-center">EXPIRATION</div>
-                        <div className="col-span-4 text-right">ACTIONS</div>
+                        <div className="col-span-4">OPERADOR</div>
+                        <div className="col-span-2 text-center">ESTADO</div>
+                        <div className="col-span-2 text-center">EXPIRACIÓN</div>
+                        <div className="col-span-4 text-right">ACCIONES</div>
                     </div>
 
                     <div className="space-y-3">
@@ -259,7 +259,7 @@ const MembershipControl = () => {
                                             <UserCheck size={16} className="text-gray-400" />
                                         </div>
                                         <div>
-                                            <div className="font-bold text-white text-sm uppercase tracking-tight">{user.displayName || 'UNKNOWN'}</div>
+                                            <div className="font-bold text-white text-sm uppercase tracking-tight">{user.displayName || 'DESCONOCIDO'}</div>
                                             <div className="flex flex-col">
                                                 <div className="text-[10px] text-gray-500 font-mono">{user.email}</div>
                                                 {user.phone && (
@@ -290,21 +290,21 @@ const MembershipControl = () => {
 
                                 {/* Status */}
                                 <div className="lg:col-span-2 flex lg:justify-center items-center gap-3">
-                                    <span className="lg:hidden text-[8px] font-black text-gray-600 uppercase tracking-widest">STATUS:</span>
+                                    <span className="lg:hidden text-[8px] font-black text-gray-600 uppercase tracking-widest">ESTADO:</span>
                                     <span className={`text-[9px] font-black px-2 py-1 border ${user.status === 'approved' ? 'border-green-500/30 text-green-500 bg-green-500/10' : 'border-red-600/30 text-red-600 bg-red-600/10'}`}>
-                                        {user.status || 'PENDING'}
+                                        {user.status === 'approved' ? 'APROBADO' : user.status === 'pending' ? 'PENDIENTE' : 'PAGO REQUERIDO'}
                                     </span>
                                 </div>
 
                                 {/* Expiration */}
                                 <div className="lg:col-span-2 flex lg:flex-col lg:items-center justify-start gap-3">
-                                    <span className="lg:hidden text-[8px] font-black text-gray-600 uppercase tracking-widest">EXPIRATION:</span>
+                                    <span className="lg:hidden text-[8px] font-black text-gray-600 uppercase tracking-widest">EXPIRACIÓN:</span>
                                     <div className="lg:text-center">
                                         <div className={`font-black text-xs uppercase ${getStatusColor(user)}`}>
-                                            {getDaysLeft(user)}
+                                            {getDaysLeft(user) === 'EXPIRED' ? 'EXPIRADO' : getDaysLeft(user) === 'LIFETIME' ? 'DE POR VIDA' : getDaysLeft(user).replace('DAYS', 'DÍAS')}
                                         </div>
                                         <div className="text-[9px] text-gray-600 font-mono mt-0.5">
-                                            {user.subscriptionEnd?.toDate ? user.subscriptionEnd.toDate().toLocaleDateString() : 'NO DATA'}
+                                            {user.subscriptionEnd?.toDate ? user.subscriptionEnd.toDate().toLocaleDateString() : 'SIN DATOS'}
                                         </div>
                                     </div>
                                 </div>
@@ -316,40 +316,40 @@ const MembershipControl = () => {
                                             onClick={() => extendMembership(user.id, user.email, user.subscriptionEnd, 3)}
                                             className="flex-1 lg:flex-none px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-black text-white hover:text-green-400 transition-colors uppercase whitespace-nowrap"
                                         >
-                                            +3 DAYS
+                                            +3 DÍAS
                                         </button>
                                         <button
                                             onClick={() => extendMembership(user.id, user.email, user.subscriptionEnd, 7)}
                                             className="flex-1 lg:flex-none px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-black text-white hover:text-blue-400 transition-colors uppercase whitespace-nowrap"
                                         >
-                                            +7 DAYS
+                                            +7 DÍAS
                                         </button>
                                         <button
                                             onClick={() => {
-                                                const days = prompt("Enter days to add:", "30");
+                                                const days = prompt("Ingrese días a sumar:", "30");
                                                 if (days) extendMembership(user.id, user.email, user.subscriptionEnd, days);
                                             }}
                                             className="flex-1 lg:flex-none px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-black text-white hover:text-red-400 transition-colors uppercase whitespace-nowrap"
                                         >
-                                            CUSTOM
+                                            PERSONALIZADO
                                         </button>
                                         <button
                                             onClick={() => setLifetime(user.id, user.email)}
                                             className="flex-1 lg:flex-none px-3 py-2 bg-purple-900/20 hover:bg-purple-900/40 border border-purple-500/30 text-[9px] font-black text-purple-400 hover:text-purple-300 transition-colors uppercase whitespace-nowrap"
                                         >
-                                            LIFETIME
+                                            DE POR VIDA
                                         </button>
                                         <button
                                             onClick={() => deactivateUser(user.id, user.email)}
                                             className="flex-1 lg:flex-none px-3 py-2 bg-yellow-900/20 hover:bg-yellow-900/40 border border-yellow-600/30 text-[9px] font-black text-yellow-500 hover:text-yellow-400 transition-colors uppercase whitespace-nowrap"
                                         >
-                                            DEACTIVATE
+                                            DESACTIVAR
                                         </button>
                                         <button
                                             onClick={() => deleteUser(user.id, user.email)}
                                             className="flex-1 lg:flex-none px-3 py-2 bg-red-900/20 hover:bg-red-900/40 border border-red-600/30 text-[9px] font-black text-red-500 hover:text-red-400 transition-colors uppercase whitespace-nowrap flex items-center justify-center gap-1"
                                         >
-                                            <Trash2 size={12} /> DELETE
+                                            <Trash2 size={12} /> ELIMINAR
                                         </button>
                                     </div>
                                 </div>
@@ -359,7 +359,7 @@ const MembershipControl = () => {
 
                     {filteredUsers.length === 0 && (
                         <div className="p-12 text-center text-gray-500 text-xs font-black uppercase tracking-widest border-2 border-dashed border-white/5 mt-4">
-                            NO OPERATORS FOUND IN SYSTEM
+                            NO SE ENCONTRARON OPERADORES EN EL SISTEMA
                         </div>
                     )}
                 </div>

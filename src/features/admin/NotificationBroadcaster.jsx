@@ -8,10 +8,10 @@ const NotificationBroadcaster = () => {
     const [loading, setLoading] = useState(false);
 
     const TYPE_OPTIONS = [
-        { value: 'ALERT', label: '🔴 TACTICAL ALERT' },
-        { value: 'SIGNAL', label: '🔥 NEW SIGNAL' },
-        { value: 'PROMO', label: '💎 PREMIUM OFFER' },
-        { value: 'SYSTEM', label: '⚙️ SYSTEM UPDATE' },
+        { value: 'ALERT', label: '🔴 ALERTA TÁCTICA' },
+        { value: 'SIGNAL', label: '🔥 NUEVA SEÑAL' },
+        { value: 'PROMO', label: '💎 OFERTA PREMIUM' },
+        { value: 'SYSTEM', label: '⚙️ ACTUALIZACIÓN DE SISTEMA' },
     ];
 
     const handleSend = async (e) => {
@@ -20,7 +20,7 @@ const NotificationBroadcaster = () => {
         setLoading(true);
         try {
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
-            if (!token) throw new Error("UNAUTHORIZED: COMMANDER TOKEN MISSING");
+            if (!token) throw new Error("NO AUTORIZADO: FALTA EL TOKEN DEL COMANDANTE");
 
             const response = await fetch('https://indexgeniusacademy.com/api/broadcast', {
                 method: 'POST',
@@ -38,12 +38,12 @@ const NotificationBroadcaster = () => {
                 })
             });
 
-            if (!response.ok) throw new Error("TRANSMISSION FAILED");
+            if (!response.ok) throw new Error("TRANSMISIÓN FALLIDA");
 
-            alert("TACTICAL BROADCAST EXECUTED SUCCESSFULLY");
+            alert("TRANSMISIÓN TÁCTICA EJECUTADA CON ÉXITO");
             setNotifForm({ title: '', body: '', type: 'ALERT', target: 'EVERYONE' });
         } catch (err) {
-            alert("CRITICAL ERROR: " + err.message);
+            alert("ERROR CRÍTICO: " + err.message);
         }
         setLoading(false);
     };
@@ -55,8 +55,8 @@ const NotificationBroadcaster = () => {
                     <Bell className="text-white" size={24} />
                 </div>
                 <div>
-                    <h3 className="text-xl font-black italic tracking-tighter text-white uppercase leading-none">CUSTOM NOTIFICATION BROADCASTER</h3>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Direct Push Link to Registered Operators</p>
+                    <h3 className="text-xl font-black italic tracking-tighter text-white uppercase leading-none">DIFUSOR DE NOTIFICACIONES PERSONALIZADAS</h3>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Enlace Directo Push a Operadores Registrados</p>
                 </div>
             </div>
 
@@ -65,16 +65,16 @@ const NotificationBroadcaster = () => {
 
                 <div className="space-y-4 relative z-10">
                     <TacticalSelect
-                        label="TRANSMISSION TYPE"
+                        label="TIPO DE TRANSMISIÓN"
                         options={TYPE_OPTIONS}
                         value={notifForm.type}
                         onChange={val => setNotifForm({ ...notifForm, type: val })}
                     />
 
                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">BROADCAST TITLE</label>
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">TÍTULO DE LA TRANSMISIÓN</label>
                         <input
-                            placeholder="e.g. MISSION ACCELERATION"
+                            placeholder="ej. ACELERACIÓN DE MISIÓN"
                             value={notifForm.title}
                             onChange={e => setNotifForm({ ...notifForm, title: e.target.value })}
                             className="w-full bg-white/5 border border-white/10 p-4 text-xs font-black text-white uppercase outline-none focus:border-red-600/50 transition-all"
@@ -82,9 +82,9 @@ const NotificationBroadcaster = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">MESSAGE BODY</label>
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">CUERPO DEL MENSAJE</label>
                         <textarea
-                            placeholder="Type the tactical details of this broadcast..."
+                            placeholder="Escribe los detalles tácticos de esta transmisión..."
                             value={notifForm.body}
                             onChange={e => setNotifForm({ ...notifForm, body: e.target.value })}
                             className="w-full h-32 bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none focus:border-red-600/50 transition-all resize-none"
@@ -94,7 +94,7 @@ const NotificationBroadcaster = () => {
                     <div className="flex items-center gap-4 p-4 bg-red-950/20 border border-red-900/40">
                         <ShieldAlert className="text-red-600 shrink-0" size={20} />
                         <p className="text-[9px] font-bold text-gray-400 uppercase leading-relaxed">
-                            <span className="text-white">WARNING:</span> This broadcast will trigger a push notification to <span className="text-red-600 font-black">ALL REGISTERED UNITS</span>. Verify intel before authorization.
+                            <span className="text-white">ADVERTENCIA:</span> Esta transmisión activará una notificación push a <span className="text-red-600 font-black">TODAS LAS UNIDADES REGISTRADAS</span>. Verifica la información antes de la autorización.
                         </p>
                     </div>
 
@@ -103,7 +103,7 @@ const NotificationBroadcaster = () => {
                         className="w-full py-5 bg-red-600 text-white font-black italic text-xs tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 shadow-red-glow"
                     >
                         {loading ? <RefreshCw className="animate-spin" /> : <Send size={16} />}
-                        {loading ? 'TRANSMITTING...' : 'AUTHORIZE BROADCAST'}
+                        {loading ? 'TRANSMITIENDO...' : 'AUTORIZAR TRANSMISIÓN'}
                     </button>
                 </div>
 

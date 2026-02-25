@@ -19,17 +19,17 @@ const AdminPage = ({ user, broadcastSignal }) => {
     const [subTab, setSubTab] = useState('signals');
 
     const tabs = [
-        { id: 'signals', icon: Radio, label: 'SIGNAL OPS' },
-        { id: 'live', icon: Video, label: 'LIVE BROADCAST' },
-        { id: 'announcements', icon: Megaphone, label: 'INTEL DEPLOY' },
-        { id: 'promos', icon: ImageIcon, label: 'PROMO STACK' },
-        { id: 'notifications', icon: Bell, label: 'PUSH BROADCAST' },
-        { id: 'cells', icon: ShieldCheck, label: 'CELLS MANAGER' },
-        { id: 'academy', icon: BookOpen, label: 'ACADEMY MGMT' },
-        { id: 'users', icon: Users, label: 'USER MGMT' },
-        { id: 'keys', icon: Key, label: 'ACCESS KEYS' },
-        { id: 'memberships', icon: BookOpen, label: 'MEMBERSHIPS' },
-        { id: 'payments', icon: Wallet, label: 'PAYMENT MGMT' },
+        { id: 'signals', icon: Radio, label: 'OPERACIONES SEÑALES' },
+        { id: 'live', icon: Video, label: 'VIVO ACADEMY' },
+        { id: 'announcements', icon: Megaphone, label: 'PUBLICAR NOTICIAS' },
+        { id: 'promos', icon: ImageIcon, label: 'GESTIÓN PROMOS' },
+        { id: 'notifications', icon: Bell, label: 'NOTIFICACIONES PUSH' },
+        { id: 'cells', icon: ShieldCheck, label: 'GESTOR CÉLULAS' },
+        { id: 'academy', icon: BookOpen, label: 'GESTOR ACADEMIA' },
+        { id: 'users', icon: Users, label: 'GESTOR USUARIOS' },
+        { id: 'keys', icon: Key, label: 'LLAVES ACCESO' },
+        { id: 'memberships', icon: BookOpen, label: 'MEMBRESÍAS' },
+        { id: 'payments', icon: Wallet, label: 'GESTOR PAGOS' },
         { id: 'discounts', icon: Tag, label: 'DESCUENTOS' },
     ];
 
@@ -37,10 +37,10 @@ const AdminPage = ({ user, broadcastSignal }) => {
         <div className="space-y-4 lg:space-y-8">
             <div className="flex flex-col gap-2">
                 <h2 className="text-2xl lg:text-4xl font-black italic tracking-tighter text-white uppercase">
-                    COMMAND <span className="text-red-600">CENTER</span>
+                    CENTRO DE <span className="text-red-600">MANDO</span>
                 </h2>
                 <p className="text-[8px] lg:text-[10px] font-bold text-gray-500 tracking-widest uppercase">
-                    ADMINISTRATION LEVEL 5 • AUTHORIZED PERSONNEL
+                    NIVEL DE ADMINISTRACIÓN 5 • PERSONAL AUTORIZADO
                 </p>
             </div>
 

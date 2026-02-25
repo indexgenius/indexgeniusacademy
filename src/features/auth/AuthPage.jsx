@@ -5,9 +5,9 @@ import { auth, googleProvider, db } from '../../firebase';
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
-const AuthPage = ({ onLogin }) => {
+const AuthPage = ({ onLogin, initialMode = 'login' }) => {
     const [email, setEmail] = useState('');
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(initialMode === 'login');
     const [isResetMode, setIsResetMode] = useState(false);
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
@@ -131,7 +131,7 @@ const AuthPage = ({ onLogin }) => {
                     <h1 className="text-6xl font-black italic tracking-tighter text-white uppercase leading-none mb-4">
                         INDEX GENIUS <span className="block text-red-600 text-7xl mt-2">ACADEMY</span>
                     </h1>
-                    <p className="text-sm font-black tracking-[0.3em] text-gray-500 uppercase mt-6">ELITE TRADING SIGNALS • TACTICAL INTELLIGENCE</p>
+                    <p className="text-sm font-black tracking-[0.3em] text-gray-500 uppercase mt-6">SEÑALES DE TRADING DE ÉLITE • INTELIGENCIA TÁCTICA</p>
                 </motion.div>
             </div>
 
@@ -150,10 +150,10 @@ const AuthPage = ({ onLogin }) => {
                         </div>
 
                         <h2 className="text-3xl font-black italic tracking-tighter text-white uppercase mb-2">
-                            {isResetMode ? 'RECOVER ACCESS' : <>INDEX GENIUS <span className="text-red-600">ACADEMY</span></>}
+                            {isResetMode ? 'RECUPERAR ACCESO' : <>INDEX GENIUS <span className="text-red-600">ACADEMY</span></>}
                         </h2>
                         <p className="text-[10px] font-black tracking-[0.3em] text-gray-500 uppercase">
-                            {isResetMode ? 'PASSWORD RECOVERY SYSTEM' : (isLogin ? 'EXCLUSIVE MEMBERS ONLY' : 'EXCLUSIVE REGISTRATION')}
+                            {isResetMode ? 'SISTEMA DE RECUPERACIÓN DE CONTRASEÑA' : (isLogin ? 'SOLO MIEMBROS EXCLUSIVOS' : 'REGISTRO EXCLUSIVO')}
                         </p>
                     </div>
 
@@ -162,10 +162,10 @@ const AuthPage = ({ onLogin }) => {
                             {isResetMode ? (
                                 <motion.div key="reset" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">RECOVERY EMAIL</label>
+                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">EMAIL DE RECUPERACIÓN</label>
                                         <div className="relative">
                                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ENTER YOUR EMAIL" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold uppercase text-white outline-none" />
+                                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="INGRESA TU EMAIL" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold uppercase text-white outline-none" />
                                         </div>
                                     </div>
                                 </motion.div>
@@ -174,17 +174,17 @@ const AuthPage = ({ onLogin }) => {
                                     {!isLogin && (
                                         <>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">USERNAME</label>
+                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">NOMBRE DE USUARIO</label>
                                                 <div className="relative">
                                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="ENTER USERNAME" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="INGRESA NOMBRE DE USUARIO" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">PHONE NUMBER</label>
+                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">NÚMERO DE TELÉFONO</label>
                                                 <div className="relative">
                                                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="ENTER PHONE NUMBER" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="INGRESA TU TELÉFONO" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
                                                 </div>
                                             </div>
                                         </>
@@ -193,18 +193,18 @@ const AuthPage = ({ onLogin }) => {
                                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">EMAIL</label>
                                         <div className="relative">
                                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ENTER EMAIL" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="INGRESA TU EMAIL" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
                                         </div>
                                     </div>
                                     {isLogin && (
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center px-2">
-                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">PASSWORD</label>
-                                                <button type="button" onClick={() => setIsResetMode(true)} className="text-[9px] font-black text-red-600/60 uppercase">FORGOT YOUR PASSWORD?</button>
+                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">CONTRASEÑA</label>
+                                                <button type="button" onClick={() => setIsResetMode(true)} className="text-[9px] font-black text-red-600/60 uppercase">¿OLVIDASTE TU CONTRASEÑA?</button>
                                             </div>
                                             <div className="relative">
                                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="ENTER PASSWORD" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="INGRESA TU CONTRASEÑA" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
                                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                                             </div>
                                         </div>
@@ -218,14 +218,14 @@ const AuthPage = ({ onLogin }) => {
                         {success && <p className="text-[10px] font-black text-green-500 tracking-widest text-center uppercase">{success}</p>}
 
                         <button type="submit" disabled={loading} className="w-full py-5 bg-red-600 text-white font-black italic text-sm tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-4 group disabled:opacity-50">
-                            {loading ? 'PROCESSING...' : (isResetMode ? 'SEND RECOVERY' : (isLogin ? 'LOGIN' : 'REGISTER'))}
+                            {loading ? 'PROCESANDO...' : (isResetMode ? 'ENVIAR RECUPERACIÓN' : (isLogin ? 'INICIAR SESIÓN' : 'REGISTRARME'))}
                             <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                         </button>
                     </form>
 
                     <div className="mt-4 text-center">
                         <button onClick={() => { setIsResetMode(false); setIsLogin(!isLogin); setError(''); setSuccess(''); }} className="text-[10px] font-black text-red-600 hover:text-white uppercase tracking-widest transition-colors border-b border-red-600/30 pb-1">
-                            {isResetMode ? 'BACK TO LOGIN' : (isLogin ? "DON'T HAVE AN ACCOUNT? CREATE IT HERE" : 'ALREADY AUTHORIZED? LOGIN')}
+                            {isResetMode ? 'VOLVER AL INICIO' : (isLogin ? "¿NO TIENES CUENTA? CRÉALA AQUÍ" : '¿YA TIENES CUENTA? INICIA SESIÓN')}
                         </button>
                     </div>
 
@@ -233,7 +233,7 @@ const AuthPage = ({ onLogin }) => {
                         <div className="mt-6">
                             <div className="relative flex py-2 items-center">
                                 <div className="flex-grow border-t border-white/10"></div>
-                                <span className="flex-shrink-0 mx-4 text-[9px] font-black text-gray-600 uppercase tracking-widest">OR ACCESS WITH</span>
+                                <span className="flex-shrink-0 mx-4 text-[9px] font-black text-gray-600 uppercase tracking-widest">O ACCEDE CON</span>
                                 <div className="flex-grow border-t border-white/10"></div>
                             </div>
                             <button onClick={handleGoogleLogin} disabled={loading} className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold text-xs hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 mt-4">

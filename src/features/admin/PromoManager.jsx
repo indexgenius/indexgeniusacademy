@@ -34,10 +34,10 @@ const PromoManager = () => {
             const { uploadToDrive } = await import('../../services/driveService');
             const driveLink = await uploadToDrive(file);
             setEditForm({ ...editForm, videoUrl: driveLink });
-            alert("UPLOAD COMPLETE");
+            alert("SUBIDA COMPLETADA");
         } catch (error) {
             console.error(error);
-            alert("UPLOAD FAILED: " + error.message);
+            alert("FALLO EN LA SUBIDA: " + error.message);
         }
         setUploading(false);
     };
@@ -75,7 +75,7 @@ const PromoManager = () => {
                 });
             }
             setEditingSlot(null);
-            alert("PROMO UPDATED");
+            alert("PROMO ACTUALIZADA");
         } catch (err) { console.error(err); }
         setLoading(false);
     };
@@ -106,13 +106,13 @@ const PromoManager = () => {
     };
 
     const purgeOldData = async () => {
-        if (!confirm("THIS WILL RESET ALL PROMO SETTINGS. CONTINUE?")) return;
+        if (!confirm("ESTO RESTABLECERÁ TODA LA CONFIGURACIÓN DE PROMOS. ¿CONTINUAR?")) return;
         setLoading(true);
         try {
             for (const p of promos) {
                 await deleteDoc(doc(db, "promos", p.id));
             }
-            alert("DATABASE PURGED. YOU CAN NOW RE-ACTIVATE SLOTS.");
+            alert("BASE DE DATOS LIMPIA. AHORA PUEDES RE-ACTIVAR LOS ESPACIOS.");
         } catch (err) { console.error(err); }
         setLoading(false);
     };
@@ -122,8 +122,8 @@ const PromoManager = () => {
     return (
         <div className="max-w-6xl mx-auto pt-8 space-y-8">
             <div className="flex flex-col gap-2 border-b border-white/5 pb-6">
-                <h3 className="text-xl font-black italic text-white uppercase tracking-tighter">TACTICAL ADVERTISING SLOTS</h3>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Control the visibility of marketing intelligence on entry</p>
+                <h3 className="text-xl font-black italic text-white uppercase tracking-tighter">ESPACIOS PUBLICITARIOS TÁCTICOS</h3>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Controla la visibilidad de la inteligencia de marketing al ingresar</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -138,37 +138,37 @@ const PromoManager = () => {
                                 {promo?.videoUrl ? (
                                     <div className="w-full h-full bg-black flex items-center justify-center">
                                         <Power className="text-red-600 animate-pulse" size={48} />
-                                        <span className="absolute bottom-2 right-2 text-[8px] font-black bg-red-600 px-2 py-1 text-white">VIDEO ACTIVE</span>
+                                        <span className="absolute bottom-2 right-2 text-[8px] font-black bg-red-600 px-2 py-1 text-white">VIDEO ACTIVO</span>
                                     </div>
                                 ) : (
                                     <img src={promo?.imageUrl || slot.img} alt={slot.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                                 )}
                                 {!active && <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] -rotate-45 border border-white/20 px-4 py-2">OFLINE</span>
+                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] -rotate-45 border border-white/20 px-4 py-2">FUERA DE LÍNEA</span>
                                 </div>}
                             </div>
 
                             <div className="space-y-1 text-center">
                                 <h4 className="text-xs font-black text-white uppercase">{promo?.title || slot.title}</h4>
-                                <p className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">{slot.id.toUpperCase()} MODULE</p>
+                                <p className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">MÓDULO {slot.id.toUpperCase()}</p>
                             </div>
 
                             {isEditing ? (
                                 <div className="space-y-2 pt-2 bg-white/5 p-4 border border-white/10">
-                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="TITLE" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
-                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="IMAGE URL" value={editForm.imageUrl} onChange={e => setEditForm({ ...editForm, imageUrl: e.target.value })} />
+                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="TÍTULO" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
+                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="URL DE IMAGEN" value={editForm.imageUrl} onChange={e => setEditForm({ ...editForm, imageUrl: e.target.value })} />
                                     <div className="flex gap-1">
-                                        <input className="flex-1 bg-black border border-white/10 p-2 text-[9px] text-white font-bold text-red-500" placeholder="VIDEO URL (DRIVE)" value={editForm.videoUrl} onChange={e => setEditForm({ ...editForm, videoUrl: e.target.value })} />
+                                        <input className="flex-1 bg-black border border-white/10 p-2 text-[9px] text-white font-bold text-red-500" placeholder="URL DE VIDEO (DRIVE)" value={editForm.videoUrl} onChange={e => setEditForm({ ...editForm, videoUrl: e.target.value })} />
                                         <label className="cursor-pointer bg-white/5 border border-white/10 px-2 flex items-center justify-center hover:bg-white hover:text-black transition-all">
                                             {uploading ? <RefreshCw className="animate-spin" size={12} /> : <Plus size={12} />}
                                             <input type="file" className="hidden" onChange={handleFileUpload} accept="video/*" />
                                         </label>
                                     </div>
 
-                                    {/* LIVE PREVIEW */}
+                                    {/* VISTA PREVIA */}
                                     {(editForm.imageUrl || editForm.videoUrl) && (
                                         <div className="p-4 bg-white/5 border border-white/10 space-y-2">
-                                            <p className="text-[8px] font-black text-gray-500 uppercase">Live Intel Preview:</p>
+                                            <p className="text-[8px] font-black text-gray-500 uppercase">Vista Previa:</p>
                                             <div className="aspect-video bg-black flex items-center justify-center overflow-hidden border border-white/5">
                                                 {editForm.videoUrl ? (
                                                     editForm.videoUrl.includes('youtube') ? (
@@ -187,15 +187,15 @@ const PromoManager = () => {
                                         </div>
                                     )}
 
-                                    <textarea className="w-full bg-black border border-white/10 p-2 text-[9px] text-white h-20" placeholder="DESC" value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
-                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="LINK" value={editForm.link} onChange={e => setEditForm({ ...editForm, link: e.target.value })} />
+                                    <textarea className="w-full bg-black border border-white/10 p-2 text-[9px] text-white h-20" placeholder="DESCRIPCIÓN" value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
+                                    <input className="w-full bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="ENLACE" value={editForm.link} onChange={e => setEditForm({ ...editForm, link: e.target.value })} />
                                     <div className="flex items-center gap-2">
-                                        <label className="text-[8px] text-gray-500 font-bold uppercase">Priority Order:</label>
+                                        <label className="text-[8px] text-gray-500 font-bold uppercase">Orden de Prioridad:</label>
                                         <input type="number" className="w-20 bg-black border border-white/10 p-2 text-[9px] text-white" placeholder="0" value={editForm.order} onChange={e => setEditForm({ ...editForm, order: parseInt(e.target.value) || 0 })} />
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={saveEdit} className="flex-1 py-2 bg-green-600 text-white text-[9px] font-black uppercase">SAVE</button>
-                                        <button onClick={() => setEditingSlot(null)} className="flex-1 py-2 bg-white/10 text-white text-[9px] font-black uppercase">CANCEL</button>
+                                        <button onClick={saveEdit} className="flex-1 py-2 bg-green-600 text-white text-[9px] font-black uppercase">GUARDAR</button>
+                                        <button onClick={() => setEditingSlot(null)} className="flex-1 py-2 bg-white/10 text-white text-[9px] font-black uppercase">CANCELAR</button>
                                     </div>
                                 </div>
                             ) : (
@@ -223,13 +223,13 @@ const PromoManager = () => {
             <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 italic">
                 <div className="w-2 h-2 bg-red-600 animate-pulse"></div>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    SYSTEM INFO: Active slots will be displayed to users in a rotational stack upon platform entry.
+                    INFO DEL SISTEMA: Los espacios activos se mostrarán a los usuarios en un carrusel rotativo al ingresar a la plataforma.
                 </p>
                 <button
                     onClick={purgeOldData}
                     className="ml-auto text-[9px] text-gray-600 hover:text-red-500 underline uppercase tracking-tighter"
                 >
-                    [ RESET PROMO DATABASE ]
+                    [ REINICIAR BASE DE DATOS DE PROMOS ]
                 </button>
             </div>
         </div>

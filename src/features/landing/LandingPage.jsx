@@ -87,7 +87,7 @@ const LandingPage = ({ onShowAuth }) => {
                         </button>
 
                         <button
-                            onClick={onShowAuth}
+                            onClick={() => onShowAuth('register')}
                             className={`hidden lg:block px-6 py-3 lg:px-8 lg:py-4 font-black text-[10px] lg:text-[11px] transition-all skew-x-[-12deg] tracking-[0.2em] uppercase shadow-xl ${view === 'broker'
                                 ? 'bg-[#8158F6] text-white hover:bg-white hover:text-[#090228] shadow-[#8158F6]/30'
                                 : 'bg-red-600 text-white hover:bg-black shadow-red-600/20'
@@ -124,7 +124,7 @@ const LandingPage = ({ onShowAuth }) => {
                                     </>
                                 )}
                                 <button
-                                    onClick={onShowAuth}
+                                    onClick={() => onShowAuth('register')}
                                     className={`mt-4 w-full px-6 py-4 font-black transition-all skew-x-[-12deg] tracking-[0.2em] uppercase shadow-xl text-center ${view === 'broker'
                                         ? 'bg-[#8158F6] text-white hover:bg-white hover:text-[#090228] shadow-[#8158F6]/30'
                                         : 'bg-red-600 text-white hover:bg-black shadow-red-600/20'
