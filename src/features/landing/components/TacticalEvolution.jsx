@@ -15,19 +15,19 @@ const TacticalEvolution = ({ stage = 0 }) => {
         const config = {
             0: { // Quienes Somos (Grid + Squares)
                 particleCount: 20,
-                squareCount: 15,
-                gridOpacity: 0.04,
+                squareCount: 0,
+                gridOpacity: 0,
                 connectionOpacity: 0.2,
                 particleOpacity: 0.3,
-                showSquares: true
+                showSquares: false
             },
             1: { // Nuestra Mision (Transition)
                 particleCount: 50,
-                squareCount: 6,
-                gridOpacity: 0.015,
+                squareCount: 0,
+                gridOpacity: 0,
                 connectionOpacity: 0.35,
                 particleOpacity: 0.5,
-                showSquares: true
+                showSquares: false
             },
             2: { // Nuestros Servicios (Network Only)
                 particleCount: 80,
