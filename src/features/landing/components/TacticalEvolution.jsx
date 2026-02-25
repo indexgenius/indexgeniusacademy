@@ -13,7 +13,7 @@ const TacticalEvolution = ({ stage = 0 }) => {
 
         // Stage-based configuration
         const config = {
-            0: { // Quienes Somos (Grid + Squares)
+            0: { // Quienes Somos (Neural Network Only)
                 particleCount: 20,
                 squareCount: 0,
                 gridOpacity: 0,
