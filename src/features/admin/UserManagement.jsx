@@ -24,7 +24,9 @@ const UserManagement = ({ adminUser }) => {
             setRenewalUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
 
-        const unsubAll = onSnapshot(query(collection(db, "users"), where("status", "==", "approved")), (snapshot) => {
+        // Fetch all users that are not pending or renewal (those are in their own lists)
+        // This includes 'approved', 'payment_required', and others for full visibility
+        const unsubAll = onSnapshot(query(collection(db, "users"), where("status", "in", ["approved", "payment_required", "rejected"])), (snapshot) => {
             setAllUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
 
@@ -405,11 +407,21 @@ const UserManagement = ({ adminUser }) => {
                                         <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest truncate">{u.displayName || 'UNIDAD ANÓNIMA'}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${u.subscriptionActive ? 'bg-green-500 animate-pulse' : 'bg-red-600'}`}></div>
-                                    <span className="text-[8px] font-black text-gray-500 uppercase">
-                                        {u.subscriptionActive ? 'ACTIVO' : 'EXPIRADO'}
-                                    </span>
+                                <div className="flex flex-col items-end gap-1">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2 h-2 rounded-full ${u.status === 'approved' ? (u.subscriptionActive ? 'bg-green-500 animate-pulse' : 'bg-red-600') : 'bg-yellow-500'}`}></div>
+                                        <span className="text-[8px] font-black text-gray-500 uppercase">
+                                            {u.status === 'approved' ? (u.subscriptionActive ? 'ACTIVO' : 'EXPIRADO') : u.status}
+                                        </span>
+                                    </div>
+                                    {u.status === 'payment_required' && (
+                                        <button
+                                            onClick={() => handleApprove(u)}
+                                            className="text-[7px] font-black bg-green-600 text-white px-2 py-0.5 uppercase tracking-tighter"
+                                        >
+                                            APROBAR MANUALMENTE
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
