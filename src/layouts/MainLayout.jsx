@@ -39,8 +39,13 @@ const MainLayout = ({
                 <div className="fixed top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-red-600/5 blur-[150px] -z-10 pointer-events-none"></div>
 
                 <header
-                    className="h-16 lg:h-20 border-b border-white/5 sticky top-0 bg-dark/80 backdrop-blur-xl z-40 flex items-center justify-between px-4 lg:px-10"
-                    style={{ WebkitBackdropFilter: 'blur(20px)' }}
+                    className="border-b border-white/5 sticky top-0 bg-dark/80 backdrop-blur-xl z-40 flex items-center justify-between px-4 lg:px-10"
+                    style={{
+                        WebkitBackdropFilter: 'blur(24px)',
+                        paddingTop: 'env(safe-area-inset-top)',
+                        height: 'calc(4.5rem + env(safe-area-inset-top))',
+                        marginTop: 0
+                    }}
                 >
                     <div className="flex flex-col">
                         <span className="text-[8px] lg:text-[10px] font-black tracking-[0.2em] text-red-600 uppercase italic leading-none mb-1">Status: Authorized (v6.2 - SW FILES)</span>
