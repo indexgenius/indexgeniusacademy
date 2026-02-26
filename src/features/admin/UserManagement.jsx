@@ -68,7 +68,7 @@ const UserManagement = ({ adminUser }) => {
                 })
             }).catch(console.error);
 
-            // 2. Fetch the email template, replace data, and send email via Brevo
+            // 2. Fetch the email template, replace data, and send email via Resend
             try {
                 const responseHtml = await fetch('/testemail.html');
                 if (responseHtml.ok) {
@@ -86,37 +86,91 @@ const UserManagement = ({ adminUser }) => {
                     htmlContent = htmlContent.replace(/{{USER_EMAIL}}/g, userEmail);
                     htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, generatedPassword);
 
-                    // Note: Ideally the endpoint is on production, but we might test locally
-                    // If local Vite server isn't proxying /api, we map it manually or to vercel
-                    // for now pointing to vercel, but maybe it's not deployed yet.
-                    // Instead we use the local running Vite path if available
-                    // For now, hardcode URL to Vercel where the logic executes in backend
-                    await fetch('https://indexgeniusacademy.com/api/auth/send-welcome-email', {
+                    let apiUrl = 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        apiUrl = '/api/auth/send-welcome-email';
+                    }
+
+                    const mailRes = await fetch(apiUrl, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email: userEmail,
                             name: userName,
                             htmlContent: htmlContent
                         })
-                    }).catch(console.error);
+                    });
+
+                    const mailData = await mailRes.json();
+                    if (mailData.success) {
+                        console.log("✅ Welcome email sent successfully");
+                        // Solo borramos la clave temporal si el correo se envió con éxito
+                        if (userDoc.tmpPassword) {
+                            await updateDoc(doc(db, "users", userDoc.id), {
+                                tmpPasswordKey: userDoc.tmpPassword, // Guardamos una copia segura oculta si quieres, o simplemente no la borramos del todo aún
+                                // tmpPassword: null // Lo dejamos por ahora para que el admin pueda verla si el correo falla
+                            });
+                        }
+                    } else {
+                        throw new Error(mailData.error || "Error en el servidor de correo");
+                    }
                 }
             } catch (err) {
-                console.error("Error preparing email:", err);
+                console.error("❌ Error sending welcome email:", err);
+                alert("AVISO: El usuario fue aprobado pero el correo de bienvenida falló: " + err.message);
             }
 
-            // Remove temporary password for security
-            if (userDoc.tmpPassword) {
-                await updateDoc(doc(db, "users", userDoc.id), {
-                    tmpPassword: null
-                });
-            }
-
-            alert("USUARIO APROBADO, NOTIFICADO Y CORREO ENVIADO");
+            alert("SISTEMA: UNIDAD APROBADA Y NOTIFICADA.");
         } catch (e) {
-            alert("FALLO EN LA APROBACIÓN: " + e.message);
+            alert("FALLO CRÍTICO EN LA APROBACIÓN: " + e.message);
+        }
+    };
+
+    const handleResendWelcome = async (user) => {
+        if (!user.tmpPassword && !user.tmpPasswordKey) {
+            alert("NO HAY CONTRASEÑA TEMPORAL REGISTRADA PARA ESTA UNIDAD.");
+            return;
+        }
+
+        setEditUpdating(true);
+        try {
+            const responseHtml = await fetch('/testemail.html');
+            if (!responseHtml.ok) throw new Error("No se pudo cargar la plantilla");
+            let htmlContent = await responseHtml.text();
+
+            const password = user.tmpPassword || user.tmpPasswordKey;
+
+            htmlContent = htmlContent.replace(/{{USER_NAME}}/g, user.displayName || 'Trader');
+            htmlContent = htmlContent.replace(/{{PLAN_NAME}}/g, user.selectedPlan || 'ACCESS');
+            htmlContent = htmlContent.replace(/{{PLAN_PRICE}}/g, user.membershipPrice || '25');
+            htmlContent = htmlContent.replace(/{{USER_EMAIL}}/g, user.email);
+            htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, password);
+
+            let apiUrl = 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                apiUrl = '/api/auth/send-welcome-email';
+            }
+
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user.email,
+                    name: user.displayName,
+                    htmlContent: htmlContent
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert("¡CORREO RE-ENVIADO CON ÉXITO!");
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (e) {
+            alert("ERROR AL RE-ENVIAR: " + e.message);
+        } finally {
+            setEditUpdating(false);
         }
     };
 
@@ -463,7 +517,14 @@ const UserManagement = ({ adminUser }) => {
                             </div>
                         </form>
 
-                        <div className="border-t border-white/10 pt-4">
+                        <div className="border-t border-white/10 pt-4 space-y-3">
+                            <button
+                                onClick={() => handleResendWelcome(editingUser)}
+                                disabled={editUpdating}
+                                className="w-full py-4 bg-blue-600/10 border border-blue-600/50 text-blue-500 font-black text-[10px] tracking-widest uppercase hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50"
+                            >
+                                {editUpdating ? 'PROCESANDO...' : 'REENVIAR BIENVENIDA (CON CLAVE)'}
+                            </button>
                             <button
                                 onClick={() => handleTriggerPasswordReset(editingUser.email)}
                                 className="w-full py-4 bg-yellow-600/10 border border-yellow-600/50 text-yellow-600 font-black text-[10px] tracking-widest uppercase hover:bg-yellow-600 hover:text-black transition-all"
