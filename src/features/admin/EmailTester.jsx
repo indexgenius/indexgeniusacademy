@@ -5,6 +5,7 @@ const EmailTester = ({ adminUser }) => {
     const [testEmail, setTestEmail] = useState('');
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [responseMsg, setResponseMsg] = useState('');
+    const [selectedTemplate, setSelectedTemplate] = useState('standard'); // standard, black_test
 
     const handleTestEmail = async (e) => {
         e.preventDefault();
@@ -15,8 +16,9 @@ const EmailTester = ({ adminUser }) => {
 
         try {
             // Fetch HTML template
-            const responseHtml = await fetch('/testemail.html');
-            if (!responseHtml.ok) throw new Error("No se pudo cargar testemail.html de la carpeta public");
+            const templatePath = selectedTemplate === 'standard' ? '/testemail.html' : '/testblack.html';
+            const responseHtml = await fetch(templatePath);
+            if (!responseHtml.ok) throw new Error(`No se pudo cargar ${templatePath}`);
             let htmlContent = await responseHtml.text();
 
             // Populate mock data
@@ -69,6 +71,25 @@ const EmailTester = ({ adminUser }) => {
                 <div>
                     <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">EMAIL & FACTURA TESTER</h3>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Prueba el envío de correos y adjuntos vía Brevo</p>
+                </div>
+            </div>
+
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pt-2">
+                <div className="flex bg-white/5 border border-white/10 p-1 self-start">
+                    <button
+                        type="button"
+                        onClick={() => setSelectedTemplate('standard')}
+                        className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'standard' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        BIENVENIDA ESTÁNDAR
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedTemplate('black_test')}
+                        className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'black_test' ? 'bg-black border border-red-600 text-red-600 shadow-red-glow' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        TEST NEGRO MÓVIL
+                    </button>
                 </div>
             </div>
 
