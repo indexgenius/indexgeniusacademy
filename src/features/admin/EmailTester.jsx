@@ -60,6 +60,7 @@ const EmailTester = ({ adminUser }) => {
             let templatePath = '/testemail.html';
             if (selectedTemplate === 'black_test') templatePath = '/testblack.html';
             if (selectedTemplate === 'welcome_new') templatePath = '/welcome-email.html';
+            if (selectedTemplate === 'elite_welcome') templatePath = '/elite-welcome.html';
             if (selectedTemplate === 'extension') templatePath = '/extension-email.html';
 
             const responseHtml = await fetch(templatePath);
@@ -150,6 +151,13 @@ const EmailTester = ({ adminUser }) => {
                         className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'black_test' ? 'bg-black border border-red-600 text-red-600 shadow-red-glow' : 'text-gray-500 hover:text-white'}`}
                     >
                         TEST NEGRO MÓVIL
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedTemplate('elite_welcome')}
+                        className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'elite_welcome' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        BIENVENIDA ELITE (SIN INFO)
                     </button>
                 </div>
             </div>

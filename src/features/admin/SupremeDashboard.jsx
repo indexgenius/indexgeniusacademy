@@ -586,6 +586,28 @@ const SupremeDashboard = ({ user: adminUser }) => {
                                                     </button>
                                                     <button
                                                         onClick={async () => {
+                                                            if (!confirm(`¿ENVIAR BIENVENIDA ELITE A ${u.email}?`)) return;
+                                                            try {
+                                                                const responseHtml = await fetch('/elite-welcome.html');
+                                                                if (!responseHtml.ok) return;
+                                                                let htmlContent = await responseHtml.text();
+                                                                htmlContent = htmlContent.replace(/{{USER_NAME}}/g, u.displayName || 'Trader');
+
+                                                                let apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '/api/auth/send-welcome-email' : 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+                                                                await fetch(apiUrl, {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ email: u.email, name: u.displayName || 'Trader', htmlContent: htmlContent })
+                                                                });
+                                                                alert("BIENVENIDA ELITE ENVIADA.");
+                                                            } catch (e) { alert("ERROR AL ENVIAR."); }
+                                                        }}
+                                                        className="py-3 lg:py-2 bg-purple-900/40 text-purple-400 text-[8px] font-black uppercase tracking-widest border border-purple-600/30 hover:bg-purple-600 hover:text-white transition-all flex items-center justify-center gap-1"
+                                                    >
+                                                        <Mail size={10} /> TEST ELITE
+                                                    </button>
+                                                    <button
+                                                        onClick={async () => {
                                                             if (!confirm(`¿ENVIAR NOTIFICACIÓN DE EXTENSIÓN A ${u.email}?`)) return;
                                                             try {
                                                                 const responseHtml = await fetch('/extension-email.html');
