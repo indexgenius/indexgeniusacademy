@@ -3,6 +3,7 @@ import { Check, Copy, ShieldCheck, Zap, ArrowRight, Lock, MessageSquare, Crown, 
 import { db } from '../../firebase';
 import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { nowPaymentsService } from '../../services/nowPaymentsService';
 
 const PLANS = [
     {
@@ -55,6 +56,8 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
     const [discountApplied, setDiscountApplied] = useState(null);
     const [discountLoading, setDiscountLoading] = useState(false);
     const [discountError, setDiscountError] = useState('');
+    const [debugClicks, setDebugClicks] = useState(0);
+    const [debugMode, setDebugMode] = useState(false);
 
     const [selectedPlan, setSelectedPlan] = useState(() => {
         const saved = localStorage.getItem('selectedPlan');
@@ -64,6 +67,11 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         }
         return PLANS[1];
     });
+
+    const [currencies, setCurrencies] = useState([]);
+    const [selectedCurrency, setSelectedCurrency] = useState(null);
+    const [paymentDetails, setPaymentDetails] = useState(null);
+    const [paymentStatus, setPaymentStatus] = useState(null);
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, "payment_methods"), (snapshot) => {
@@ -132,6 +140,103 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         }
     };
 
+    const handleNowPayments = async () => {
+        setLoading(true);
+        try {
+            const data = await nowPaymentsService.getCurrencies();
+            console.log("Currencies from NOWPayments:", data);
+
+            if (!data || !data.currencies) {
+                throw new Error("Respuesta inválida de la API");
+            }
+
+            // Filtrar las más comunes (algunas APIs usan nombres distintos como 'usdt')
+            const popular = ['usdttrc20', 'usdtbec20', 'usdt', 'btc', 'ltc', 'eth', 'trx', 'bnb', 'bnbmainnet'];
+            let filtered = data.currencies.filter(c => popular.includes(c.toLowerCase()));
+
+            // Si por alguna razón el filtro falla, mostramos las primeras 12 disponibles
+            if (filtered.length === 0) {
+                console.warn("No popular currencies found, falling back to all.");
+                filtered = data.currencies.slice(0, 12);
+            }
+
+            setCurrencies(filtered);
+            setStep(4);
+        } catch (err) {
+            console.error(err);
+            alert("Error al cargar monedas: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSelectCurrency = async (currency) => {
+        setLoading(true);
+        setSelectedCurrency(currency);
+        try {
+            const finalPrice = getFinalPrice();
+            const orderId = `${user.uid}_${Date.now()}`;
+
+            const payment = await nowPaymentsService.createPayment({
+                price_amount: finalPrice,
+                pay_currency: currency,
+                order_id: orderId,
+                order_description: `PLAN: ${selectedPlan.name} - ${user.email}`,
+            });
+
+            setPaymentDetails(payment);
+            setStep(5);
+
+            // Notificar a Firebase
+            await addDoc(collection(db, "notifications"), {
+                title: "INTENTO PAGO WHITE-LABEL",
+                message: `${user.email} inició pago de ${currency.toUpperCase()} por $${finalPrice}`,
+                type: 'subscription_attempt',
+                userId: user.uid,
+                timestamp: serverTimestamp()
+            });
+
+        } catch (err) {
+            console.error(err);
+            alert("Error al generar dirección: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const checkPaymentStatus = async () => {
+        if (!paymentDetails?.payment_id) return;
+        try {
+            const status = await nowPaymentsService.getPaymentStatus(paymentDetails.payment_id);
+            setPaymentStatus(status.payment_status);
+            if (status.payment_status === 'finished' || status.payment_status === 'confirmed') {
+                // Pago exitoso, podrías redirigir o mostrar un mensaje de éxito
+                alert("¡Pago confirmado! Tu cuenta se activará en breve.");
+            }
+        } catch (err) {
+            console.error("Error checking status:", err);
+        }
+    };
+
+    const handleMockSuccess = async () => {
+        setLoading(true);
+        try {
+            await updateDoc(doc(db, "users", user.uid), {
+                status: 'approved',
+                subscriptionStart: serverTimestamp(),
+                subscriptionEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
+                selectedPlan: selectedPlan.name,
+                paymentMethod: 'TEST_MODE'
+            });
+            alert("¡MODO PRUEBA: Pago simulado con éxito!");
+            window.location.reload();
+        } catch (err) {
+            alert("Error al simular: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const confirmPayment = async () => {
         if (!receiptUrl) return;
         setLoading(true);
@@ -189,8 +294,8 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                 <img src="/img/logos/IMG_5208.PNG" className="w-10 h-10 object-contain" alt="Logo" />
                             </div>
                             <div className="flex gap-2">
-                                {[1, 2, 3].map(s => (
-                                    <div key={s} className={`h-1 w-12 rounded-full transition-all duration-500 ${step >= s ? 'bg-red-600' : 'bg-neutral-100'}`} />
+                                {[1, 2, 3, 4, 5].map(s => (
+                                    <div key={s} className={`h-1 w-8 rounded-full transition-all duration-500 ${step >= s ? 'bg-red-600' : 'bg-neutral-100'}`} />
                                 ))}
                             </div>
                         </div>
@@ -198,7 +303,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                         <div className="space-y-1">
                             <p className="text-[8px] font-black text-red-600 uppercase tracking-[0.4em]">CHECKOUT INDEXGENIUS</p>
                             <h1 className="text-3xl font-black italic text-neutral-900 uppercase tracking-tighter leading-none">
-                                {step === 1 ? 'ELIGE TU' : step === 2 ? 'MÉTODO DE' : 'CONFIRMA'} <span className="text-red-600">{step === 1 ? 'PLAN' : step === 2 ? 'PAGO' : 'DEPÓSITO'}</span>
+                                {step === 1 ? 'ELIGE TU' : step === 2 ? 'MÉTODO DE' : step === 4 ? 'ELIGE TU' : step === 5 ? 'REALIZA' : 'CONFIRMA'} <span className="text-red-600">{step === 1 ? 'PLAN' : step === 2 ? 'PAGO' : step === 4 ? 'CRIPTO' : 'DEPÓSITO'}</span>
                             </h1>
                         </div>
                     </div>
@@ -288,6 +393,33 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                     </button>
 
                                     <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                        {/* NowPayments Automated Method */}
+                                        <button
+                                            onClick={handleNowPayments}
+                                            disabled={loading}
+                                            className="group w-full p-5 border-2 border-red-600/20 rounded-3xl hover:border-red-600 hover:shadow-xl hover:shadow-red-600/5 transition-all duration-500 bg-white text-left relative overflow-hidden"
+                                        >
+                                            <div className="absolute top-0 right-0 bg-red-600 text-white text-[7px] font-black px-3 py-1 uppercase tracking-tighter">RECOMENDADO</div>
+                                            <div className="flex justify-between items-center mb-4">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center p-2 group-hover:bg-red-600 group-hover:text-white transition-all">
+                                                        <Sparkles size={24} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[11px] font-black uppercase text-neutral-900 leading-none mb-1 tracking-tight">Cripto (Automático)</p>
+                                                        <p className="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em]">ACTUALIZACIÓN INSTANTÁNEA</p>
+                                                    </div>
+                                                </div>
+                                                <div className="p-3 rounded-xl bg-neutral-50 text-neutral-400 group-hover:bg-black group-hover:text-white transition-colors">
+                                                    <ArrowRight size={16} />
+                                                </div>
+                                            </div>
+                                            <div className="bg-neutral-50 p-3 rounded-2xl text-[9px] text-neutral-500 font-bold uppercase tracking-tight group-hover:bg-white transition-colors">
+                                                Paga con USDT, BTC, ETH y más de 100 criptos.
+                                            </div>
+                                        </button>
+
+
                                         {paymentMethods.map(pm => (
                                             <div key={pm.id} className="group p-5 border border-neutral-100 rounded-3xl hover:border-red-600/30 hover:shadow-xl hover:shadow-neutral-100 transition-all duration-500 bg-white">
                                                 <div className="flex justify-between items-center mb-4">
@@ -374,6 +506,113 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                     </div>
                                 </motion.div>
                             )}
+
+                            {step === 4 && (
+                                <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4 py-4">
+                                    <button onClick={() => setStep(2)} className="flex items-center gap-2 text-[9px] font-black text-neutral-400 hover:text-red-600 uppercase tracking-widest transition-colors mb-2">
+                                        <ChevronLeft size={14} /> VOLVER A MÉTODOS
+                                    </button>
+
+                                    {loading && currencies.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-10 gap-4">
+                                            <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">CARGANDO MONEDAS...</p>
+                                        </div>
+                                    ) : currencies.length > 0 ? (
+                                        <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                            {currencies.map(curr => (
+                                                <button
+                                                    key={curr}
+                                                    onClick={() => handleSelectCurrency(curr)}
+                                                    disabled={loading}
+                                                    className="p-4 border border-neutral-100 rounded-2xl hover:border-red-600 hover:bg-red-50/10 transition-all text-center group"
+                                                >
+                                                    <div className="w-10 h-10 mx-auto mb-2 bg-neutral-50 rounded-xl flex items-center justify-center group-hover:bg-white transition-colors">
+                                                        <span className="text-xs font-black text-neutral-900 group-hover:text-red-600">{curr.substring(0, 4).toUpperCase()}</span>
+                                                    </div>
+                                                    <span className="text-[10px] font-black uppercase text-neutral-600">{curr.toUpperCase()}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-10">
+                                            <p className="text-[10px] font-black text-red-600 uppercase">No se encontraron monedas disponibles.</p>
+                                            <button onClick={() => setStep(2)} className="mt-4 text-[10px] font-black underline uppercase">Reintentar</button>
+                                        </div>
+                                    )}
+                                    {loading && currencies.length > 0 && <div className="text-center text-[10px] font-black text-red-600 animate-pulse uppercase tracking-[0.2em] py-4">GENERANDO DIRECCIÓN...</div>}
+                                </motion.div>
+                            )}
+
+                            {step === 5 && paymentDetails && (
+                                <motion.div key="step5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="space-y-6 py-4">
+                                    <div className="text-center space-y-2">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 rounded-full">
+                                            <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping" />
+                                            <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">ESPERANDO DEPÓSITO</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-neutral-950 p-8 rounded-[2rem] text-white flex flex-col items-center gap-6 shadow-2xl relative overflow-hidden group">
+                                        {/* Premium Backdrop Glow */}
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-transparent opacity-50" />
+
+                                        <div className="bg-white p-3 rounded-2xl shadow-xl transition-transform duration-500 hover:scale-105">
+                                            <img
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${paymentDetails.pay_address}`}
+                                                alt="QR Code"
+                                                className="w-40 h-40"
+                                            />
+                                        </div>
+
+                                        <div className="text-center space-y-1">
+                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">ENVIAR EXACTAMENTE</p>
+                                            <h4 className="text-3xl font-black italic tracking-tighter tabular-nums">
+                                                {paymentDetails.pay_amount} <span className="text-red-600">{paymentDetails.pay_currency.toUpperCase()}</span>
+                                            </h4>
+                                        </div>
+
+                                        <div className="w-full space-y-4">
+                                            <div className="space-y-2">
+                                                <p className="text-[9px] font-black text-white/30 uppercase tracking-widest text-center">DIRECCIÓN DE DEPÓSITO</p>
+                                                <button
+                                                    onClick={() => { navigator.clipboard.writeText(paymentDetails.pay_address); setCopied('addr'); setTimeout(() => setCopied(null), 2000) }}
+                                                    className="w-full bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group/btn hover:bg-white/10 transition-all"
+                                                >
+                                                    <span className="text-[10px] font-mono text-white/70 truncate mr-4">{paymentDetails.pay_address}</span>
+                                                    {copied === 'addr' ? <Check size={14} className="text-green-500" /> : <Copy size={14} className="text-white/40 group-hover/btn:text-white" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100 italic">
+                                            <p className="text-[8px] font-black text-neutral-400 uppercase mb-1">PAGO ID</p>
+                                            <p className="text-xs font-black text-neutral-900">#{paymentDetails.payment_id}</p>
+                                        </div>
+                                        <button
+                                            onClick={checkPaymentStatus}
+                                            className="p-4 bg-black text-white rounded-2xl font-black italic uppercase text-[10px] flex items-center justify-center gap-2 hover:bg-red-600 transition-all group"
+                                        >
+                                            REVISAR ESTADO <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                        </button>
+                                        {debugMode && (
+                                            <button
+                                                onClick={handleMockSuccess}
+                                                className="col-span-2 p-4 bg-green-600/10 border border-green-600 text-green-600 rounded-2xl font-black italic uppercase text-[10px] hover:bg-green-600 hover:text-white transition-all"
+                                            >
+                                                [TEST] FORZAR PAGO EXITOSO
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <p className="text-center text-[9px] font-bold text-neutral-400 uppercase tracking-wider leading-relaxed">
+                                        Una vez enviado, la red tardará unos minutos en confirmar. <br />
+                                        <span className="text-red-600 underline">No cierres esta ventana hasta que se confirme.</span>
+                                    </p>
+                                </motion.div>
+                            )}
                         </AnimatePresence>
                     </div>
 
@@ -382,9 +621,19 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                         <button onClick={onLogout} className="text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 hover:text-black transition-colors">
                             CANCELAR SESIÓN
                         </button>
-                        <div className="flex items-center gap-2">
-                            <ShieldAlert size={12} className="text-red-600" />
-                            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">TRANSMISIÓN ENCRIPTADA</span>
+                        <div
+                            onClick={() => {
+                                const newClicks = debugClicks + 1;
+                                setDebugClicks(newClicks);
+                                if (newClicks >= 5) {
+                                    setDebugMode(true);
+                                    alert("DEBUG MODE ENABLED");
+                                }
+                            }}
+                            className="flex items-center gap-2 cursor-pointer select-none"
+                        >
+                            <ShieldAlert size={12} className={debugMode ? "text-green-600" : "text-red-600"} />
+                            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">{debugMode ? 'MODO TEST ACTIVO' : 'TRANSMISIÓN ENCRIPTADA'}</span>
                         </div>
                     </div>
                 </div>

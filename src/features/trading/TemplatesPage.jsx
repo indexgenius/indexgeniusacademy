@@ -4,6 +4,7 @@ import { db } from '../../firebase';
 import { doc, getDoc, updateDoc, setDoc, serverTimestamp, collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProTacticalBackground from '../../components/ProTacticalBackground';
+import { nowPaymentsService } from '../../services/nowPaymentsService';
 
 const TemplatesPage = ({ user }) => {
     const [unlocked, setUnlocked] = useState(false);
@@ -21,6 +22,25 @@ const TemplatesPage = ({ user }) => {
         name: 'INDEX PRO V1.0',
         size: '84.2 MB'
     });
+
+    // NowPayments States
+    const [modalStep, setModalStep] = useState(1);
+    const [currencies, setCurrencies] = useState([]);
+    const [selectedCurrency, setSelectedCurrency] = useState(null);
+    const [paymentDetails, setPaymentDetails] = useState(null);
+    const [paymentStatus, setPaymentStatus] = useState(null);
+    const [debugClicks, setDebugClicks] = useState(0);
+    const [debugMode, setDebugMode] = useState(false);
+
+    // Unified membership price
+    const finalPrice = 50;
+    const planName = 'PLANTILLA INDEXPRO';
+    const isBridge = userBroker === 'bridge';
+    const isAdmin = user?.canBroadcast || user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.email?.toLowerCase() === 'pipoapaza@gmail.com' || user?.role === 'admin';
+
+    useEffect(() => {
+        if (isAdmin) setDebugMode(true);
+    }, [isAdmin]);
 
     useEffect(() => {
         const checkAccess = async () => {
@@ -55,10 +75,6 @@ const TemplatesPage = ({ user }) => {
         return () => unsubMethods();
     }, [user]);
 
-    // Unified membership price
-    const finalPrice = 125;
-    const planName = 'ELITE FULL ACCESS';
-    const isAdmin = user?.canBroadcast || user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.email?.toLowerCase() === 'pipoapaza@gmail.com';
 
     const handleFileUpload = async (e) => {
         if (!isAdmin) {
@@ -164,8 +180,179 @@ const TemplatesPage = ({ user }) => {
         setShowPaymentModal(false);
     };
 
+    const handleNowPayments = async () => {
+        setLoading(true);
+        try {
+            const data = await nowPaymentsService.getCurrencies();
+            const popular = ['usdttrc20', 'usdtbec20', 'usdt', 'btc', 'ltc', 'eth', 'trx', 'bnb', 'bnbmainnet'];
+            let filtered = data.currencies.filter(c => popular.includes(c.toLowerCase()));
+            if (filtered.length === 0) filtered = data.currencies.slice(0, 12);
+            setCurrencies(filtered);
+            setModalStep(2);
+        } catch (err) {
+            console.error(err);
+            alert("Error al cargar monedas: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSelectCurrency = async (currency) => {
+        setLoading(true);
+        setSelectedCurrency(currency);
+        try {
+            const orderId = `TEMP_${user.uid}_${Date.now()}`;
+            const payment = await nowPaymentsService.createPayment({
+                price_amount: finalPrice,
+                pay_currency: currency,
+                order_id: orderId,
+                order_description: `PLANTILLA: ${planName} - ${user.email}`,
+            });
+            setPaymentDetails(payment);
+            setModalStep(3);
+        } catch (err) {
+            console.error(err);
+            alert("Error al generar dirección: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const generateAccessKey = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let key = 'IDX-';
+        for (let i = 0; i < 8; i++) {
+            key += chars.charAt(Math.floor(Math.random() * chars.length));
+            if (i === 3) key += '-';
+        }
+        return key;
+    };
+
+    const sendTemplateKeyEmail = async (email, name, key) => {
+        try {
+            const responseHtml = await fetch('/template_key_email.html');
+            if (responseHtml.ok) {
+                let htmlContent = await responseHtml.text();
+                htmlContent = htmlContent.replace(/{{USER_NAME}}/g, name || 'Trader');
+                htmlContent = htmlContent.replace(/{{PLAN_NAME}}/g, planName);
+                htmlContent = htmlContent.replace(/{{ACCESS_KEY}}/g, key);
+
+                let apiUrl = 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+                if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' || window.location.hostname.includes('github.io')) {
+                    // For GitHub Pages, it must point to the Vercel/Production API
+                    apiUrl = 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+                }
+
+                await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        name: name,
+                        htmlContent: htmlContent
+                    })
+                });
+            }
+        } catch (e) {
+            console.error("Error sending key email:", e);
+        }
+    };
+
+    const activateTemplate = async (method = 'CRYPTO_AUTOMATIC') => {
+        const newKey = generateAccessKey();
+
+        // 1. Save key to access_codes
+        await setDoc(doc(db, 'access_codes', newKey), {
+            valid: true,
+            used: false,
+            createdAt: serverTimestamp(),
+            generatedBy: 'SYSTEM_AUTOMATION',
+            userEmail: user.email,
+            paymentMethod: method
+        });
+
+        // 2. Give access to user
+        await updateDoc(doc(db, 'users', user.uid), {
+            hasTemplateAccess: true,
+            templatePaymentMethod: method,
+            templatePaymentAt: serverTimestamp(),
+            lastGeneratedKey: newKey
+        });
+
+        // 3. Send Email
+        await sendTemplateKeyEmail(user.email, user.displayName, newKey);
+
+        return newKey;
+    };
+
+    const handleMockSuccess = async () => {
+        setLoading(true);
+        try {
+            let targetEmail = user.email;
+            if (isAdmin) {
+                const customEmail = prompt("INGRESA EL CORREO PARA EL TEST (Dejar vacío para usar el tuyo):", "jeilincastro989@gmail.com");
+                if (customEmail === null) { setLoading(false); return; } // Cancelled
+                if (customEmail.trim() !== "") targetEmail = customEmail.trim();
+            }
+
+            const newKey = generateAccessKey();
+
+            // 1. Save key
+            await setDoc(doc(db, 'access_codes', newKey), {
+                valid: true,
+                used: false,
+                createdAt: serverTimestamp(),
+                generatedBy: 'ADMIN_TEST_BY_' + user.email,
+                userEmail: targetEmail,
+                paymentMethod: 'TEST_MODE'
+            });
+
+            // 2. Give access (only if it's the current user's email, or just proceed with email test)
+            if (targetEmail === user.email) {
+                await updateDoc(doc(db, 'users', user.uid), {
+                    hasTemplateAccess: true,
+                    templatePaymentMethod: 'TEST_MODE',
+                    templatePaymentAt: serverTimestamp(),
+                    lastGeneratedKey: newKey
+                });
+                setUnlocked(true);
+            }
+
+            // 3. Send Email to the target
+            await sendTemplateKeyEmail(targetEmail, "Trader Elite", newKey);
+
+            alert(`¡TEST EXITOSO! La clave (${newKey}) ha sido enviada a ${targetEmail}`);
+            setShowPaymentModal(false);
+        } catch (err) {
+            alert("Error al simular: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Polling for NowPayments Status
+    useEffect(() => {
+        let interval;
+        if (paymentDetails?.payment_id && modalStep === 3 && !unlocked) {
+            interval = setInterval(async () => {
+                try {
+                    const status = await nowPaymentsService.getPaymentStatus(paymentDetails.payment_id);
+                    if (status.payment_status === 'finished' || status.payment_status === 'confirmed') {
+                        const newKey = await activateTemplate('NOWPAYMENTS');
+                        alert(`¡PAGO CONFIRMADO! Tu clave de acceso es: ${newKey}. También te la enviamos por correo.`);
+                        setUnlocked(true);
+                        setShowPaymentModal(false);
+                        clearInterval(interval);
+                    }
+                } catch (e) {
+                    console.error("Polling error:", e);
+                }
+            }, 10000); // Check every 10 seconds
+        }
+        return () => clearInterval(interval);
+    }, [paymentDetails, modalStep, unlocked]);
+
     const categories = [
-        { id: 'CRIPTO', label: 'CRIPTOMONEDAS', icon: Wallet, color: 'text-orange-500' },
         { id: 'BANCO', label: 'TRANSFERENCIA BANCARIA', icon: Landmark, color: 'text-blue-500' },
         { id: 'APP', label: 'APLICACIONES DIGITALES', icon: Smartphone, color: 'text-purple-500' },
     ];
@@ -530,7 +717,7 @@ const TemplatesPage = ({ user }) => {
                                 <h3 className="text-xl font-black italic text-black uppercase tracking-tighter">
                                     TERMINAL DE <span className="text-white">PAGO</span>
                                 </h3>
-                                <button onClick={() => { setShowPaymentModal(false); setExpandedCat(null); }} className="text-black font-black text-xs uppercase hover:text-white border border-black/20 px-3 py-1">CLOSE</button>
+                                <button onClick={() => { setShowPaymentModal(false); setExpandedCat(null); setModalStep(1); }} className="text-black font-black text-xs uppercase hover:text-white border border-black/20 px-3 py-1">CLOSE</button>
                             </div>
 
                             <div className="p-8 space-y-6">
@@ -542,75 +729,153 @@ const TemplatesPage = ({ user }) => {
                                 </div>
 
                                 <AnimatePresence mode="wait">
-                                    {!expandedCat ? (
-                                        <motion.div
-                                            key="cats"
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                                        >
-                                            {categories.map((cat) => (
-                                                <button
-                                                    key={cat.id}
-                                                    onClick={() => setExpandedCat(cat.id)}
-                                                    className="group relative p-6 bg-white/[0.03] border border-white/5 hover:border-[#F3BA2F] transition-all text-left overflow-hidden"
-                                                >
-                                                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                        <cat.icon size={48} className={cat.color} />
-                                                    </div>
-                                                    <div className="relative z-10 flex items-center gap-4">
-                                                        <div className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center ${cat.color}`}>
-                                                            <cat.icon size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="text-xs font-black italic uppercase text-white tracking-widest">{cat.label}</h4>
-                                                        </div>
-                                                    </div>
-                                                </button>
-                                            ))}
-                                        </motion.div>
-                                    ) : (
-                                        <motion.div
-                                            key="methods"
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            className="space-y-4"
-                                        >
+                                    {modalStep === 1 ? (
+                                        <motion.div key="step1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                                             <button
-                                                onClick={() => setExpandedCat(null)}
-                                                className="flex items-center gap-2 text-[10px] font-black text-[#F3BA2F] uppercase tracking-widest mb-4 hover:text-white transition-colors"
+                                                onClick={handleNowPayments}
+                                                className="w-full p-6 bg-gradient-to-r from-[#F3BA2F] to-yellow-600 rounded-none border border-white/10 flex items-center justify-between group hover:scale-[1.02] transition-all"
                                             >
-                                                <LayoutGrid size={14} /> VOLVER A MÉTODOS
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+                                                        <Coins size={24} className="text-[#F3BA2F]" />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-xs font-black text-black uppercase tracking-widest">Pago Automático Cripto</p>
+                                                        <p className="text-[10px] font-bold text-black/60 uppercase">USDT, BTC, BNB - Sin esperas</p>
+                                                    </div>
+                                                </div>
+                                                <ArrowRight size={20} className="text-black" />
                                             </button>
 
-                                            <div className="grid grid-cols-1 gap-3 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
-                                                {getCatMethods(expandedCat).map((pm) => (
-                                                    <div key={pm.id} className="bg-white/5 border border-white/10 p-4 group">
-                                                        <div className="flex items-center justify-between mb-3">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-10 h-10 bg-black flex items-center justify-center p-2 rounded border border-white/5">
-                                                                    {pm.icon === 'binance' ? <img src="/img/metodos/logos/bnb_hq.svg" className="w-8 h-8 object-contain" alt="BIN" /> :
-                                                                        pm.icon === 'usdt' ? <img src="/img/metodos/logos/usdt_hq.svg" className="w-8 h-8 object-contain" alt="USD" /> :
-                                                                            <Wallet size={16} className="text-gray-500" />}
-                                                                </div>
-                                                                <div>
-                                                                    <p className="text-[10px] font-black text-white uppercase">{pm.name}</p>
-                                                                    {pm.owner && <p className="text-[8px] font-bold text-[#F3BA2F] uppercase tracking-widest">{pm.owner}</p>}
-                                                                </div>
-                                                            </div>
+                                            <div className="relative py-4">
+                                                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+                                                <div className="relative flex justify-center"><span className="bg-black px-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">O MÉTODOS MANUALES</span></div>
+                                            </div>
+
+                                            <AnimatePresence mode="wait">
+                                                {!expandedCat ? (
+                                                    <motion.div
+                                                        key="cats"
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                                                    >
+                                                        {categories.map((cat) => (
                                                             <button
-                                                                onClick={() => handleCopy(pm.value, pm.id)}
-                                                                className={`p-2 rounded transition-all ${copied === pm.id ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-400'}`}
+                                                                key={cat.id}
+                                                                onClick={() => setExpandedCat(cat.id)}
+                                                                className="group relative p-6 bg-white/[0.03] border border-white/5 hover:border-[#F3BA2F] transition-all text-left overflow-hidden"
                                                             >
-                                                                {copied === pm.id ? <Check size={14} /> : <Copy size={14} />}
+                                                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                                    <cat.icon size={48} className={cat.color} />
+                                                                </div>
+                                                                <div className="relative z-10 flex items-center gap-4">
+                                                                    <div className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center ${cat.color}`}>
+                                                                        <cat.icon size={20} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className="text-xs font-black italic uppercase text-white tracking-widest">{cat.label}</h4>
+                                                                    </div>
+                                                                </div>
                                                             </button>
+                                                        ))}
+                                                    </motion.div>
+                                                ) : (
+                                                    <motion.div
+                                                        key="methods"
+                                                        initial={{ opacity: 0, x: 20 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        exit={{ opacity: 0, x: -20 }}
+                                                        className="space-y-4"
+                                                    >
+                                                        <button
+                                                            onClick={() => setExpandedCat(null)}
+                                                            className="flex items-center gap-2 text-[10px] font-black text-[#F3BA2F] uppercase tracking-widest mb-4 hover:text-white transition-colors"
+                                                        >
+                                                            <LayoutGrid size={14} /> VOLVER A MÉTODOS
+                                                        </button>
+
+                                                        <div className="grid grid-cols-1 gap-3 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                                                            {getCatMethods(expandedCat).map((pm) => (
+                                                                <div key={pm.id} className="bg-white/5 border border-white/10 p-4 group">
+                                                                    <div className="flex items-center justify-between mb-3">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="w-10 h-10 bg-black flex items-center justify-center p-2 rounded border border-white/5">
+                                                                                {pm.icon === 'binance' ? <img src="/img/metodos/logos/bnb_hq.svg" className="w-8 h-8 object-contain" alt="BIN" /> :
+                                                                                    pm.icon === 'usdt' ? <img src="/img/metodos/logos/usdt_hq.svg" className="w-8 h-8 object-contain" alt="USD" /> :
+                                                                                        <Wallet size={16} className="text-gray-500" />}
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-[10px] font-black text-white uppercase">{pm.name}</p>
+                                                                                {pm.owner && <p className="text-[8px] font-bold text-[#F3BA2F] uppercase tracking-widest">{pm.owner}</p>}
+                                                                            </div>
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={() => handleCopy(pm.value, pm.id)}
+                                                                            className={`p-2 rounded transition-all ${copied === pm.id ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-400'}`}
+                                                                        >
+                                                                            {copied === pm.id ? <Check size={14} /> : <Copy size={14} />}
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="bg-black/80 border border-white/5 p-3 text-[10px] font-mono text-[#F3BA2F] break-all border-l-2 border-l-[#F3BA2F]">
+                                                                        {pm.value}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
                                                         </div>
-                                                        <div className="bg-black/80 border border-white/5 p-3 text-[10px] font-mono text-[#F3BA2F] break-all border-l-2 border-l-[#F3BA2F]">
-                                                            {pm.value}
-                                                        </div>
-                                                    </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </motion.div>
+                                    ) : modalStep === 2 ? (
+                                        <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                                            <button onClick={() => setModalStep(1)} className="text-[10px] font-black text-[#F3BA2F] uppercase flex items-center gap-2">
+                                                <X size={14} /> VOLVER
+                                            </button>
+                                            <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                                {currencies.map(curr => (
+                                                    <button
+                                                        key={curr}
+                                                        onClick={() => handleSelectCurrency(curr)}
+                                                        className="p-4 border border-white/10 bg-white/5 hover:border-[#F3BA2F] transition-all text-center rounded-xl group"
+                                                    >
+                                                        <p className="text-xs font-black text-white group-hover:text-[#F3BA2F] uppercase">{curr}</p>
+                                                    </button>
                                                 ))}
                                             </div>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div key="step3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.1 }} className="space-y-6 flex flex-col items-center">
+                                            <div className="bg-white p-4 rounded-3xl shadow-2xl">
+                                                <img
+                                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${paymentDetails?.pay_address}`}
+                                                    alt="QR"
+                                                    className="w-40 h-40"
+                                                />
+                                            </div>
+                                            <div className="text-center space-y-2">
+                                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">ENVÍA EXACTAMENTE</p>
+                                                <p className="text-2xl font-black text-white italic">{paymentDetails?.pay_amount} <span className="text-[#F3BA2F]">{paymentDetails?.pay_currency?.toUpperCase()}</span></p>
+                                            </div>
+                                            <div className="w-full space-y-2">
+                                                <p className="text-[9px] font-black text-gray-600 uppercase text-center">DIRECCIÓN DE DEPÓSITO</p>
+                                                <button
+                                                    onClick={() => handleCopy(paymentDetails?.pay_address, 'addr')}
+                                                    className="w-full bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group"
+                                                >
+                                                    <span className="text-[10px] font-mono text-gray-400 truncate mr-4">{paymentDetails?.pay_address}</span>
+                                                    {copied === 'addr' ? <Check size={14} className="text-green-500" /> : <Copy size={14} className="text-white/40" />}
+                                                </button>
+                                            </div>
+                                            {debugMode && (
+                                                <button
+                                                    onClick={handleMockSuccess}
+                                                    className="w-full p-4 bg-green-600/10 border border-green-600 text-green-600 rounded-xl font-black italic uppercase text-[10px] hover:bg-green-600 hover:text-white transition-all"
+                                                >
+                                                    [TEST] FORZAR ACTIVACIÓN EXITOSA
+                                                </button>
+                                            )}
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -622,9 +887,22 @@ const TemplatesPage = ({ user }) => {
                                     >
                                         <Phone size={16} /> REPORTE / SOPORTE WHATSAPP
                                     </button>
-                                    <p className="text-[9px] text-center text-gray-500 leading-relaxed uppercase tracking-widest">
-                                        Once payment is sent, send the screenshot to our command center to receive your Access Key.
-                                    </p>
+                                    <div
+                                        onClick={() => {
+                                            const newClicks = debugClicks + 1;
+                                            setDebugClicks(newClicks);
+                                            if (newClicks >= 5) {
+                                                setDebugMode(true);
+                                                alert("DEBUG MODE ENABLED");
+                                            }
+                                        }}
+                                        className="flex items-center justify-center gap-2 cursor-pointer opacity-40 hover:opacity-100 transition-opacity"
+                                    >
+                                        <ShieldAlert size={12} className={debugMode ? "text-green-600" : "text-red-600"} />
+                                        <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest leading-relaxed">
+                                            {debugMode ? 'SISTEMA DE PRUEBAS ACTIVO' : 'SISTEMA SEGURO Y CIFRADO'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
@@ -655,9 +933,7 @@ const TemplatesPage = ({ user }) => {
                                 </button>
                             </div>
                             <div className="aspect-video w-full bg-[#050505] relative overflow-hidden">
-                                {/* Scanlines effect */}
                                 <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))', backgroundSize: '100% 2px, 3px 100%' }}></div>
-
                                 <iframe
                                     className="w-full h-full relative z-0"
                                     src="https://drive.google.com/file/d/1lq1XEC4oSoUwNDrS0yt87dWrV1dX2yAi/preview"
@@ -666,8 +942,6 @@ const TemplatesPage = ({ user }) => {
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
                                 ></iframe>
-
-                                {/* Corner elements */}
                                 <div className="absolute top-6 left-6 w-6 h-6 border-t-2 border-l-2 border-red-600/30"></div>
                                 <div className="absolute top-6 right-6 w-6 h-6 border-t-2 border-r-2 border-red-600/30"></div>
                                 <div className="absolute bottom-6 left-6 w-6 h-6 border-b-2 border-l-2 border-red-600/30"></div>

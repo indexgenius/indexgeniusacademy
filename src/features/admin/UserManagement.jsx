@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldCheck, Check, Trash2, StopCircle, Users, Image, ExternalLink } from 'lucide-react';
+import { Search, ShieldCheck, Check, Trash2, StopCircle, Users, Image, ExternalLink, File, XCircle } from 'lucide-react';
 import { db, auth } from '../../firebase';
 import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -176,13 +176,18 @@ const UserManagement = ({ adminUser }) => {
         }
     };
 
-    const handleDeleteUser = async (uid) => {
-        if (!confirm("¿ELIMINAR PERMANENTEMENTE AL USUARIO? ESTO NO SE PUEDE DESHACER.")) return;
+    const handleToggleTemplateAccess = async (userDoc) => {
+        const currentStatus = userDoc.hasTemplateAccess || false;
+        if (!confirm(`¿${currentStatus ? 'QUITAR' : 'CONCEDER'} ACCESO A PLANTILLAS PARA ${userDoc.email}?`)) return;
+
         try {
-            await deleteDoc(doc(db, "users", uid));
-            alert("USUARIO ELIMINADO DE LA BASE DE DATOS");
+            await updateDoc(doc(db, "users", userDoc.id), {
+                hasTemplateAccess: !currentStatus,
+                templateStatusChangedAt: serverTimestamp()
+            });
+            alert(`ACCESO A PLANTILLAS: ${!currentStatus ? 'CONCEDIDO' : 'REVOCADO'}`);
         } catch (e) {
-            alert("FALLO EN LA ELIMINACIÓN: " + e.message);
+            alert("FALLO AL CAMBIAR ACCESO: " + e.message);
         }
     };
 
@@ -333,6 +338,12 @@ const UserManagement = ({ adminUser }) => {
                                     className="px-4 py-3 lg:px-3 lg:py-1 bg-red-600 text-white text-[10px] lg:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-red-600/20"
                                 >
                                     ELIMINAR
+                                </button>
+                                <button
+                                    onClick={() => handleToggleTemplateAccess(u)}
+                                    className={`px-4 py-3 lg:px-3 lg:py-1 text-[10px] lg:text-[9px] font-black uppercase tracking-widest border-2 flex items-center gap-1 ${u.hasTemplateAccess ? 'border-green-600 text-green-600 bg-green-600/10' : 'border-white/20 text-white/40 bg-black/40'}`}
+                                >
+                                    <File size={12} /> {u.hasTemplateAccess ? 'QUITAR PLANTILLAS' : 'DAR PLANTILLAS'}
                                 </button>
                                 <button
                                     onClick={async () => {

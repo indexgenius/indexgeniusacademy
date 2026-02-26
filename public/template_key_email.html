@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clave de Acceso - Template IndexPro</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #111111;
+            border-top: 4px solid #E50914;
+        }
+
+        .header {
+            padding: 30px;
+            text-align: left;
+        }
+
+        .header span {
+            font-size: 24px;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .content {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            font-style: italic;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .key-box {
+            background-color: #1a1a1a;
+            border-left: 3px solid #E50914;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .key-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #E50914;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .key-value {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        .footer {
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #222222;
+            font-size: 10px;
+            color: #444444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <span style="color:#E50914;">Index</span><span>Genius</span>
+        </div>
+        <div class="content">
+            <div class="title">TÚ CLAVE DE ACCESO</div>
+            <p style="color: #999999; line-height: 1.6;">
+                Hola {{USER_NAME}}, tu pago ha sido procesado con éxito. Aquí tienes tu clave única para activar la
+                <strong>{{PLAN_NAME}}</strong>.
+            </p>
+            <div class="key-box">
+                <span class="key-label">CLAVE DE ACTIVACIÓN</span>
+                <span class="key-value">{{ACCESS_KEY}}</span>
+            </div>
+            <p style="font-size: 12px; color: #666666; font-style: italic;">
+                * Copia y pega esta clave en el módulo de acceso de la plataforma.
+            </p>
+        </div>
+        <div class="footer">
+            <p>INDEXGENIUS ACADEMY &copy; 2026 RESERVADOS TODOS LOS DERECHOS.</p>
+            <p>Este es un mensaje automático del sistema central.</p>
+        </div>
+    </div>
+</body>
+
+</html>

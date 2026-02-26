@@ -17,8 +17,8 @@ import {
     XCircle,
     UserMinus,
     Calendar,
-    ChevronDown,
     X,
+    Key,
     MessageSquare,
     Send,
     Terminal,
@@ -55,7 +55,8 @@ const SupremeDashboard = ({ user: adminUser }) => {
     const [recentPayments, setRecentPayments] = useState([]);
     const [liveEvents, setLiveEvents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [view, setView] = useState('overview'); // overview, users, command, logs
+    const [view, setView] = useState('overview'); // overview, users, keys, command, logs
+    const [accessCodes, setAccessCodes] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('ALL');
     const [filterSubscription, setFilterSubscription] = useState('ALL');
@@ -125,10 +126,17 @@ const SupremeDashboard = ({ user: adminUser }) => {
             setLiveEvents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
 
+        // Real-time listener for access codes
+        const qKeys = query(collection(db, "access_codes"), orderBy("createdAt", "desc"));
+        const unsubKeys = onSnapshot(qKeys, (snapshot) => {
+            setAccessCodes(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
         return () => {
             unsubUsers();
             unsubPayments();
             unsubEvents();
+            unsubKeys();
         };
     }, []);
 
@@ -324,6 +332,7 @@ const SupremeDashboard = ({ user: adminUser }) => {
                     {[
                         { id: 'overview', icon: Activity, label: 'RESUMEN' },
                         { id: 'users', icon: Users, label: 'USUARIOS' },
+                        { id: 'keys', icon: Key, label: 'LLAVES' },
                         { id: 'sessions', icon: Wifi, label: 'SESIONES' },
                         { id: 'command', icon: Zap, label: 'MANDO' },
                         { id: 'email', icon: Mail, label: 'EMAIL' },
@@ -814,6 +823,66 @@ const SupremeDashboard = ({ user: adminUser }) => {
                         className="max-w-2xl mx-auto"
                     >
                         <EmailTester adminUser={adminUser} />
+                    </motion.div>
+                )}
+
+                {view === 'keys' && (
+                    <motion.div
+                        key="keys"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="space-y-8"
+                    >
+                        <div className="flex justify-between items-end">
+                            <div>
+                                <h3 className="text-2xl font-black italic tracking-tighter text-white uppercase">GESTIÓN DE <span className="text-red-600">LLAVES IDX</span></h3>
+                                <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-1">SISTEMA DE ACTIVACIÓN DE PLANTILLAS</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-4xl font-black text-white italic">{accessCodes.length}</p>
+                                <p className="text-[8px] font-black text-red-600 uppercase">TOTAL GENERADAS</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            {accessCodes.map(code => (
+                                <div key={code.id} className="bg-black border border-white/5 p-6 flex flex-col lg:flex-row justify-between lg:items-center gap-6 group hover:border-red-600/30 transition-all">
+                                    <div className="flex items-center gap-6">
+                                        <div className={`w-12 h-12 flex items-center justify-center border-2 ${code.used ? 'border-gray-800 text-gray-600' : 'border-red-600 shadow-red-glow text-white animate-pulse'}`}>
+                                            <Key size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xl font-mono font-black text-white tracking-widest">{code.id}</p>
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <span className={`text-[8px] font-black px-2 py-0.5 uppercase ${code.used ? 'bg-gray-800 text-gray-500' : 'bg-red-600 text-white'}`}>
+                                                    {code.used ? 'UTILIZADA' : 'DISPONIBLE'}
+                                                </span>
+                                                <span className="text-[8px] font-black text-gray-600 uppercase">ORIGEN: {code.generatedBy || 'SISTEMA'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col lg:items-end gap-2 pr-4">
+                                        <p className="text-[10px] font-black text-white uppercase truncate max-w-[200px]">{code.userEmail || 'SIN ASIGNAR'}</p>
+                                        <p className="text-[8px] font-black text-gray-600 uppercase tracking-widest">
+                                            {code.createdAt?.toDate ? code.createdAt.toDate().toLocaleString() : 'FECHA DESCONOCIDA'}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={async () => {
+                                                if (!confirm("¿ELIMINAR ESTA LLAVE?")) return;
+                                                await deleteDoc(doc(db, "access_codes", code.id));
+                                            }}
+                                            className="p-3 bg-red-600/10 text-red-600 border border-red-600/20 hover:bg-red-600 hover:text-white transition-all"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
