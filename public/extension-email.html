@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <style>
+        /* HACK PARA GMAIL: Forzar fondo negro incluso en modo claro/oscuro */
+        u+.body {
+            background-image: url('https://dummyimage.com/600x1200/000000/000000') !important;
+        }
+
+        /* Evitar que Gmail aclare u oscurezca los colores */
+        @media (prefers-color-scheme: dark) {
+            .text-force-white {
+                color: #ffffff !important;
+            }
+
+            .text-force-red {
+                color: #E50914 !important;
+            }
+
+            .text-force-gold {
+                color: #FFD700 !important;
+            }
+        }
+
+        /* Selectores específicos para el motor de Gmail */
+        [data-ogsc] .text-force-white {
+            color: #ffffff !important;
+        }
+
+        [data-ogsc] .text-force-red {
+            color: #E50914 !important;
+        }
+
+        [data-ogsc] .text-force-gold {
+            color: #FFD700 !important;
+        }
+    </style>
+</head>
+
+<body class="body" style="margin:0; padding:0; background-color:#000000; color:#ffffff;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+        background="https://dummyimage.com/600x2000/000000/000000"
+        style="background-color:#000000; background-image: url('https://dummyimage.com/600x2000/000000/000000'); background-size: cover; background-repeat: repeat; width:100% !important;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+
+                <!-- CONTENEDOR PRINCIPAL -->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+                    <tr>
+                        <td align="center" style="padding:40px; font-family:Arial, sans-serif;">
+
+                            <h1 class="text-force-red"
+                                style="color:#E50914 !important; margin:0; font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 38px; line-height: 1.1;">
+                                MEMBRESÍA EXTENDIDA ⚡
+                            </h1>
+
+                            <p class="text-force-white"
+                                style="color:#ffffff !important; font-size: 20px; margin-top: 25px; font-weight: bold; line-height: 1.4;">
+                                ¡Hola <span class="text-force-gold"
+                                    style="color:#FFD700 !important;">{{USER_NAME}}</span>!
+                            </p>
+
+                            <p class="text-force-white"
+                                style="color:#ffffff !important; font-size: 16px; margin-top: 15px; line-height: 1.6;">
+                                Hemos agregado <span class="text-force-red"
+                                    style="color:#E50914 !important; font-size: 24px;">{{DAYS_ADDED}}</span> días extra
+                                a tu suscripción en IndexGenius Academy.
+                            </p>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                background="https://dummyimage.com/600x400/000000/000000"
+                                style="margin-top: 50px; background-color: #000000; border: 3px solid #E50914;">
+                                <tr>
+                                    <td style="padding: 30px;" align="center">
+                                        <p class="text-force-white"
+                                            style="color:#ffffff !important; font-weight: 900; margin: 0; letter-spacing: 3px; font-size: 16px; text-transform: uppercase; border-bottom: 1px solid #E50914; padding-bottom: 10px; display: inline-block;">
+                                            NUEVA FECHA DE EXPIRACIÓN
+                                        </p>
+                                        <p class="text-force-gold"
+                                            style="color:#FFD700 !important; font-size: 32px; font-weight: 900; margin-top: 20px; font-style: italic;">
+                                            {{NEW_EXPIRY}}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+                                style="margin-top: 40px;">
+                                <tr>
+                                    <td align="center" bgcolor="#E50914"
+                                        style="background-color:#E50914 !important; padding: 20px;">
+                                        <a href="https://indexgeniusacademy.com" target="_blank"
+                                            style="color:#ffffff !important; text-decoration:none; font-weight:900; text-transform:uppercase; letter-spacing:4px; font-size:16px; display:block; width:100%;">
+                                            ACCEDER AL COMANDO CENTRAL
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p class="text-force-white"
+                                style="color:#444444 !important; font-size: 10px; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;">
+                                IndexGenius Academy &copy; 2026 - Protocolo de Seguridad Activo
+                            </p>
+
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>

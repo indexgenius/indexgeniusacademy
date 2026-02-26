@@ -88,35 +88,63 @@ const MembershipControl = () => {
         setProcessing(false);
     };
 
+    const sendExtensionEmail = async (userDoc, daysAdded, newExpiry) => {
+        try {
+            const responseHtml = await fetch('/extension-email.html');
+            if (!responseHtml.ok) return;
+            let htmlContent = await responseHtml.text();
+
+            const userName = userDoc.displayName || 'Trader';
+            const userEmail = userDoc.email;
+
+            htmlContent = htmlContent.replace(/{{USER_NAME}}/g, userName);
+            htmlContent = htmlContent.replace(/{{DAYS_ADDED}}/g, daysAdded);
+            htmlContent = htmlContent.replace(/{{NEW_EXPIRY}}/g, newExpiry);
+
+            let apiUrl = 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                apiUrl = '/api/auth/send-welcome-email';
+            }
+
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: userEmail,
+                    name: userName,
+                    htmlContent: htmlContent
+                })
+            });
+        } catch (e) {
+            console.error("Email error:", e);
+        }
+    };
+
     const extendMembership = async (userId, userEmail, currentEnd, days) => {
-        if (!confirm(`¿Agregar ${days} días a ${userEmail}?`)) return;
+        const daysInt = parseInt(days);
+        if (!confirm(`¿Agregar ${daysInt} días a ${userEmail}?`)) return;
         setProcessing(true);
         try {
             let newEnd;
             const now = new Date();
             const currentEndDate = currentEnd && currentEnd.toDate ? currentEnd.toDate() : (currentEnd ? new Date(currentEnd) : null);
 
-            // If current is lifetime/far future, don't add days, just keeping it lifetime or reset?
-            // Assuming adding days to lifetime doesn't make sense unless we switch to finite. 
-            // If year > 3000, we treat as current.
             if (currentEndDate && currentEndDate.getFullYear() > 3000) {
-                // Even if lifetime, adding days effectively does nothing or we could reset to now + days. 
-                // Let's assume extending a lifetime user keeps them lifetime.
-                alert("User has Lifetime Access already.");
+                alert("La unidad ya tiene acceso de por vida.");
                 setProcessing(false);
                 return;
             }
 
             if (currentEndDate && currentEndDate > now) {
                 newEnd = new Date(currentEndDate);
-                newEnd.setDate(newEnd.getDate() + parseInt(days));
+                newEnd.setDate(newEnd.getDate() + daysInt);
             } else {
                 newEnd = new Date();
-                newEnd.setDate(newEnd.getDate() + parseInt(days));
+                newEnd.setDate(newEnd.getDate() + daysInt);
             }
 
             const alertData = {
-                daysAdded: parseInt(days),
+                daysAdded: daysInt,
                 timestamp: Timestamp.now(),
                 seen: false
             };
@@ -127,7 +155,11 @@ const MembershipControl = () => {
                 status: 'approved'
             });
 
-            alert(`Se agregaron ${days} días a ${userEmail}`);
+            // Send Email
+            const expiryStr = newEnd.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+            await sendExtensionEmail({ id: userId, email: userEmail, displayName: users.find(u => u.id === userId)?.displayName }, daysInt, expiryStr);
+
+            alert(`Se agregaron ${daysInt} días a ${userEmail} y se envió correo de notificación.`);
         } catch (error) {
             console.error(error);
             alert("Error: " + error.message);
@@ -143,29 +175,30 @@ const MembershipControl = () => {
             let batch = writeBatch(db);
             let operationCount = 0;
             let batchCount = 0;
+            const affectedUsers = [];
+            const daysInt = parseInt(extensionDays);
 
             const now = new Date();
 
             for (const user of users) {
-                // Only active or approved users usually, but user said "all" in case of outage
-                // Let's stick to approved/payment_required/expired to be safe, filtering out pending/rejected if needed
-                // For now, let's do all except rejected
                 if (user.status === 'rejected') continue;
 
                 const userRef = doc(db, "users", user.id);
                 let newEnd;
                 const currentEndDate = user.subscriptionEnd && user.subscriptionEnd.toDate ? user.subscriptionEnd.toDate() : (user.subscriptionEnd ? new Date(user.subscriptionEnd) : null);
 
+                if (currentEndDate && currentEndDate.getFullYear() > 3000) continue;
+
                 if (currentEndDate && currentEndDate > now) {
                     newEnd = new Date(currentEndDate);
-                    newEnd.setDate(newEnd.getDate() + parseInt(extensionDays));
+                    newEnd.setDate(newEnd.getDate() + daysInt);
                 } else {
                     newEnd = new Date();
-                    newEnd.setDate(newEnd.getDate() + parseInt(extensionDays));
+                    newEnd.setDate(newEnd.getDate() + daysInt);
                 }
 
                 const alertData = {
-                    daysAdded: parseInt(extensionDays),
+                    daysAdded: daysInt,
                     timestamp: Timestamp.now(),
                     seen: false
                 };
@@ -173,8 +206,11 @@ const MembershipControl = () => {
                 batch.update(userRef, {
                     subscriptionEnd: Timestamp.fromDate(newEnd),
                     extensionAlert: alertData,
-                    // status: 'approved' // Optional: Reactivate everyone? Maybe risky. Let's just extend time.
                 });
+
+                // Prepare email (we'll send them after batch commit to not block the DB write)
+                const expiryStr = newEnd.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+                affectedUsers.push({ user, expiryStr });
 
                 operationCount++;
                 if (operationCount >= batchSize) {
@@ -189,7 +225,23 @@ const MembershipControl = () => {
                 await batch.commit();
             }
 
-            alert(`Se procesó con éxito la extensión masiva para todos los usuarios.`);
+            // Massive Email Notification (Async)
+            if (affectedUsers.length > 0) {
+                alert(`ACTUALIZACIÓN COMPLETADA. Enviando notificacones por correo a ${affectedUsers.length} usuarios...`);
+
+                // Process in small groups to avoid crushing the browser/API
+                const groupSize = 5;
+                for (let i = 0; i < affectedUsers.length; i += groupSize) {
+                    const group = affectedUsers.slice(i, i + groupSize);
+                    await Promise.all(group.map(item =>
+                        sendExtensionEmail(item.user, daysInt, item.expiryStr)
+                    ));
+                    // Small delay between groups
+                    if (i + groupSize < affectedUsers.length) await new Promise(r => setTimeout(r, 500));
+                }
+            }
+
+            alert(`Operación masiva completada con éxito.`);
         } catch (error) {
             console.error(error);
             alert("Error in massive update: " + error.message);
