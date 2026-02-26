@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Check, AlertTriangle, Send } from 'lucide-react';
+import { Mail, Check, AlertTriangle, Send, Plus, Image } from 'lucide-react';
 
 const EmailTester = ({ adminUser }) => {
     const [testEmail, setTestEmail] = useState('');
