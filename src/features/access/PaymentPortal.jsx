@@ -595,11 +595,25 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
 
                                         <div className="space-y-2">
                                             <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">MONTO EXACTO A ENVIAR</p>
-                                            <div className="flex items-center justify-center gap-3">
-                                                <h4 className="text-4xl md:text-5xl font-black italic text-white tracking-tighter tabular-nums">
-                                                    {paymentDetails.pay_amount}
-                                                </h4>
-                                                <span className="text-2xl font-black text-red-600 uppercase mt-2">{paymentDetails.pay_currency.toUpperCase()}</span>
+                                            <div className="flex flex-col items-center gap-2">
+                                                <div className="flex items-center justify-center gap-3">
+                                                    <h4 className="text-4xl md:text-5xl font-black italic text-white tracking-tighter tabular-nums">
+                                                        {paymentDetails.pay_amount}
+                                                    </h4>
+                                                    <span className="text-2xl font-black text-red-600 uppercase mt-2">
+                                                        {paymentDetails.pay_currency === 'usdtbsc' ? 'USDT' : paymentDetails.pay_currency === 'bnbbsc' ? 'BNB' : paymentDetails.pay_currency.toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full">
+                                                    <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">
+                                                        RED: <span className="text-red-600">
+                                                            {paymentDetails.pay_currency === 'usdtbsc' ? 'BINANCE SMART CHAIN (BEP20)' :
+                                                                paymentDetails.pay_currency === 'bnbbsc' ? 'BINANCE SMART CHAIN (BSC)' :
+                                                                    paymentDetails.pay_currency === 'btc' ? 'BITCOIN NETWORK' :
+                                                                        'RED NATIVA'}
+                                                        </span>
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
 
