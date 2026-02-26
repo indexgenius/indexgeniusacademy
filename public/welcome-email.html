@@ -2,139 +2,137 @@
 <html lang="es">
 
 <head>
-    <meta name="color-scheme" content="light dark">
-    <meta name="supported-color-schemes" content="light dark">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexGenius Academy</title>
     <style>
+        /* Reset for email clients */
+        body,
+        table,
+        td,
+        p,
+        a,
+        div {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        table,
+        td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            background-color: #000000;
+        }
+
+        /* GMAIL DARK MODE HACKS */
         u+.body {
-            background-image: url('https://dummyimage.com/600x1200/000000/000000') !important;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .text-force-white {
-                color: #ffffff !important;
-            }
-
-            .text-force-red {
-                color: #E50914 !important;
-            }
-
-            .text-force-gold {
-                color: #FFD700 !important;
-            }
-        }
-
-        [data-ogsc] .text-force-white {
+            background-color: #000000 !important;
             color: #ffffff !important;
         }
 
-        [data-ogsc] .text-force-red {
-            color: #E50914 !important;
-        }
+        @media (prefers-color-scheme: dark) {
+            .dark-bg {
+                background-color: #000000 !important;
+            }
 
-        [data-ogsc] .text-force-gold {
-            color: #FFD700 !important;
+            .text-white {
+                color: #ffffff !important;
+            }
         }
     </style>
 </head>
 
-<body class="body" style="margin:0; padding:0; background-color:#000000; color:#ffffff;">
+<body class="body" style="background-color: #000000; color: #ffffff; margin: 0; padding: 0;">
 
-    <table width="100%" cellpadding="0" cellspacing="0" border="0"
-        background="https://dummyimage.com/600x3000/000000/000000"
-        style="background-color:#000000; background-image: url('https://dummyimage.com/600x3000/000000/000000'); background-size: cover; background-repeat: repeat; width:100% !important;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #000000;">
         <tr>
-            <td align="center" style="padding: 10px 0;">
+            <td align="center">
 
-                <!-- CONTENEDOR PRINCIPAL -->
-                <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+                <!-- MAIN CONTAINER: Full Flyer Focus -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="max-width: 600px; width: 100%;">
+
+                    <!-- THE FLYER IMAGE (The whole email is essentially this) -->
                     <tr>
-                        <td align="center" style="padding:20px; font-family:Arial, sans-serif;">
+                        <td align="center" style="line-height: 0;">
+                            <img src="/img/imgemails/Bienvenida.png" alt="Bienvenido a IndexGenius Academy"
+                                style="width: 100%; max-width: 600px; height: auto; display: block; border: 0;">
+                        </td>
+                    </tr>
 
-                            <!-- LOGO TOP -->
-                            <p class="text-force-red"
-                                style="color:#E50914 !important; font-size: 10px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px;">
-                                ACCESO AUTORIZADO 🛰️ COMANDO CENTRAL
+                    <!-- MINIMAL CREDENTIALS: Blended into the black background -->
+                    <tr>
+                        <td align="center" style="padding: 40px 20px; background-color: #000000;">
+                            <p
+                                style="margin: 0; font-family: Arial, sans-serif; font-size: 11px; color: #E50914; font-weight: 900; letter-spacing: 4px; text-transform: uppercase;">
+                                ACCESO AUTORIZADO PARA:
                             </p>
+                            <h2
+                                style="margin: 10px 0 0 0; font-family: Arial, sans-serif; font-size: 24px; color: #ffffff; font-style: italic; font-weight: 900; text-transform: uppercase;">
+                                {{USER_NAME}}
+                            </h2>
 
-                            <!-- FLYER DE BIENVENIDA -->
-                            <div
-                                style="border: 3px solid #E50914; line-height: 0; box-shadow: 0 0 30px rgba(229, 9, 20, 0.5); border-radius: 8px; overflow: hidden;">
-                                <img src="/img/imgemails/Bienvenida.png" alt="Bienvenido a IndexGenius"
-                                    style="width: 100%; height: auto; display: block;">
-                            </div>
-
-                            <h1 class="text-force-white"
-                                style="color:#ffffff !important; margin:40px 0 10px 0; font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 34px; line-height: 1.1; letter-spacing: -1px;">
-                                ¡BIENVENIDO <span class="text-force-red"
-                                    style="color:#E50914 !important;">{{USER_NAME}}</span>!
-                            </h1>
-
-                            <p class="text-force-white"
-                                style="color:#999999 !important; font-size: 14px; margin-top: 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
-                                TU PLAN <span class="text-force-gold"
-                                    style="color:#FFD700 !important;">{{PLAN_NAME}}</span> HA SIDO ACTIVADO
-                            </p>
-
-                            <p class="text-force-white"
-                                style="color:#ffffff !important; font-size: 16px; margin-top: 30px; line-height: 1.6;">
-                                Estamos emocionados de que hayas decidido unirte a nuestro equipo. Te esperan grandes
-                                aprendizajes, señales exclusivas y mucho más.
-                            </p>
-
-                            <!-- CREDENTIALS TABLE -->
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                                style="margin-top: 40px; background-color: #111111; border: 1px solid #333333;">
+                            <!-- INFO BOX: High contrast red border -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                style="margin-top: 30px; border: 1px solid #333333; background-color: #080808;">
                                 <tr>
                                     <td style="padding: 25px;">
-                                        <p class="text-force-red"
-                                            style="color:#E50914 !important; font-weight: 900; margin: 0; letter-spacing: 2px; font-size: 11px; text-transform: uppercase;">
-                                            CREDENCIALES DE ACCESO:
-                                        </p>
-                                        <p class="text-force-white"
-                                            style="color:#ffffff !important; font-size: 14px; margin-top: 15px;">
-                                            <span style="color:#666; font-size: 10px;">USUARIO:</span> <strong
-                                                style="font-family: monospace;">{{USER_EMAIL}}</strong>
-                                        </p>
-                                        <p class="text-force-white"
-                                            style="color:#ffffff !important; font-size: 14px; margin-top: 5px;">
-                                            <span style="color:#666; font-size: 10px;">ACCESO:</span> <strong
-                                                style="font-family: monospace;">{{USER_PASSWORD}}</strong>
-                                        </p>
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td style="padding-bottom: 10px;">
+                                                    <span
+                                                        style="font-family: Arial, sans-serif; font-size: 9px; color: #555; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">USUARIO:</span>
+                                                    <br>
+                                                    <span
+                                                        style="font-family: 'Courier New', Courier, monospace; font-size: 16px; color: #ffffff; font-weight: bold;">{{USER_EMAIL}}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span
+                                                        style="font-family: Arial, sans-serif; font-size: 9px; color: #555; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">PASSWORD:</span>
+                                                    <br>
+                                                    <span
+                                                        style="font-family: 'Courier New', Courier, monospace; font-size: 16px; color: #E50914; font-weight: bold;">{{USER_PASSWORD}}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
 
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
-                                style="margin-top: 40px;">
+                            <!-- ACTION BUTTON -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px;">
                                 <tr>
                                     <td align="center" bgcolor="#E50914"
-                                        style="background-color:#E50914 !important; padding: 22px;">
+                                        style="background-color: #E50914; padding: 20px;">
                                         <a href="https://indexgeniusacademy.com" target="_blank"
-                                            style="color:#ffffff !important; text-decoration:none; font-weight:900; text-transform:uppercase; letter-spacing:5px; font-size:16px; display:block; width:100%;">
-                                            INGRESAR AL SISTEMA AHORA
+                                            style="font-family: Arial, sans-serif; font-size: 16px; font-weight: 900; color: #ffffff; text-decoration: none; text-transform: uppercase; letter-spacing: 4px; display: block;">
+                                            INGRESAR AL SISTEMA
                                         </a>
                                     </td>
                                 </tr>
                             </table>
 
-                            <div style="margin-top: 50px; border-top: 1px solid #1a1a1a; padding-top: 30px;">
-                                <p
-                                    style="color: #444; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
-                                    SÍGUENOS EN NUESTRAS REDES OFICIALES
-                                </p>
-                                <p style="margin-top: 15px;">
-                                    <a href="#"
-                                        style="color:#E50914; text-decoration:none; margin: 0 10px; font-weight: 900; font-size: 12px;">TELEGRAM</a>
-                                    <a href="#"
-                                        style="color:#E50914; text-decoration:none; margin: 0 10px; font-weight: 900; font-size: 12px;">INSTAGRAM</a>
-                                </p>
-                            </div>
-
-                            <p class="text-force-white"
-                                style="color:#222222 !important; font-size: 8px; margin-top: 50px; text-transform: uppercase; letter-spacing: 3px; font-weight: bold;">
-                                IndexGenius Academy &copy; 2026 - Protocolo de Bienvenida
+                            <p
+                                style="margin-top: 40px; font-family: Arial, sans-serif; font-size: 9px; color: #222; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
+                                IndexGenius Academy &copy; 2026 - Official Transmission
                             </p>
-
                         </td>
                     </tr>
                 </table>
