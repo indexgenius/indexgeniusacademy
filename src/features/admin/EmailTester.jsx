@@ -7,6 +7,47 @@ const EmailTester = ({ adminUser }) => {
     const [responseMsg, setResponseMsg] = useState('');
     const [selectedTemplate, setSelectedTemplate] = useState('welcome_new'); // welcome_new, extension, standard, black_test
 
+    const [uploading, setUploading] = useState(false);
+    const [flyerUrl, setFlyerUrl] = useState('');
+
+    const handleFlyerUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        setStatus('idle');
+        setResponseMsg('');
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('filename', `flyer_${Date.now()}_${file.name.replace(/\s/g, '_')}`);
+
+            let apiUrl = 'https://indexgeniusacademy.com/api/admin/upload-image';
+            if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                apiUrl = '/api/admin/upload-image';
+            }
+
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setFlyerUrl(data.url);
+                alert("FLYER SUBIDO A CLOUDFLARE R2 CON ÉXITO");
+            } else {
+                throw new Error(data.error || 'Fallo en la conexión con Cloudflare R2');
+            }
+        } catch (error) {
+            console.error("Upload Error:", error);
+            alert("ERROR: Asegúrate de tener el bucket R2 configurado en Cloudflare.");
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const handleTestEmail = async (e) => {
         e.preventDefault();
         if (!testEmail) return;
@@ -110,6 +151,51 @@ const EmailTester = ({ adminUser }) => {
                     >
                         TEST NEGRO MÓVIL
                     </button>
+                </div>
+            </div>
+
+            {/* CLOUDFLARE R2 UPLOADER */}
+            <div className="bg-red-600/5 border border-red-600/30 p-4 mb-8 relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-red-600/10 border border-red-600/20">
+                        <Image className="text-red-600" size={16} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black text-white uppercase tracking-tighter">SUBIDA DE FLYERS (CLOUDFLARE R2)</p>
+                        <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">URL PÚBLICA PARA EL BIENVENIDA.PNG</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <div className="flex-1 space-y-2">
+                        <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">SELECCIONAR ARCHIVO (PNG/JPG)</label>
+                        <label className="w-full h-12 flex items-center justify-center bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all border-dashed">
+                            {uploading ? (
+                                <div className="flex items-center gap-2">
+                                    <RefreshCw className="text-red-600 animate-spin" size={12} />
+                                    <span className="text-[9px] font-black text-white uppercase">SUBIENDO...</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Plus size={14} className="text-red-600" />
+                                    <span className="text-[9px] font-black text-white uppercase italic">ELEGIR IMAGEN</span>
+                                </div>
+                            )}
+                            <input type="file" className="hidden" accept="image/*" onChange={handleFlyerUpload} disabled={uploading} />
+                        </label>
+                    </div>
+
+                    {flyerUrl && (
+                        <div className="flex-1 bg-black border border-green-600/30 p-3 space-y-1">
+                            <p className="text-[8px] font-black text-green-500 uppercase tracking-widest">URL GENERADA:</p>
+                            <input
+                                readOnly
+                                value={flyerUrl}
+                                onClick={(e) => { e.target.select(); document.execCommand('copy'); alert('URL COPIADA AL PORTAPAPELES'); }}
+                                className="w-full bg-transparent text-[9px] font-mono text-white outline-none cursor-pointer overflow-hidden text-ellipsis"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

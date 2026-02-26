@@ -1,0 +1,73 @@
+export async function onRequestOptions() {
+    return new Response(null, {
+        status: 204,
+        headers: {
+            'Access-Control-Allow-Origin': 'https://indexgeniusacademy.com',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
+    });
+}
+
+export async function onRequestPost(context) {
+    const { request, env } = context;
+    const corsHeaders = {
+        'Access-Control-Allow-Origin': 'https://indexgeniusacademy.com',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    };
+
+    try {
+        // 1. Verificar si R2 está configurado
+        if (!env.EMAIL_ASSETS_BUCKET) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: 'Bucket R2 (EMAIL_ASSETS_BUCKET) no vinculado en Cloudflare'
+            }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+        }
+
+        const formData = await request.formData();
+        const file = formData.get('file');
+        const filename = formData.get('filename') || `flyer_${Date.now()}.png`;
+
+        if (!file) {
+            return new Response(JSON.stringify({ success: false, error: 'No se recibió ningún archivo' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+        }
+
+        // 2. Subir a R2
+        // El nombre del archivo será la llave en el bucket
+        await env.EMAIL_ASSETS_BUCKET.put(filename, file, {
+            httpMetadata: {
+                contentType: file.type,
+                cacheControl: 'public, max-age=31536000',
+            }
+        });
+
+        // 3. Generar URL Pública
+        // Nota: El bucket debe estar configurado como "Public Setup" en Cloudflare con un dominio o subdominio R2
+        const publicUrlBase = env.R2_PUBLIC_URL || 'https://assets.indexgeniusacademy.com';
+        const publicUrl = `${publicUrlBase}/${filename}`;
+
+        return new Response(JSON.stringify({
+            success: true,
+            url: publicUrl,
+            filename: filename
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+
+    } catch (error) {
+        console.error('R2 Upload Error:', error);
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+    }
+}
