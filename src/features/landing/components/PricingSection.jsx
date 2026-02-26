@@ -12,7 +12,7 @@ const PricingSection = ({ onShowAuth }) => {
         {
             id: 'index-one',
             name: 'INDEX ONE',
-            price: '97',
+            price: '60',
             period: '/ mensual',
             description: 'Acceso mensual al ecosistema IndexGenius.',
             features: [
@@ -32,7 +32,7 @@ const PricingSection = ({ onShowAuth }) => {
         {
             id: 'index-pro',
             name: 'INDEX PRO',
-            price: '297',
+            price: '150',
             period: '/ mensual',
             description: 'Infraestructura profesional completa.',
             features: [
@@ -54,7 +54,7 @@ const PricingSection = ({ onShowAuth }) => {
         {
             id: 'index-black',
             name: 'INDEX BLACK',
-            price: '1,000',
+            price: '500',
             period: 'pago único',
             description: 'Programa privado de alto rendimiento.',
             features: [
@@ -268,15 +268,15 @@ const PricingSection = ({ onShowAuth }) => {
                                         Precio
                                     </td>
                                     <td className="text-center py-5 lg:py-6 px-3 lg:px-6">
-                                        <span className="text-lg lg:text-xl font-black italic text-black">$97</span>
+                                        <span className="text-lg lg:text-xl font-black italic text-black">$60</span>
                                         <span className="block text-[7px] lg:text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">USD / MES</span>
                                     </td>
                                     <td className="text-center py-5 lg:py-6 px-3 lg:px-6 bg-red-600/[0.04]">
-                                        <span className="text-lg lg:text-xl font-black italic text-red-600">$297</span>
+                                        <span className="text-lg lg:text-xl font-black italic text-red-600">$150</span>
                                         <span className="block text-[7px] lg:text-[8px] font-black text-red-500 uppercase tracking-widest mt-1">USD / MES</span>
                                     </td>
                                     <td className="text-center py-5 lg:py-6 px-3 lg:px-6">
-                                        <span className="text-lg lg:text-xl font-black italic text-black">$1,000</span>
+                                        <span className="text-lg lg:text-xl font-black italic text-black">$500</span>
                                         <span className="block text-[7px] lg:text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">PAGO ÚNICO</span>
                                     </td>
                                 </tr>
