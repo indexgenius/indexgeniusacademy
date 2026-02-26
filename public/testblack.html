@@ -4,14 +4,6 @@
 <head>
     <meta name="color-scheme" content="light dark">
     <meta name="supported-color-schemes" content="light dark">
-    <!--[if mso]>
-<xml>
-  <o:OfficeDocumentSettings>
-    <o:AllowPNG/>
-    <o:PixelsPerInch>96</o:PixelsPerInch>
-  </o:OfficeDocumentSettings>
-</xml>
-<![endif]-->
     <style>
         /* HACK PARA GMAIL: Forzar fondo negro incluso en modo claro/oscuro */
         u+.body {
@@ -20,20 +12,16 @@
 
         /* Evitar que Gmail aclare u oscurezca los colores */
         @media (prefers-color-scheme: dark) {
-            .dark-img {
-                display: block !important;
-            }
-
-            .light-img {
-                display: none !important;
-            }
-
             .text-force-white {
                 color: #ffffff !important;
             }
 
             .text-force-red {
                 color: #E50914 !important;
+            }
+
+            .bg-force-black {
+                background-color: #000000 !important;
             }
         }
 
@@ -45,10 +33,14 @@
         [data-ogsc] .text-force-red {
             color: #E50914 !important;
         }
+
+        [data-ogsc] .bg-force-black {
+            background-color: #000000 !important;
+        }
     </style>
 </head>
 
-<body class="body" style="margin:0; padding:0; background-color:#111111; color:#ffffff;">
+<body class="body" style="margin:0; padding:0; background-color:#000000; color:#ffffff;">
 
     <table width="100%" cellpadding="0" cellspacing="0" border="0"
         background="https://dummyimage.com/600x2000/000000/000000"
@@ -62,7 +54,7 @@
                         <td align="center" style="padding:40px; font-family:Arial, sans-serif;">
 
                             <h1 class="text-force-red"
-                                style="color:#E50914 !important; margin:0; font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 38px; line-height: 1.1; display: block;">
+                                style="color:#E50914 !important; margin:0; font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 38px; line-height: 1.1;">
                                 ¡MÁXIMO IMPACTO! ⚡
                             </h1>
 
@@ -73,25 +65,30 @@
                                 negro forzado.
                             </p>
 
-                            <div
-                                style="margin-top: 50px; padding: 30px; border: 3px solid #E50914; background-color: #000000; display: block;">
-                                <p class="text-force-white"
-                                    style="color:#ffffff !important; font-weight: 900; margin: 0; letter-spacing: 3px; font-size: 16px; text-transform: uppercase;">
-                                    ESTADO: <span class="text-force-red"
-                                        style="color:#E50914 !important;">OPERATIVO</span>
-                                </p>
-                                <p class="text-force-white"
-                                    style="color:#999999 !important; font-size: 13px; margin-top: 15px; font-style: italic;">
-                                    Si ves esto en rojo brillante y blanco puro sobre negro total, hemos derrotado al
-                                    sistema de Gmail.
-                                </p>
-                            </div>
+                            <!-- BOX CON HACK DE IMAGEN DE FONDO PARA EVITAR INVERSIÓN A BLANCO -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                background="https://dummyimage.com/600x400/000000/000000"
+                                style="margin-top: 50px; background-color: #000000; border: 3px solid #E50914;">
+                                <tr>
+                                    <td style="padding: 30px;">
+                                        <p class="text-force-white"
+                                            style="color:#ffffff !important; font-weight: 900; margin: 0; letter-spacing: 3px; font-size: 16px; text-transform: uppercase;">
+                                            ESTADO: <span class="text-force-red"
+                                                style="color:#E50914 !important;">OPERATIVO</span>
+                                        </p>
+                                        <p class="text-force-white"
+                                            style="color:#999999 !important; font-size: 13px; margin-top: 15px; font-style: italic;">
+                                            Si el recuadro es negro, ¡HEMOS GANADO!
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
 
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
                                 style="margin-top: 40px;">
                                 <tr>
                                     <td align="center" bgcolor="#E50914"
-                                        style="background-color:#E50914 !important; padding: 20px;">
+                                        style="background-color:#E50914 !important; padding: 20px; border: 1px solid #E50914;">
                                         <a href="https://indexgeniusacademy.com" target="_blank"
                                             style="color:#ffffff !important; text-decoration:none; font-weight:900; text-transform:uppercase; letter-spacing:4px; font-size:16px; display:block; width:100%;">
                                             ENTRAR AL SISTEMA
@@ -101,7 +98,7 @@
                             </table>
 
                             <p class="text-force-white"
-                                style="color:#444444 !important; font-size: 10px; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;">
+                                style="color:#555555 !important; font-size: 10px; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;">
                                 IndexGenius Academy &copy; 2026 - Protocolo de Seguridad Activo
                             </p>
 
