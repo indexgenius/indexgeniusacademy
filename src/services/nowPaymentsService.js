@@ -30,6 +30,7 @@ export const nowPaymentsService = {
                     ipn_callback_url: data.ipn_callback_url || 'https://ingenusfx.com/api/callback/nowpayments',
                     success_url: data.success_url || window.location.origin,
                     cancel_url: data.cancel_url || window.location.origin,
+                    is_fee_paid_by_user: true, // User pays the fee
                 }),
             });
 
@@ -111,6 +112,7 @@ export const nowPaymentsService = {
                     order_id: data.order_id,
                     order_description: data.order_description,
                     ipn_callback_url: data.ipn_callback_url || 'https://ingenusfx.com/api/callback/nowpayments',
+                    is_fee_paid_by_user: true, // User pays the fee
                 }),
             });
 
