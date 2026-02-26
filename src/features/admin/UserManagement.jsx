@@ -14,6 +14,11 @@ const UserManagement = ({ adminUser }) => {
     const [editEmail, setEditEmail] = useState('');
     const [editPassword, setEditPassword] = useState('');
     const [editUpdating, setEditUpdating] = useState(false);
+    const [editPending, setEditPending] = useState(null); // New state variable
+    const [searchQuery, setSearchQuery] = useState(''); // New state variable
+    const [preApproveEmail, setPreApproveEmail] = useState(''); // New state variable
+    const [preApproveLoading, setPreApproveLoading] = useState(false); // New state variable
+    const [preApproveName, setPreApproveName] = useState(''); // New state variable
 
     useEffect(() => {
         const unsubPending = onSnapshot(query(collection(db, "users"), where("status", "==", "pending")), (snapshot) => {
@@ -36,6 +41,36 @@ const UserManagement = ({ adminUser }) => {
             unsubAll();
         };
     }, []);
+
+    const handlePreApprove = async (e) => {
+        e.preventDefault();
+        if (!preApproveEmail) {
+            alert("Por favor, introduce un correo electrónico.");
+            return;
+        }
+        setPreApproveLoading(true);
+        try {
+            const userRef = doc(db, "users", preApproveEmail.toLowerCase());
+            await setDoc(userRef, {
+                email: preApproveEmail.toLowerCase(),
+                status: 'pre_approved',
+                createdAt: serverTimestamp(),
+                approvedBy: adminUser.email,
+                displayName: preApproveName || null,
+                selectedPlan: 'ELITE ACCESS', // Default plan
+                membershipPrice: '25' // Default price
+            }, { merge: true }); // Use merge to avoid overwriting if doc exists
+
+            alert(`Correo ${preApproveEmail} pre-aprobado. Cuando se registre, será aprobado automáticamente.`);
+            setPreApproveEmail('');
+            setPreApproveName('');
+        } catch (error) {
+            console.error("Error pre-aprobando usuario:", error);
+            alert("Error al pre-aprobar el correo: " + error.message);
+        } finally {
+            setPreApproveLoading(false);
+        }
+    };
 
     const handleApprove = async (userDoc) => {
         if (!confirm(`¿APROBAR ACCESO PARA ${userDoc.email}?`)) return;
@@ -374,6 +409,32 @@ const UserManagement = ({ adminUser }) => {
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* SECCIÓN DE PRE-APROBACIÓN RÁPIDA */}
+            <div className="mb-8 bg-red-600/5 border border-red-600/20 p-6 rounded-sm">
+                <div className="flex items-center gap-3 mb-4 text-red-600 uppercase font-black italic tracking-widest text-xs">
+                    <Users size={16} /> REGISTRO DE UNIDAD EXTERNA
+                </div>
+                <form onSubmit={handlePreApprove} className="flex flex-col lg:flex-row gap-3">
+                    <input
+                        type="email"
+                        placeholder="CORREO DE LA NUEVA UNIDAD"
+                        value={preApproveEmail}
+                        onChange={(e) => setPreApproveEmail(e.target.value)}
+                        className="bg-black/40 border border-white/10 p-4 text-xs font-bold text-white outline-none flex-grow"
+                    />
+                    <button
+                        type="submit"
+                        disabled={preApproveLoading}
+                        className="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50"
+                    >
+                        {preApproveLoading ? 'PROCESANDO...' : 'GENERAR PROTOCOLO'}
+                    </button>
+                </form>
+                <p className="mt-3 text-[9px] text-gray-500 font-bold uppercase tracking-wider italic">
+                    * ESTO TE DARÁ LAS INSTRUCCIONES PARA VINCULAR A UN USUARIO QUE AÚN NO SE HA REGISTRADO.
+                </p>
             </div>
 
             <div className="space-y-6">

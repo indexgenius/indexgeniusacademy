@@ -70,12 +70,18 @@ function App() {
   const isAuthorized = user?.status === 'approved' || isAdmin;
   const { lastSignal } = useSignals(appLoadTimeRef.current, isAuthorized);
 
-  // 2.5. Detect when app comes back from background (Android PWA fix)
+  // 2.5. Detect when app comes back from background
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        console.log('🔄 App visible - reconnecting all listeners...');
-        setReconnectTrigger(prev => prev + 1);
+        const lastTrigger = parseInt(localStorage.getItem('last_reconnect_trigger') || '0');
+        const now = Date.now();
+        // Solo reconectar si han pasado más de 30 segundos para evitar auth/too-many-requests
+        if (now - lastTrigger > 30000) {
+          console.log('🔄 App visible - reconectando oyentes de forma segura...');
+          setReconnectTrigger(prev => prev + 1);
+          localStorage.setItem('last_reconnect_trigger', now.toString());
+        }
       }
     };
 

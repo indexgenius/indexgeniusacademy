@@ -3,17 +3,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // --- FUNCIONES DE SEGURIDAD ---
+    // --- SEGURIDAD DE ACCESO ---
     function isAuthenticated() { return request.auth != null; }
     
+    // Lista de correos maestros (Administradores Supremos)
+    function isMasterAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email.matches("(?i)(admin|steven@ingenius.fx|pipoapaza@gmail.com|jeilin@jeilin.com|jeilin@jeilin.fx|jeilin@ingenus.fx).*"));
+    }
+
     function isAdmin() {
-      return isAuthenticated() && (
-        request.auth.token.email in ['admin', 'steven@ingenius.fx', 'pipoapaza@gmail.com', 'jeilin@jeilin.com', 'jeilin@jeilin.fx']
-        || (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email in ['admin', 'steven@ingenius.fx', 'pipoapaza@gmail.com', 'jeilin@jeilin.com', 'jeilin@jeilin.fx']
-             || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
-             || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true
-           ))
+      return isMasterAdmin() || (
+        isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email.matches("(?i)(admin|steven@ingenius.fx|pipoapaza@gmail.com|jeilin@jeilin.com|jeilin@jeilin.fx|jeilin@ingenus.fx).*")
+        )
       );
     }
     
@@ -23,9 +29,10 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
     }
 
-    // --- REGLAS TÁCTICAS ---
+    // --- REGLAS POR COLECCIÓN ---
 
     match /users/{userId} {
+      // Un usuario solo puede leer/escribir su propio documento, a menos que sea Admin
       allow read, write: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
     }
 
@@ -48,35 +55,30 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
       match /messages/{msgId} {
-        // Solo aprobados pueden chatear
         allow read, write: if isAdmin() || isApproved();
       }
     }
 
     match /access_codes/{codeId} {
-      // BLINDAJE: Solo permite validar 1 código (get). Prohíbe ver la lista (list).
       allow get: if isAuthenticated();
       allow list, write: if isAdmin();
     }
 
     match /notifications/{id} {
-      allow create: if isAuthenticated(); // Reportar pago
-      allow read, update, delete: if isAdmin(); // Solo tú gestionas los avisos
+      allow create: if isAuthenticated();
+      allow read, update, delete: if isAdmin();
     }
 
     match /announcements/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
     match /payment_methods/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
     match /promos/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
+    match /site_assets/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
+    match /discount_codes/{codeId} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
+    match /announcements/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
 
-    match /site_assets/{id} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-
-    // --- NUEVO: CÓDIGOS DE DESCUENTO ---
-    match /discount_codes/{codeId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+    // Permitir a los admins leer cualquier colección por si acaso
+    match /{path=**} {
+      allow read, write: if isAdmin();
     }
   }
 }
