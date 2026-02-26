@@ -172,8 +172,12 @@ export const authService = {
             const remoteToken = data.activeSession?.token;
 
             if (remoteToken && remoteToken !== localToken) {
+                console.warn("🚫 Session conflict detected. Local:", localToken, "Remote:", remoteToken);
                 onSessionInvalid();
             }
+        }, (error) => {
+            console.error("❌ Session check listener error:", error);
+            // Don't trigger logout on permission error, only on actual data mismatch
         });
     }
 };

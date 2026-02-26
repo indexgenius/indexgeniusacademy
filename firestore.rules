@@ -8,8 +8,14 @@ service cloud.firestore {
     
     // Lista de correos maestros (Administradores Supremos)
     function isMasterAdmin() {
-      return isAuthenticated() && 
-        (request.auth.token.email.matches("(?i)(admin|steven@ingenius.fx|pipoapaza@gmail.com|jeilin@jeilin.com|jeilin@jeilin.fx|jeilin@ingenus.fx).*"));
+      return isAuthenticated() && (
+        request.auth.token.email.lower() == 'admin' ||
+        request.auth.token.email.lower() == 'steven@ingenius.fx' ||
+        request.auth.token.email.lower() == 'pipoapaza@gmail.com' ||
+        request.auth.token.email.lower() == 'jeilin@jeilin.com' ||
+        request.auth.token.email.lower() == 'jeilin@jeilin.fx' ||
+        request.auth.token.email.lower() == 'jeilin@ingenus.fx'
+      );
     }
 
     function isAdmin() {
@@ -18,7 +24,9 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email.matches("(?i)(admin|steven@ingenius.fx|pipoapaza@gmail.com|jeilin@jeilin.com|jeilin@jeilin.fx|jeilin@ingenus.fx).*")
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email.lower() in [
+            'admin', 'steven@ingenius.fx', 'pipoapaza@gmail.com', 'jeilin@jeilin.com', 'jeilin@jeilin.fx', 'jeilin@ingenus.fx'
+          ]
         )
       );
     }
@@ -32,7 +40,6 @@ service cloud.firestore {
     // --- REGLAS POR COLECCIÓN ---
 
     match /users/{userId} {
-      // Un usuario solo puede leer/escribir su propio documento, a menos que sea Admin
       allow read, write: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
     }
 
@@ -74,7 +81,6 @@ service cloud.firestore {
     match /promos/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
     match /site_assets/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
     match /discount_codes/{codeId} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
-    match /announcements/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
 
     // Permitir a los admins leer cualquier colección por si acaso
     match /{path=**} {
