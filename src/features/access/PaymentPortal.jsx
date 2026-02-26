@@ -150,12 +150,21 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                 throw new Error("Respuesta inválida de la API");
             }
 
-            // Filtrar y priorizar USDT BEP20 (BSC)
-            const popular = ['usdtbsc', 'usdttrc20', 'usdtbec20', 'btc', 'eth', 'ltc', 'trc20', 'trx', 'bnbbsc'];
+            // Filtrar y priorizar USDT, BTC y BNB (Monedas solicitadas)
+            const popular = ['usdtbsc', 'btc', 'bnbbsc', 'usdttrc20', 'eth', 'ltc', 'trc20', 'trx'];
             let filtered = data.currencies.filter(c => popular.includes(c.toLowerCase()));
 
-            // Reordenar para que USDT BEP20 (usdtbsc) aparezca primero si existe
-            filtered.sort((a, b) => (a === 'usdtbsc' ? -1 : b === 'usdtbsc' ? 1 : 0));
+            // Orden específico solicitado: USDT (BSC), BTC, BNB (BSC)
+            const order = ['usdtbsc', 'btc', 'bnbbsc'];
+            filtered.sort((a, b) => {
+                const indexA = order.indexOf(a.toLowerCase());
+                const indexB = order.indexOf(b.toLowerCase());
+
+                if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                if (indexA !== -1) return -1;
+                if (indexB !== -1) return 1;
+                return 0;
+            });
 
             // Si por alguna razón el filtro falla, mostramos las primeras 12 disponibles
             if (filtered.length === 0) {
@@ -536,12 +545,21 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                                     key={curr}
                                                     onClick={() => handleSelectCurrency(curr)}
                                                     disabled={loading}
-                                                    className="p-6 bg-white/[0.03] border border-white/5 rounded-2xl hover:border-red-600 hover:bg-white/5 transition-all text-center group flex flex-col items-center gap-4"
+                                                    className={`p-6 bg-white/[0.03] border rounded-2xl transition-all text-center group flex flex-col items-center gap-4 ${['usdtbsc', 'btc', 'bnbbsc'].includes(curr.toLowerCase()) ? 'border-red-600/50 bg-red-600/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]' : 'border-white/5 hover:border-red-600 hover:bg-white/5'}`}
                                                 >
-                                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-red-600 group-hover:scale-110 transition-all border border-white/5">
-                                                        <span className="text-xs font-black text-white group-hover:text-white italic">{curr.substring(0, 3).toUpperCase()}</span>
+                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-red-600 group-hover:scale-110 transition-all border ${['usdtbsc', 'btc', 'bnbbsc'].includes(curr.toLowerCase()) ? 'bg-red-600 text-white border-red-500' : 'bg-white/5 text-white border-white/5'}`}>
+                                                        <span className="text-[10px] font-black group-hover:text-white italic">
+                                                            {curr === 'usdtbsc' ? 'USDT' : curr === 'bnbbsc' ? 'BNB' : curr.substring(0, 3).toUpperCase()}
+                                                        </span>
                                                     </div>
-                                                    <span className="text-[10px] font-black uppercase text-gray-500 group-hover:text-white tracking-widest">{curr.toUpperCase()}</span>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[10px] font-black uppercase text-white tracking-widest">
+                                                            {curr === 'usdtbsc' ? 'USDT (BEP20)' : curr === 'bnbbsc' ? 'BNB (BSC)' : curr.toUpperCase()}
+                                                        </span>
+                                                        {['usdtbsc', 'bnbbsc'].includes(curr.toLowerCase()) && (
+                                                            <span className="text-[7px] font-black text-red-600 uppercase tracking-tighter">RED: SMART CHAIN</span>
+                                                        )}
+                                                    </div>
                                                 </button>
                                             ))}
                                         </div>
