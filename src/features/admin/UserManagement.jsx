@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShieldCheck, Check, Trash2, StopCircle, Users, Image, ExternalLink, File, XCircle } from 'lucide-react';
 import { db, auth } from '../../firebase';
 import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 const UserManagement = ({ adminUser }) => {
     const [pendingUsers, setPendingUsers] = useState([]);
@@ -10,6 +11,9 @@ const UserManagement = ({ adminUser }) => {
     const [userFilter, setUserFilter] = useState('');
     const [editingUser, setEditingUser] = useState(null);
     const [editExpiry, setEditExpiry] = useState('');
+    const [editEmail, setEditEmail] = useState('');
+    const [editPassword, setEditPassword] = useState('');
+    const [editUpdating, setEditUpdating] = useState(false);
 
     useEffect(() => {
         const unsubPending = onSnapshot(query(collection(db, "users"), where("status", "==", "pending")), (snapshot) => {
@@ -160,19 +164,44 @@ const UserManagement = ({ adminUser }) => {
         }
     };
 
-    const handleUpdateExpiry = async (e) => {
+    const handleUpdateUser = async (e) => {
         e.preventDefault();
-        if (!editingUser || !editExpiry) return;
+        if (!editingUser) return;
+        setEditUpdating(true);
         try {
-            const expiryDate = new Date(editExpiry);
-            await updateDoc(doc(db, "users", editingUser.id), {
-                subscriptionEnd: expiryDate,
-                subscriptionActive: expiryDate > new Date()
-            });
-            alert("EXPIRACIÓN ACTUALIZADA");
+            const updates = {};
+
+            if (editExpiry) {
+                const expiryDate = new Date(editExpiry);
+                updates.subscriptionEnd = expiryDate;
+                updates.subscriptionActive = expiryDate > new Date();
+            }
+
+            if (editEmail && editEmail !== editingUser.email) {
+                updates.email = editEmail.toLowerCase().trim();
+            }
+
+            if (editPassword) {
+                updates.tmpPassword = editPassword;
+            }
+
+            await updateDoc(doc(db, "users", editingUser.id), updates);
+            alert("DATOS DE USUARIO ACTUALIZADOS EN FIRESTORE");
             setEditingUser(null);
         } catch (e) {
             alert("FALLO EN LA ACTUALIZACIÓN: " + e.message);
+        } finally {
+            setEditUpdating(false);
+        }
+    };
+
+    const handleTriggerPasswordReset = async (email) => {
+        if (!confirm(`¿ENVIAR CORREO DE RESTABLECIMIENTO A ${email}?`)) return;
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert("CORREO DE RESTABLECIMIENTO ENVIADO");
+        } catch (e) {
+            alert("ERROR AL ENVIAR: " + e.message);
         }
     };
 
@@ -334,14 +363,24 @@ const UserManagement = ({ adminUser }) => {
                                 <button
                                     onClick={() => {
                                         setEditingUser(u);
+                                        setEditEmail(u.email || '');
+                                        setEditPassword(u.tmpPassword || '');
                                         if (u.subscriptionEnd) {
                                             const date = u.subscriptionEnd.toMillis ? new Date(u.subscriptionEnd.toMillis()) : new Date(u.subscriptionEnd);
                                             setEditExpiry(date.toISOString().split('T')[0]);
+                                        } else {
+                                            setEditExpiry('');
                                         }
                                     }}
                                     className="px-4 py-3 lg:px-3 lg:py-1 bg-blue-600 text-white text-[10px] lg:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20"
                                 >
-                                    EDITAR ACCESO
+                                    GESTIONAR
+                                </button>
+                                <button
+                                    onClick={() => handleTriggerPasswordReset(u.email)}
+                                    className="px-4 py-3 lg:px-3 lg:py-1 bg-yellow-600 text-black text-[10px] lg:text-[9px] font-black uppercase tracking-widest shadow-lg shadow-yellow-600/20"
+                                >
+                                    RESET PASS
                                 </button>
                                 <button
                                     onClick={() => handleDeleteUser(u.id)}
@@ -375,24 +414,63 @@ const UserManagement = ({ adminUser }) => {
                 <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-6">
                     <div className="bg-black border border-white/5 p-8 max-w-md w-full space-y-6 shadow-red-glow">
                         <div className="flex justify-between items-start">
-                            <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">RE-CONFIGURAR ACCESO</h3>
+                            <h3 className="text-xl font-black italic tracking-tighter text-white uppercase">GESTOR DE UNIDAD</h3>
                             <button onClick={() => setEditingUser(null)} className="text-gray-500 hover:text-white"><StopCircle /></button>
                         </div>
-                        <p className="text-xs text-gray-500 font-bold uppercase">{editingUser.email}</p>
-                        <form onSubmit={handleUpdateExpiry} className="space-y-4">
+
+                        <form onSubmit={handleUpdateUser} className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">EMAIL DE REGISTRO</label>
+                                <input
+                                    type="email"
+                                    value={editEmail}
+                                    onChange={e => setEditEmail(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 p-4 text-white font-mono text-xs outline-none focus:border-blue-500"
+                                    placeholder="NUEVO EMAIL"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">CONTRASEÑA TEMPORAL / NOTA</label>
+                                <input
+                                    type="text"
+                                    value={editPassword}
+                                    onChange={e => setEditPassword(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 p-4 text-white font-mono text-xs outline-none focus:border-blue-500"
+                                    placeholder="NUEVA CONTRASEÑA"
+                                />
+                                <p className="text-[8px] text-gray-600 uppercase">Nota: Cambiar esto solo actualiza el registro visible. Usa 'ENVIAR RESET' para cambio real en Auth.</p>
+                            </div>
+
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">FECHA DE EXPIRACIÓN</label>
                                 <input
                                     type="date"
                                     value={editExpiry}
                                     onChange={e => setEditExpiry(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 p-4 text-white font-mono outline-none"
+                                    className="w-full bg-white/5 border border-white/10 p-4 text-white font-mono outline-none focus:border-blue-500"
                                 />
                             </div>
-                            <button className="w-full py-4 bg-red-600 text-white font-black text-xs tracking-widest uppercase hover:bg-white hover:text-black transition-all">
-                                AUTORIZAR ACTUALIZACIÓN
-                            </button>
+
+                            <div className="flex gap-2 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={editUpdating}
+                                    className="flex-1 py-4 bg-red-600 text-white font-black text-[10px] tracking-widest uppercase hover:bg-white hover:text-black transition-all disabled:opacity-50"
+                                >
+                                    {editUpdating ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+                                </button>
+                            </div>
                         </form>
+
+                        <div className="border-t border-white/10 pt-4">
+                            <button
+                                onClick={() => handleTriggerPasswordReset(editingUser.email)}
+                                className="w-full py-4 bg-yellow-600/10 border border-yellow-600/50 text-yellow-600 font-black text-[10px] tracking-widest uppercase hover:bg-yellow-600 hover:text-black transition-all"
+                            >
+                                ENVIAR LINK DE RECUPERACIÓN (AUTH)
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
