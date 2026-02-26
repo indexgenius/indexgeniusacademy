@@ -19,10 +19,12 @@ export async function onRequestPost(context) {
 
     try {
         // 1. Verificar si R2 está configurado
-        if (!env.EMAIL_ASSETS_BUCKET) {
+        const bucket = env.EMAIL_ASSETS_BUCKET || env.imgindexgenius;
+
+        if (!bucket) {
             return new Response(JSON.stringify({
                 success: false,
-                error: 'Bucket R2 (EMAIL_ASSETS_BUCKET) no vinculado en Cloudflare'
+                error: 'Bucket R2 no vinculado. En Cloudflare ve a Settings -> Functions -> R2 Bucket Bindings y vincula "imgindexgenius" a la variable "EMAIL_ASSETS_BUCKET".'
             }), {
                 status: 500,
                 headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -42,7 +44,7 @@ export async function onRequestPost(context) {
 
         // 2. Subir a R2
         // El nombre del archivo será la llave en el bucket
-        await env.EMAIL_ASSETS_BUCKET.put(filename, file, {
+        await bucket.put(filename, file, {
             httpMetadata: {
                 contentType: file.type,
                 cacheControl: 'public, max-age=31536000',
