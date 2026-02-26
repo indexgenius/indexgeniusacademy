@@ -5,7 +5,7 @@ const EmailTester = ({ adminUser }) => {
     const [testEmail, setTestEmail] = useState('');
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [responseMsg, setResponseMsg] = useState('');
-    const [selectedTemplate, setSelectedTemplate] = useState('standard'); // standard, black_test
+    const [selectedTemplate, setSelectedTemplate] = useState('welcome_new'); // welcome_new, extension, standard, black_test
 
     const handleTestEmail = async (e) => {
         e.preventDefault();
@@ -16,7 +16,11 @@ const EmailTester = ({ adminUser }) => {
 
         try {
             // Fetch HTML template
-            const templatePath = selectedTemplate === 'standard' ? '/testemail.html' : '/testblack.html';
+            let templatePath = '/testemail.html';
+            if (selectedTemplate === 'black_test') templatePath = '/testblack.html';
+            if (selectedTemplate === 'welcome_new') templatePath = '/welcome-email.html';
+            if (selectedTemplate === 'extension') templatePath = '/extension-email.html';
+
             const responseHtml = await fetch(templatePath);
             if (!responseHtml.ok) throw new Error(`No se pudo cargar ${templatePath}`);
             let htmlContent = await responseHtml.text();
@@ -24,9 +28,11 @@ const EmailTester = ({ adminUser }) => {
             // Populate mock data
             htmlContent = htmlContent.replace(/{{USER_NAME}}/g, "Tester Admin");
             htmlContent = htmlContent.replace(/{{PLAN_NAME}}/g, "PLAN DE PRUEBA VIP");
-            htmlContent = htmlContent.replace(/{{PLAN_PRICE}}/g, "0.00");
+            htmlContent = htmlContent.replace(/{{PLAN_PRICE}}/g, "25.00");
             htmlContent = htmlContent.replace(/{{USER_EMAIL}}/g, testEmail);
             htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, "PasswordSegura123!");
+            htmlContent = htmlContent.replace(/{{DAYS_ADDED}}/g, "7");
+            htmlContent = htmlContent.replace(/{{NEW_EXPIRY}}/g, "26 DE MARZO, 2026");
 
             // Send via API endpoint
             let apiUrl = 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
@@ -75,13 +81,27 @@ const EmailTester = ({ adminUser }) => {
             </div>
 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pt-2">
-                <div className="flex bg-white/5 border border-white/10 p-1 self-start">
+                <div className="flex flex-wrap bg-white/5 border border-white/10 p-1 self-start gap-1">
+                    <button
+                        type="button"
+                        onClick={() => setSelectedTemplate('welcome_new')}
+                        className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'welcome_new' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        BIENVENIDA OFICIAL (NUEVA)
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedTemplate('extension')}
+                        className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'extension' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        NOTIFICACIÓN EXTENSIÓN
+                    </button>
                     <button
                         type="button"
                         onClick={() => setSelectedTemplate('standard')}
                         className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'standard' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BIENVENIDA ESTÁNDAR
+                        BIENVENIDA ANTIGUA
                     </button>
                     <button
                         type="button"

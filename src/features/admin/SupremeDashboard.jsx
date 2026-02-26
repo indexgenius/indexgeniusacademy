@@ -557,6 +557,59 @@ const SupremeDashboard = ({ user: adminUser }) => {
                                                 >
                                                     <Users size={12} /> ASIGNAR REFERIDO
                                                 </button>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <button
+                                                        onClick={async () => {
+                                                            if (!confirm(`¿ENVIAR BIENVENIDA OFICIAL A ${u.email}?`)) return;
+                                                            try {
+                                                                const responseHtml = await fetch('/welcome-email.html');
+                                                                if (!responseHtml.ok) return;
+                                                                let htmlContent = await responseHtml.text();
+                                                                htmlContent = htmlContent.replace(/{{USER_NAME}}/g, u.displayName || 'Trader');
+                                                                htmlContent = htmlContent.replace(/{{PLAN_NAME}}/g, u.selectedPlan || 'ELITE ACCESS');
+                                                                htmlContent = htmlContent.replace(/{{PLAN_PRICE}}/g, u.membershipPrice || '25');
+                                                                htmlContent = htmlContent.replace(/{{USER_EMAIL}}/g, u.email);
+                                                                htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, u.tmpPassword || 'Contacta Soporte');
+
+                                                                let apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '/api/auth/send-welcome-email' : 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+                                                                await fetch(apiUrl, {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ email: u.email, name: u.displayName || 'Trader', htmlContent: htmlContent })
+                                                                });
+                                                                alert("BIENVENIDA ENVIADA CON ÉXITO.");
+                                                            } catch (e) { alert("ERROR AL ENVIAR."); }
+                                                        }}
+                                                        className="py-3 lg:py-2 bg-blue-900/40 text-blue-400 text-[8px] font-black uppercase tracking-widest border border-blue-600/30 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-1"
+                                                    >
+                                                        <Mail size={10} /> TEST WELCOME
+                                                    </button>
+                                                    <button
+                                                        onClick={async () => {
+                                                            if (!confirm(`¿ENVIAR NOTIFICACIÓN DE EXTENSIÓN A ${u.email}?`)) return;
+                                                            try {
+                                                                const responseHtml = await fetch('/extension-email.html');
+                                                                if (!responseHtml.ok) return;
+                                                                let htmlContent = await responseHtml.text();
+                                                                const expiryStr = (u.subscriptionEnd?.toDate ? u.subscriptionEnd.toDate() : new Date()).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+                                                                htmlContent = htmlContent.replace(/{{USER_NAME}}/g, u.displayName || 'Trader');
+                                                                htmlContent = htmlContent.replace(/{{DAYS_ADDED}}/g, "7 (MUESTRA)");
+                                                                htmlContent = htmlContent.replace(/{{NEW_EXPIRY}}/g, expiryStr);
+
+                                                                let apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '/api/auth/send-welcome-email' : 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
+                                                                await fetch(apiUrl, {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ email: u.email, name: u.displayName || 'Trader', htmlContent: htmlContent })
+                                                                });
+                                                                alert("NOTIFICACIÓN ENVIADA CON ÉXITO.");
+                                                            } catch (e) { alert("ERROR AL ENVIAR."); }
+                                                        }}
+                                                        className="py-3 lg:py-2 bg-yellow-900/40 text-yellow-400 text-[8px] font-black uppercase tracking-widest border border-yellow-600/30 hover:bg-yellow-600 hover:text-white transition-all flex items-center justify-center gap-1"
+                                                    >
+                                                        <Mail size={10} /> TEST EXTEND
+                                                    </button>
+                                                </div>
                                             </div>
                                         </motion.div>
                                     ))}
@@ -977,7 +1030,7 @@ const SupremeDashboard = ({ user: adminUser }) => {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 };
 
