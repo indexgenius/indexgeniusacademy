@@ -23,7 +23,7 @@ const MainLayout = ({
     const isSupreme = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com';
 
     return (
-        <div className="flex bg-dark min-h-screen text-white font-space selection:bg-red-600 selection:text-white overflow-x-hidden">
+        <div className="flex bg-dark min-h-[100dvh] text-white font-space selection:bg-red-600 selection:text-white overflow-x-hidden">
             <Sidebar
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -35,7 +35,7 @@ const MainLayout = ({
                 unreadAnnouncements={unreadAnnouncements}
             />
 
-            <main className="flex-1 lg:ml-64 min-h-screen overflow-y-auto z-0">
+            <main className="flex-1 lg:ml-64 min-h-[100dvh] overflow-y-auto z-0 pb-20 lg:pb-0">
                 <div className="fixed top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-red-600/5 blur-[150px] -z-10 pointer-events-none"></div>
 
                 <header

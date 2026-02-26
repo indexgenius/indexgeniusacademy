@@ -33,7 +33,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
             )}
 
             <aside
-                className={`w-64 h-screen bg-black border-r border-white/5 flex flex-col fixed left-0 top-0 transition-transform duration-500 ease-in-out lg:translate-x-0 overflow-y-auto custom-scrollbar ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`w-64 h-[100dvh] bg-black border-r border-white/5 flex flex-col fixed left-0 top-0 transition-transform duration-500 ease-in-out lg:translate-x-0 overflow-y-auto custom-scrollbar ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 style={{ zIndex: 9999 }}
             >
                 <div className="p-6 lg:p-10 flex flex-col items-start gap-4">

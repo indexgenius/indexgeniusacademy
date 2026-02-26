@@ -8,14 +8,19 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email in ['admin', 'steven@ingenius.fx', 'pipoapaza@gmail.com']
-        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
-        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true
+        request.auth.token.email in ['admin', 'steven@ingenius.fx', 'pipoapaza@gmail.com', 'jeilin@jeilin.com', 'jeilin@jeilin.fx']
+        || (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email in ['admin', 'steven@ingenius.fx', 'pipoapaza@gmail.com', 'jeilin@jeilin.com', 'jeilin@jeilin.fx']
+             || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+             || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true
+           ))
       );
     }
     
     function isApproved() {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
     }
 
     // --- REGLAS TÁCTICAS ---
@@ -64,6 +69,12 @@ service cloud.firestore {
     match /promos/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
 
     match /site_assets/{id} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // --- NUEVO: CÓDIGOS DE DESCUENTO ---
+    match /discount_codes/{codeId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
     }

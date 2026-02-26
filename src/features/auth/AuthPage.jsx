@@ -114,7 +114,7 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
     };
 
     return (
-        <div className="min-h-screen h-screen bg-black flex font-space relative overflow-hidden">
+        <div className="min-h-[100dvh] bg-black flex flex-col lg:flex-row font-space relative overflow-y-auto">
             {/* Left Side - Branding */}
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-black via-red-950/10 to-black relative items-center justify-center p-12">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-red-600/5 to-transparent"></div>

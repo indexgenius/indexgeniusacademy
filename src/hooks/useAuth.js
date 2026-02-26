@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const useAuth = () => {
     const [user, setUser] = useState(() => {
@@ -9,34 +11,48 @@ export const useAuth = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user?.uid) {
-            setLoading(false);
-            return;
-        }
+        let unsubscribeProfile = null;
+        let unsubscribeSession = null;
 
-        const unsubscribe = authService.subscribeToUserProfile(user.uid, (data) => {
-            setUser(prev => {
-                const updated = { ...prev, ...data };
-                localStorage.setItem('user', JSON.stringify(updated));
-                return updated;
-            });
-            setLoading(false);
-        });
+        const unsubAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+            // Clean up previous listeners if user changes
+            if (unsubscribeProfile) unsubscribeProfile();
+            if (unsubscribeSession) unsubscribeSession();
 
-        // Session enforcement — detect if another device logs in
-        const unsubSession = authService.subscribeToSessionCheck(user.uid, () => {
-            alert('⚠️ Se detectó un inicio de sesión en otro dispositivo. Tu sesión ha sido cerrada.');
-            authService.forceLogout('duplicate_session').then(() => {
+            if (firebaseUser) {
+                // Fetch profile data from Firestore
+                unsubscribeProfile = authService.subscribeToUserProfile(firebaseUser.uid, (data) => {
+                    const fullUser = {
+                        uid: firebaseUser.uid,
+                        email: firebaseUser.email,
+                        ...data
+                    };
+                    setUser(fullUser);
+                    localStorage.setItem('user', JSON.stringify(fullUser));
+                    setLoading(false);
+                });
+
+                // Session check listener
+                unsubscribeSession = authService.subscribeToSessionCheck(firebaseUser.uid, () => {
+                    alert('⚠️ Se detectó un inicio de sesión en otro dispositivo. Tu sesión ha sido cerrada.');
+                    authService.forceLogout('duplicate_session').then(() => {
+                        setUser(null);
+                        window.location.reload();
+                    });
+                });
+            } else {
                 setUser(null);
-                window.location.reload();
-            });
+                localStorage.removeItem('user');
+                setLoading(false);
+            }
         });
 
         return () => {
-            unsubscribe();
-            unsubSession();
+            unsubAuth();
+            if (unsubscribeProfile) unsubscribeProfile();
+            if (unsubscribeSession) unsubscribeSession();
         };
-    }, [user?.uid]);
+    }, []);
 
     const login = async (firebaseUser) => {
         const finalUser = await authService.handleUserSession(firebaseUser);

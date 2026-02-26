@@ -9,36 +9,36 @@ const PLANS = [
     {
         id: 'index-one',
         name: 'INDEX ONE',
-        price: 97,
+        price: 60,
         period: '/ mensual',
         description: 'Acceso mensual al ecosistema IndexGenius',
         features: ['IndexGenius App', 'Señales en tiempo real', 'Curso Básico', 'Soporte comunidad'],
         icon: <Zap size={20} />,
-        accent: 'bg-red-50 text-red-600',
-        bg: 'from-white to-red-50/20'
+        accent: 'bg-red-500 text-white',
+        bg: 'from-red-600/20 to-transparent'
     },
     {
         id: 'index-pro',
         name: 'INDEX PRO',
-        price: 297,
+        price: 150,
         period: '/ mensual',
         description: 'Infraestructura profesional completa',
         features: ['Todo de INDEX ONE', 'Curso Completo', 'Plantilla IndexPro', 'Grupo Privado', 'Masterclass'],
         icon: <Crown size={24} />,
         accent: 'bg-red-600 text-white',
         popular: true,
-        bg: 'from-red-600 to-red-800'
+        bg: 'from-red-600 to-red-900'
     },
     {
         id: 'index-black',
         name: 'INDEX BLACK',
-        price: 1000,
+        price: 500,
         period: 'pago único',
         description: 'Programa privado de alto rendimiento',
         features: ['Todo de INDEX PRO', 'Mentoría 1-on-1', 'Plan de escalamiento', 'Grupo BLACK'],
         icon: <Star size={20} />,
-        accent: 'bg-black text-white',
-        bg: 'from-black to-[#050505]'
+        accent: 'bg-neutral-800 text-white',
+        bg: 'from-neutral-900 to-black'
     }
 ];
 
@@ -150,9 +150,12 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                 throw new Error("Respuesta inválida de la API");
             }
 
-            // Filtrar las más comunes (algunas APIs usan nombres distintos como 'usdt')
-            const popular = ['usdttrc20', 'usdtbec20', 'usdt', 'btc', 'ltc', 'eth', 'trx', 'bnb', 'bnbmainnet'];
+            // Filtrar y priorizar USDT BEP20 (BSC)
+            const popular = ['usdtbsc', 'usdttrc20', 'usdtbec20', 'btc', 'eth', 'ltc', 'trc20', 'trx', 'bnbbsc'];
             let filtered = data.currencies.filter(c => popular.includes(c.toLowerCase()));
+
+            // Reordenar para que USDT BEP20 (usdtbsc) aparezca primero si existe
+            filtered.sort((a, b) => (a === 'usdtbsc' ? -1 : b === 'usdtbsc' ? 1 : 0));
 
             // Si por alguna razón el filtro falla, mostramos las primeras 12 disponibles
             if (filtered.length === 0) {
@@ -270,356 +273,398 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl font-space">
+        <div className="fixed inset-0 z-[100] flex flex-col md:items-center md:justify-center bg-black/95 backdrop-blur-2xl font-space overflow-y-auto md:p-4">
+            {/* Background Decorative Element */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-red-600/20 blur-[150px] rounded-full" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-white/5 blur-[120px] rounded-full" />
+                <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(rgba(220, 38, 38, 0.05) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+            </div>
+
             <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ opacity: 0, scale: 0.98, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-white w-full max-w-xl rounded-none md:rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)] overflow-hidden relative flex flex-col md:flex-row h-full md:h-auto max-h-none md:max-h-[850px] border-none md:border border-white/20"
+                className="bg-neutral-950/40 w-full max-w-4xl min-h-[100dvh] md:min-h-0 md:h-[min(90vh,800px)] border-0 md:border border-white/10 backdrop-blur-xl overflow-hidden relative flex flex-col md:flex-row shadow-[0_0_100px_rgba(220,38,38,0.1)]"
             >
-                {/* Lateral Branding (Desktop Only) */}
-                <div className="hidden md:flex w-40 bg-black items-center justify-center flex-col gap-8 p-4 border-r border-white/5">
-                    <img src="/img/logos/IMG_5208.PNG" className="w-12 h-12 object-contain" alt="Logo" />
-                    <div className="[writing-mode:vertical-lr] rotate-180 flex items-center gap-4">
-                        <span className="text-[10px] font-black tracking-[0.5em] text-white/20 uppercase">SECURE PAYMENT PORTAL</span>
-                        <div className="h-12 w-[1px] bg-red-600"></div>
-                        <span className="text-[10px] font-black tracking-[0.5em] text-red-600 uppercase">INDEXGENIUS</span>
+                {/* Branding Sidebar (Minimalist) */}
+                <div className="hidden md:flex w-24 bg-black/40 items-center justify-between flex-col py-10 border-r border-white/5">
+                    <img src="/img/logos/IMG_5208.PNG" className="w-10 h-10 object-contain brightness-110" alt="Logo" />
+                    <div className="[writing-mode:vertical-lr] rotate-180 flex items-center gap-6">
+                        <span className="text-[9px] font-black tracking-[0.6em] text-white/10 uppercase">CRYPTO SECURE NETWORK</span>
+                        <div className="h-16 w-[1px] bg-red-600/50"></div>
+                        <span className="text-[9px] font-black tracking-[0.6em] text-red-600 uppercase">INDEXGENIUS®</span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <Lock size={12} className="text-white/20" />
                     </div>
                 </div>
 
-                <div className="flex-1 flex flex-col">
-                    {/* Header */}
-                    <div className="p-8 pb-4">
-                        <div className="flex justify-between items-center mb-6">
-                            <div className="md:hidden">
-                                <img src="/img/logos/IMG_5208.PNG" className="w-10 h-10 object-contain" alt="Logo" />
+                <div className="flex-1 flex flex-col min-h-0 bg-transparent">
+                    {/* Header: Clean & Tactical */}
+                    <div className="p-8 md:p-10 pb-6">
+                        <div className="flex justify-between items-center mb-10">
+                            <div className="flex items-center gap-4">
+                                <div className="h-0.5 w-12 bg-red-600" />
+                                <span className="text-[10px] font-black tracking-[0.4em] text-white/30 uppercase italic">OPERACIÓN: {step === 1 ? 'CONFIGURACIÓN DE PLAN' : 'PROTOCOLO DE PAGO'}</span>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-1.5">
                                 {[1, 2, 3, 4, 5].map(s => (
-                                    <div key={s} className={`h-1 w-8 rounded-full transition-all duration-500 ${step >= s ? 'bg-red-600' : 'bg-neutral-100'}`} />
+                                    <div key={s} className={`h-1 w-6 transition-all duration-700 ${step >= s ? 'bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.5)]' : 'bg-white/5'}`} />
                                 ))}
                             </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <p className="text-[8px] font-black text-red-600 uppercase tracking-[0.4em]">CHECKOUT INDEXGENIUS</p>
-                            <h1 className="text-3xl font-black italic text-neutral-900 uppercase tracking-tighter leading-none">
-                                {step === 1 ? 'ELIGE TU' : step === 2 ? 'MÉTODO DE' : step === 4 ? 'ELIGE TU' : step === 5 ? 'REALIZA' : 'CONFIRMA'} <span className="text-red-600">{step === 1 ? 'PLAN' : step === 2 ? 'PAGO' : step === 4 ? 'CRIPTO' : 'DEPÓSITO'}</span>
-                            </h1>
-                        </div>
+                        <h1 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tight leading-none">
+                            {step === 1 ? 'ELIGE TU' : step === 2 ? 'CANAL DE' : step === 4 ? 'MONEDA' : step === 5 ? 'ORDEN DE' : 'REPORTE'} <span className="text-red-600">{step === 1 ? 'ESTRATEGIA' : step === 2 ? 'DEPÓSITO' : step === 4 ? 'CRIPTO' : 'PAGO'}</span>
+                        </h1>
                     </div>
 
-                    <div className="flex-1 px-8 overflow-y-auto overflow-x-hidden custom-scrollbar pb-8">
+                    {/* Step Content: Minimalist & High Contrast */}
+                    <div className="flex-1 px-8 md:px-10 overflow-y-auto custom-scrollbar-hidden pb-10">
                         <AnimatePresence mode="wait">
                             {step === 1 && (
-                                <motion.div key="step1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4 py-4">
-                                    {PLANS.map(plan => (
-                                        <button
-                                            key={plan.id}
-                                            onClick={() => setSelectedPlan(plan)}
-                                            className={`w-full group rounded-none md:rounded-3xl transition-all duration-500 relative overflow-hidden text-left ${selectedPlan.id === plan.id ? 'scale-100' : 'scale-[0.98] hover:scale-[0.99]'}`}
-                                        >
-                                            {/* Card Background */}
-                                            <div className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-500 ${plan.bg} ${selectedPlan.id === plan.id ? 'opacity-100' : 'opacity-[0.03] group-hover:opacity-10'}`} />
-
-                                            {/* Border Layer */}
-                                            <div className={`absolute inset-0 border-2 rounded-none md:rounded-3xl transition-colors duration-500 ${selectedPlan.id === plan.id ? 'border-red-600' : 'border-neutral-100 group-hover:border-neutral-200'}`} />
-
-                                            <div className="relative p-6 flex items-center justify-between">
-                                                <div className="flex items-center gap-5">
-                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${selectedPlan.id === plan.id ? (plan.id === 'index-one' ? 'bg-black/5 text-red-600' : 'bg-white/20 text-white') : 'bg-neutral-50'}`}>
-                                                        <div className={`p-3 rounded-xl ${selectedPlan.id === plan.id && plan.id !== 'index-one' ? 'bg-white/20' : plan.accent}`}>
+                                <motion.div key="step1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} className="space-y-4">
+                                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-6">SELECCIONA EL NIVEL DE ACCESO PARA TU CUENTA:</p>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {PLANS.map(plan => (
+                                            <button
+                                                key={plan.id}
+                                                onClick={() => setSelectedPlan(plan)}
+                                                className={`relative w-full group transition-all duration-500 rounded-2xl border-2 overflow-hidden ${selectedPlan.id === plan.id ? 'border-red-600 bg-white/[0.03] scale-[1.02] shadow-[0_20px_50px_rgba(0,0,0,0.4)]' : 'border-white/5 bg-transparent hover:border-white/10'}`}
+                                            >
+                                                <div className="p-6 md:p-8 flex items-center justify-between relative z-10">
+                                                    <div className="flex items-center gap-6">
+                                                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-transform duration-500 group-hover:-rotate-6 ${selectedPlan.id === plan.id ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 group-hover:bg-white/10 group-hover:text-white'}`}>
                                                             {plan.icon}
                                                         </div>
+                                                        <div>
+                                                            <h3 className="text-xl font-black italic uppercase text-white tracking-tighter leading-none mb-2">{plan.name}</h3>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className={`w-1 h-1 rounded-full ${selectedPlan.id === plan.id ? 'bg-red-600 animate-pulse' : 'bg-white/20'}`} />
+                                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{plan.description}</p>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <h3 className={`text-base font-black uppercase italic tracking-tighter leading-none mb-1 transition-colors ${selectedPlan.id === plan.id ? (plan.id === 'index-one' ? 'text-neutral-900' : 'text-white') : 'text-neutral-900'}`}>
-                                                            {plan.name}
-                                                        </h3>
-                                                        <p className={`text-[9px] font-bold uppercase tracking-widest transition-colors ${selectedPlan.id === plan.id ? (plan.id === 'index-one' ? 'text-neutral-500' : 'text-white/60') : 'text-neutral-400'}`}>
-                                                            {plan.description}
-                                                        </p>
-                                                    </div>
-                                                </div>
 
-                                                <div className="text-right">
-                                                    <div className={`flex items-baseline justify-end gap-1 ${selectedPlan.id === plan.id ? (plan.id === 'index-one' ? 'text-neutral-900' : 'text-white') : 'text-neutral-900'}`}>
-                                                        <span className="text-[10px] font-black uppercase opacity-50">$</span>
-                                                        <span className="text-2xl font-black italic tabular-nums">{plan.price}</span>
+                                                    <div className="text-right">
+                                                        <div className="flex items-baseline justify-end gap-1">
+                                                            <span className="text-[10px] font-black text-red-600 uppercase mb-1">$</span>
+                                                            <span className="text-3xl font-black italic text-white tabular-nums tracking-tighter">{plan.price}</span>
+                                                        </div>
+                                                        <p className="text-[8px] font-black text-gray-600 uppercase tracking-widest">{plan.period}</p>
                                                     </div>
-                                                    <p className={`text-[7px] font-black uppercase tracking-widest transition-colors ${selectedPlan.id === plan.id ? (plan.id === 'index-one' ? 'text-neutral-400' : 'text-white/40') : 'text-neutral-400'}`}>
-                                                        {plan.period}
-                                                    </p>
                                                 </div>
+                                                {selectedPlan.id === plan.id && (
+                                                    <div className="absolute top-0 right-0 p-2">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div className="pt-8 space-y-4">
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <div className="flex-1 relative group bg-white/5 rounded-2xl border border-white/5 focus-within:border-red-600 transition-all">
+                                                <input
+                                                    type="text"
+                                                    placeholder="CÓDIGO DE DESCUENTO"
+                                                    value={discountCode}
+                                                    onChange={e => setDiscountCode(e.target.value.toUpperCase())}
+                                                    className="w-full bg-transparent border-0 px-6 py-5 text-xs font-black uppercase outline-none text-white placeholder:text-white/20"
+                                                />
+                                                <button
+                                                    onClick={applyDiscountCode}
+                                                    className="absolute right-3 top-2.5 bottom-2.5 px-6 bg-white text-black text-[10px] font-black uppercase rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-xl"
+                                                >
+                                                    {discountLoading ? '...' : 'APLICAR'}
+                                                </button>
                                             </div>
-
-                                            {/* Active Glow */}
-                                            {selectedPlan.id === plan.id && (
-                                                <motion.div layoutId="glow" className={`absolute -inset-1 blur-xl -z-10 ${plan.id === 'index-one' ? 'bg-red-500/10' : 'bg-red-600/20'}`} />
-                                            )}
-                                        </button>
-                                    ))}
-
-                                    <div className="pt-4 space-y-4">
-                                        <div className="relative group p-[1px] rounded-none md:rounded-2xl bg-neutral-200 focus-within:bg-red-600 transition-all">
-                                            <input
-                                                type="text"
-                                                placeholder="CÓDIGO DE DESCUENTO"
-                                                value={discountCode}
-                                                onChange={e => setDiscountCode(e.target.value.toUpperCase())}
-                                                className="w-full bg-white border-0 rounded-none md:rounded-2xl px-6 py-4 text-xs font-black uppercase outline-none transition-all placeholder:text-neutral-400 text-neutral-900"
-                                            />
                                             <button
-                                                onClick={applyDiscountCode}
-                                                className="absolute right-2 top-2 bottom-2 px-6 bg-black text-white text-[9px] font-black uppercase rounded-xl hover:bg-neutral-800 transition-colors"
+                                                onClick={() => setStep(2)}
+                                                className="w-full md:w-auto px-10 py-5 bg-red-600 text-white font-black italic rounded-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 group shadow-[0_15px_40px_rgba(220,38,38,0.25)]"
                                             >
-                                                {discountLoading ? '...' : 'APLICAR'}
+                                                SIGUIENTE PASO <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                                             </button>
                                         </div>
-
-                                        <button
-                                            onClick={() => setStep(2)}
-                                            className="w-full py-6 bg-red-600 text-white font-black italic rounded-none md:rounded-[1.5rem] shadow-[0_20px_40px_rgba(220,38,38,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 group"
-                                        >
-                                            SIGUIENTE PASO <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                                        </button>
                                     </div>
                                 </motion.div>
                             )}
 
                             {step === 2 && (
-                                <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4 py-4">
-                                    <button onClick={() => setStep(1)} className="flex items-center gap-2 text-[9px] font-black text-neutral-400 hover:text-red-600 uppercase tracking-widest transition-colors mb-2">
+                                <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                                    <button onClick={() => setStep(1)} className="flex items-center gap-2 text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-[0.2em] transition-colors mb-6">
                                         <ChevronLeft size={14} /> VOLVER A PLANES
                                     </button>
 
-                                    <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                        {/* NowPayments Automated Method */}
+                                    <div className="grid gap-4">
+                                        {/* NowPayments: Minimalist Elite */}
                                         <button
                                             onClick={handleNowPayments}
                                             disabled={loading}
-                                            className="group w-full p-5 border-2 border-red-600/20 rounded-3xl hover:border-red-600 hover:shadow-xl hover:shadow-red-600/5 transition-all duration-500 bg-white text-left relative overflow-hidden"
+                                            className="group relative w-full p-8 bg-white/[0.03] border border-red-600/30 rounded-[2rem] hover:border-red-600 hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden shadow-2xl shadow-red-600/5 focus:outline-none"
                                         >
-                                            <div className="absolute top-0 right-0 bg-red-600 text-white text-[7px] font-black px-3 py-1 uppercase tracking-tighter">RECOMENDADO</div>
-                                            <div className="flex justify-between items-center mb-4">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center p-2 group-hover:bg-red-600 group-hover:text-white transition-all">
-                                                        <Sparkles size={24} />
+                                            <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none group-hover:opacity-[0.07] transition-opacity">
+                                                <Sparkles size={80} className="text-white" />
+                                            </div>
+                                            <div className="flex justify-between items-center relative z-10">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.3)] transform group-hover:scale-110 transition-transform">
+                                                        <Sparkles size={32} className="text-white" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-[11px] font-black uppercase text-neutral-900 leading-none mb-1 tracking-tight">Cripto (Automático)</p>
-                                                        <p className="text-[8px] font-bold text-red-600 uppercase tracking-[0.2em]">ACTUALIZACIÓN INSTANTÁNEA</p>
+                                                        <h4 className="text-xl font-black italic uppercase text-white tracking-tighter mb-1">Cripto Instantáneo</h4>
+                                                        <p className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em]">PROCESAMIENTO AUTOMÁTICO</p>
                                                     </div>
                                                 </div>
-                                                <div className="p-3 rounded-xl bg-neutral-50 text-neutral-400 group-hover:bg-black group-hover:text-white transition-colors">
-                                                    <ArrowRight size={16} />
+                                                <div className="p-4 rounded-xl bg-white/5 text-white/20 group-hover:bg-red-600 group-hover:text-white transition-all">
+                                                    <ArrowRight size={20} />
                                                 </div>
-                                            </div>
-                                            <div className="bg-neutral-50 p-3 rounded-2xl text-[9px] text-neutral-500 font-bold uppercase tracking-tight group-hover:bg-white transition-colors">
-                                                Paga con USDT, BTC, ETH y más de 100 criptos.
                                             </div>
                                         </button>
 
+                                        <div className="relative py-4">
+                                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
+                                            <div className="relative flex justify-center"><span className="bg-neutral-950 px-4 text-[9px] font-black text-gray-600 uppercase tracking-[0.4em]">MÉTODOS MANUALES</span></div>
+                                        </div>
 
-                                        {paymentMethods.map(pm => (
-                                            <div key={pm.id} className="group p-5 border border-neutral-100 rounded-3xl hover:border-red-600/30 hover:shadow-xl hover:shadow-neutral-100 transition-all duration-500 bg-white">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center p-2.5 group-hover:bg-red-50 transition-colors">
-                                                            {pm.icon === 'usdt' && <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-full h-full object-contain" />}
-                                                            {pm.icon === 'binance' && <img src="/img/metodos/logos/Binance_logo.svg.png" className="w-full h-full object-contain" />}
-                                                            {pm.icon !== 'usdt' && pm.icon !== 'binance' && <Zap className="text-red-600" size={20} />}
+                                        <div className="grid gap-3">
+                                            {paymentMethods.map(pm => (
+                                                <div key={pm.id} className="group p-5 bg-black/40 border border-white/5 rounded-2xl hover:border-white/10 transition-all duration-500 flex items-center justify-between">
+                                                    <div className="flex items-center gap-5">
+                                                        <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center p-3 grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all border border-white/5">
+                                                            {pm.icon === 'usdt' && <img src="/img/metodos/logos/Tether_Logo.svg.png" className="w-full h-full object-contain filter invert" />}
+                                                            {pm.icon === 'binance' && <img src="/img/metodos/logos/Binance_logo.svg.png" className="w-full h-full object-contain filter invert" />}
+                                                            {!['usdt', 'binance'].includes(pm.icon) && <Zap className="text-white/40 group-hover:text-red-600" size={24} />}
                                                         </div>
                                                         <div>
-                                                            <p className="text-[11px] font-black uppercase text-neutral-900 leading-none mb-1 tracking-tight">{pm.name}</p>
-                                                            <p className="text-[8px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{pm.category}</p>
+                                                            <p className="text-xs font-black uppercase text-white tracking-tight mb-1">{pm.name}</p>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{pm.category}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <button
                                                         onClick={() => { navigator.clipboard.writeText(pm.value); setCopied(pm.id); setTimeout(() => setCopied(null), 2000) }}
-                                                        className={`p-3 rounded-xl transition-all ${copied === pm.id ? 'bg-green-500 text-white' : 'bg-neutral-50 text-neutral-400 hover:bg-black hover:text-white'}`}
+                                                        className={`p-3.5 rounded-xl transition-all ${copied === pm.id ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-500 hover:bg-white hover:text-black'}`}
                                                     >
                                                         {copied === pm.id ? <Check size={16} /> : <Copy size={16} />}
                                                     </button>
                                                 </div>
-                                                <div className="bg-neutral-50 p-4 rounded-2xl font-mono text-[10px] text-red-600 break-all border border-neutral-100 group-hover:bg-white transition-colors">
-                                                    {pm.value}
-                                                </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
 
                                     <button
                                         onClick={() => setStep(3)}
-                                        className="w-full py-6 bg-black text-white font-black italic rounded-none md:rounded-[1.5rem] hover:bg-red-600 transition-all flex items-center justify-center gap-4 group"
+                                        className="w-full py-6 mt-4 bg-white/5 text-gray-400 hover:bg-white hover:text-black font-black italic rounded-2xl uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 text-xs"
                                     >
-                                        VERIFICAR DEPÓSITO <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                        VERIFICAR DEPÓSITO MANUAL <ArrowRight size={18} />
                                     </button>
                                 </motion.div>
                             )}
 
                             {step === 3 && (
-                                <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 py-4">
-                                    <button onClick={() => setStep(2)} className="flex items-center gap-2 text-[9px] font-black text-neutral-400 hover:text-red-600 uppercase tracking-widest transition-colors mb-2">
+                                <motion.div key="step3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                                    <button onClick={() => setStep(2)} className="flex items-center gap-2 text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-[0.2em] transition-colors mb-6">
                                         <ChevronLeft size={14} /> VOLVER A PAGO
                                     </button>
 
-                                    <div className="space-y-6">
-                                        <div className="bg-neutral-50 p-6 rounded-3xl border border-neutral-100 flex items-center justify-between">
-                                            <div>
-                                                <p className="text-[10px] font-black text-neutral-400 uppercase mb-1">TOTAL A PAGAR</p>
-                                                <h4 className="text-3xl font-black italic text-neutral-900 tracking-tighter">${getFinalPrice()} USD</h4>
-                                            </div>
-                                            <div className="h-12 w-[1px] bg-neutral-200" />
-                                            <div className="text-right">
-                                                <p className="text-[10px] font-black text-neutral-400 uppercase mb-1">PLAN</p>
-                                                <h4 className="text-sm font-black italic text-red-600 uppercase tracking-tight">{selectedPlan.name}</h4>
-                                            </div>
+                                    <div className="bg-white/[0.03] p-8 border border-white/5 rounded-[2.5rem] flex flex-col md:flex-row gap-8 items-center text-center md:text-left">
+                                        <div className="flex-1 space-y-2">
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">MONTO A TRANSFERIR</p>
+                                            <h4 className="text-5xl font-black italic text-white tracking-tighter leading-none">${getFinalPrice()} <span className="text-red-600 text-2xl uppercase">USD</span></h4>
                                         </div>
+                                        <div className="w-full md:w-auto h-[1px] md:h-20 md:w-[1px] bg-white/10" />
+                                        <div className="flex-1 space-y-2">
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">REFERENCIA</p>
+                                            <h4 className="text-lg font-black italic text-white uppercase tracking-tighter leading-none">{selectedPlan.name}</h4>
+                                        </div>
+                                    </div>
 
+                                    <div className="grid gap-6">
                                         {receiptUrl ? (
-                                            <div className="relative rounded-3xl overflow-hidden border-2 border-green-500 group shadow-2xl shadow-green-500/10">
-                                                <img src={receiptUrl} className="w-full h-56 object-cover" />
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <button onClick={() => setReceiptUrl('')} className="bg-red-600 text-white p-4 rounded-full hover:scale-110 transition-transform">
-                                                        <X size={24} />
+                                            <div className="relative rounded-[2.5rem] overflow-hidden border-2 border-red-600 group shadow-[0_0_60px_rgba(220,38,38,0.1)]">
+                                                <img src={receiptUrl} className="w-full h-64 object-cover brightness-75 group-hover:brightness-50 transition-all duration-700" />
+                                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
+                                                    <button onClick={() => setReceiptUrl('')} className="bg-red-600 text-white p-5 rounded-full hover:scale-110 active:scale-90 transition-transform shadow-2xl">
+                                                        <X size={28} />
                                                     </button>
+                                                    <p className="text-[9px] font-black text-white uppercase tracking-widest">ELIMINAR Y CAMBIAR</p>
                                                 </div>
                                             </div>
                                         ) : (
-                                            <label className="flex flex-col items-center justify-center p-16 border-2 border-dashed border-neutral-200 rounded-[2.5rem] hover:border-red-600 hover:bg-red-50/10 cursor-pointer transition-all duration-500 group">
+                                            <label className="flex flex-col items-center justify-center p-20 border-2 border-dashed border-white/5 hover:border-red-600 rounded-[2.5rem] bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-all duration-500 group">
                                                 <input type="file" className="hidden" onChange={handleReceiptUpload} accept="image/*" />
-                                                <div className="w-16 h-16 bg-neutral-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-white group-hover:scale-110 transition-all">
-                                                    {uploading ? <div className="animate-spin text-red-600"><Zap size={32} /></div> : <Upload size={32} className="text-neutral-300 group-hover:text-red-600" />}
+                                                <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-600 group-hover:rotate-12 group-hover:scale-110 transition-all">
+                                                    {uploading ? <div className="animate-spin text-white"><Zap size={40} /></div> : <Upload size={40} className="text-white/20 group-hover:text-white" />}
                                                 </div>
-                                                <span className="text-[11px] font-black uppercase text-neutral-600 mb-1">TOCA PARA SUBIR COMPROBANTE</span>
-                                                <span className="text-[9px] font-bold text-neutral-300 uppercase">JPG, PNG O CAPTURA DE PANTALLA</span>
+                                                <span className="text-[11px] font-black uppercase text-white/40 group-hover:text-white mb-2 tracking-[0.2em]">CARGAR COMPROBANTE</span>
+                                                <span className="text-[9px] font-bold text-gray-700 uppercase tracking-widest italic font-mono">JPG / PNG / CAPTURA</span>
                                             </label>
                                         )}
 
                                         <button
                                             disabled={!receiptUrl || loading}
                                             onClick={confirmPayment}
-                                            className="w-full py-6 bg-red-600 text-white font-black italic rounded-none md:rounded-[1.5rem] shadow-[0_20px_40px_rgba(220,38,38,0.2)] disabled:opacity-50 transition-all flex items-center justify-center gap-4 active:scale-95"
+                                            className="w-full py-7 bg-red-600 text-white font-black italic text-sm uppercase italic rounded-2xl tracking-[0.4em] shadow-[0_20px_50px_rgba(220,38,38,0.3)] disabled:opacity-20 disabled:grayscale transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-4"
                                         >
-                                            {loading ? 'PROCESANDO...' : 'CONFIRMAR Y ACTIVAR'} <MessageSquare size={20} />
+                                            {loading ? 'PROCESANDO SERVIDOR...' : 'ENVIAR PARA CONFIRMACIÓN'} <MessageSquare size={20} />
                                         </button>
                                     </div>
                                 </motion.div>
                             )}
 
                             {step === 4 && (
-                                <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4 py-4">
-                                    <button onClick={() => setStep(2)} className="flex items-center gap-2 text-[9px] font-black text-neutral-400 hover:text-red-600 uppercase tracking-widest transition-colors mb-2">
+                                <motion.div key="step4" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                                    <button onClick={() => setStep(2)} className="flex items-center gap-2 text-[10px] font-black text-gray-600 hover:text-white uppercase tracking-[0.2em] transition-colors mb-6">
                                         <ChevronLeft size={14} /> VOLVER A MÉTODOS
                                     </button>
 
                                     {loading && currencies.length === 0 ? (
-                                        <div className="flex flex-col items-center justify-center py-10 gap-4">
-                                            <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                                            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">CARGANDO MONEDAS...</p>
+                                        <div className="flex flex-col items-center justify-center py-20 gap-6">
+                                            <div className="w-12 h-12 border-2 border-red-600 border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(220,38,38,0.3)]" />
+                                            <div className="text-center">
+                                                <p className="text-xs font-black text-white uppercase tracking-[0.4em] mb-2">SINCRONIZANDO RED</p>
+                                                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em]">OBTENIENDO MONEDAS DISPONIBLES</p>
+                                            </div>
                                         </div>
-                                    ) : currencies.length > 0 ? (
-                                        <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto custom-scrollbar-hidden">
                                             {currencies.map(curr => (
                                                 <button
                                                     key={curr}
                                                     onClick={() => handleSelectCurrency(curr)}
                                                     disabled={loading}
-                                                    className="p-4 border border-neutral-100 rounded-2xl hover:border-red-600 hover:bg-red-50/10 transition-all text-center group"
+                                                    className="p-6 bg-white/[0.03] border border-white/5 rounded-2xl hover:border-red-600 hover:bg-white/5 transition-all text-center group flex flex-col items-center gap-4"
                                                 >
-                                                    <div className="w-10 h-10 mx-auto mb-2 bg-neutral-50 rounded-xl flex items-center justify-center group-hover:bg-white transition-colors">
-                                                        <span className="text-xs font-black text-neutral-900 group-hover:text-red-600">{curr.substring(0, 4).toUpperCase()}</span>
+                                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-red-600 group-hover:scale-110 transition-all border border-white/5">
+                                                        <span className="text-xs font-black text-white group-hover:text-white italic">{curr.substring(0, 3).toUpperCase()}</span>
                                                     </div>
-                                                    <span className="text-[10px] font-black uppercase text-neutral-600">{curr.toUpperCase()}</span>
+                                                    <span className="text-[10px] font-black uppercase text-gray-500 group-hover:text-white tracking-widest">{curr.toUpperCase()}</span>
                                                 </button>
                                             ))}
                                         </div>
-                                    ) : (
-                                        <div className="text-center py-10">
-                                            <p className="text-[10px] font-black text-red-600 uppercase">No se encontraron monedas disponibles.</p>
-                                            <button onClick={() => setStep(2)} className="mt-4 text-[10px] font-black underline uppercase">Reintentar</button>
+                                    )}
+                                    {loading && currencies.length > 0 && (
+                                        <div className="text-center py-6">
+                                            <span className="text-[10px] font-black text-red-600 animate-pulse uppercase tracking-[0.5em]">OPERACIÓN: GENERANDO TERMINAL...</span>
                                         </div>
                                     )}
-                                    {loading && currencies.length > 0 && <div className="text-center text-[10px] font-black text-red-600 animate-pulse uppercase tracking-[0.2em] py-4">GENERANDO DIRECCIÓN...</div>}
                                 </motion.div>
                             )}
 
                             {step === 5 && paymentDetails && (
-                                <motion.div key="step5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="space-y-6 py-4">
-                                    <div className="text-center space-y-2">
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 rounded-full">
-                                            <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping" />
-                                            <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">ESPERANDO DEPÓSITO</span>
+                                <motion.div key="step5" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
+                                    <div className="flex flex-col items-center text-center space-y-8 p-4">
+                                        <div className="inline-flex items-center gap-3 px-6 py-2 bg-red-600/10 border border-red-600/20 rounded-full">
+                                            <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
+                                            <span className="text-[10px] font-black text-red-600 uppercase tracking-[0.4em]">CANAL DE DEPÓSITO ACTIVO</span>
                                         </div>
-                                    </div>
 
-                                    <div className="bg-neutral-950 p-8 rounded-[2rem] text-white flex flex-col items-center gap-6 shadow-2xl relative overflow-hidden group">
-                                        {/* Premium Backdrop Glow */}
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-transparent opacity-50" />
-
-                                        <div className="bg-white p-3 rounded-2xl shadow-xl transition-transform duration-500 hover:scale-105">
+                                        <div className="relative group p-4 bg-white rounded-[3rem] shadow-2xl shadow-red-600/10 border-4 border-black transition-transform duration-700 hover:scale-105">
                                             <img
-                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${paymentDetails.pay_address}`}
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${paymentDetails.pay_address}`}
                                                 alt="QR Code"
-                                                className="w-40 h-40"
+                                                className="w-48 h-48 md:w-56 md:h-56 mix-blend-multiply"
                                             />
+                                            {/* Corner Accents */}
+                                            <div className="absolute top-[-5px] left-[-5px] w-6 h-6 border-t-2 border-l-2 border-red-600" />
+                                            <div className="absolute top-[-5px] right-[-5px] w-6 h-6 border-t-2 border-r-2 border-red-600" />
+                                            <div className="absolute bottom-[-5px] left-[-5px] w-6 h-6 border-b-2 border-l-2 border-red-600" />
+                                            <div className="absolute bottom-[-5px] right-[-5px] w-6 h-6 border-b-2 border-r-2 border-red-600" />
                                         </div>
 
-                                        <div className="text-center space-y-1">
-                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">ENVIAR EXACTAMENTE</p>
-                                            <h4 className="text-3xl font-black italic tracking-tighter tabular-nums">
-                                                {paymentDetails.pay_amount} <span className="text-red-600">{paymentDetails.pay_currency.toUpperCase()}</span>
-                                            </h4>
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">MONTO EXACTO A ENVIAR</p>
+                                            <div className="flex items-center justify-center gap-3">
+                                                <h4 className="text-4xl md:text-5xl font-black italic text-white tracking-tighter tabular-nums">
+                                                    {paymentDetails.pay_amount}
+                                                </h4>
+                                                <span className="text-2xl font-black text-red-600 uppercase mt-2">{paymentDetails.pay_currency.toUpperCase()}</span>
+                                            </div>
                                         </div>
 
-                                        <div className="w-full space-y-4">
-                                            <div className="space-y-2">
-                                                <p className="text-[9px] font-black text-white/30 uppercase tracking-widest text-center">DIRECCIÓN DE DEPÓSITO</p>
+                                        <div className="w-full space-y-4 pt-4">
+                                            <div className="space-y-4">
+                                                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">DIRECCIÓN DE TERMINAL</p>
                                                 <button
                                                     onClick={() => { navigator.clipboard.writeText(paymentDetails.pay_address); setCopied('addr'); setTimeout(() => setCopied(null), 2000) }}
-                                                    className="w-full bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group/btn hover:bg-white/10 transition-all"
+                                                    className="w-full bg-white/[0.03] border border-white/10 p-5 rounded-2xl flex items-center justify-between group/btn hover:border-red-600 hover:bg-red-600/5 transition-all shadow-xl"
                                                 >
-                                                    <span className="text-[10px] font-mono text-white/70 truncate mr-4">{paymentDetails.pay_address}</span>
-                                                    {copied === 'addr' ? <Check size={14} className="text-green-500" /> : <Copy size={14} className="text-white/40 group-hover/btn:text-white" />}
+                                                    <span className="text-[11px] font-mono text-white/70 truncate mr-6 font-bold">{paymentDetails.pay_address}</span>
+                                                    <div className={`p-3 rounded-lg transition-all ${copied === 'addr' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/40 group-hover/btn:bg-white group-hover/btn:text-black'}`}>
+                                                        {copied === 'addr' ? <Check size={14} /> : <Copy size={14} />}
+                                                    </div>
+                                                </button>
+                                            </div>
+
+                                            <div className="pt-6 border-t border-white/5 space-y-3">
+                                                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-widest leading-relaxed">
+                                                    * Esta es una <span className="text-white">Terminal de Pago Segura</span> generada dinámicamente por la red NOWPayments para esta orden específica.
+                                                    Los fondos serán procesados y acreditados a tu cuenta automáticamente tras la confirmación.
+                                                </p>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                                                <div className="p-5 bg-black/60 border border-white/5 rounded-2xl flex flex-col items-center gap-1">
+                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">ORDER TRACKING ID</p>
+                                                    <p className="text-xs font-black text-white">#{paymentDetails.payment_id.substring(0, 10).toUpperCase()}</p>
+                                                </div>
+                                                <button
+                                                    onClick={checkPaymentStatus}
+                                                    className="p-5 bg-red-600 text-white rounded-2xl font-black italic uppercase text-[11px] flex items-center justify-center gap-3 hover:bg-white hover:text-red-600 transition-all shadow-2xl shadow-red-600/20 group"
+                                                >
+                                                    SINCRONIZAR ESTADO <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100 italic">
-                                            <p className="text-[8px] font-black text-neutral-400 uppercase mb-1">PAGO ID</p>
-                                            <p className="text-xs font-black text-neutral-900">#{paymentDetails.payment_id}</p>
-                                        </div>
-                                        <button
-                                            onClick={checkPaymentStatus}
-                                            className="p-4 bg-black text-white rounded-2xl font-black italic uppercase text-[10px] flex items-center justify-center gap-2 hover:bg-red-600 transition-all group"
-                                        >
-                                            REVISAR ESTADO <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                        </button>
                                         {debugMode && (
                                             <button
                                                 onClick={handleMockSuccess}
-                                                className="col-span-2 p-4 bg-green-600/10 border border-green-600 text-green-600 rounded-2xl font-black italic uppercase text-[10px] hover:bg-green-600 hover:text-white transition-all"
+                                                className="w-full p-4 mt-6 bg-green-600/10 border border-green-600/30 text-green-500 rounded-2xl font-black italic uppercase text-[10px] hover:bg-green-600 hover:text-white transition-all"
                                             >
-                                                [TEST] FORZAR PAGO EXITOSO
+                                                [DEV] VALIDAR PAGO INSTANTÁNEO
                                             </button>
                                         )}
                                     </div>
+                                </motion.div>
+                            )}
 
-                                    <p className="text-center text-[9px] font-bold text-neutral-400 uppercase tracking-wider leading-relaxed">
-                                        Una vez enviado, la red tardará unos minutos en confirmar. <br />
-                                        <span className="text-red-600 underline">No cierres esta ventana hasta que se confirme.</span>
-                                    </p>
+                            {step === 6 && (
+                                <motion.div key="step6" initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-20 text-center">
+                                    <div className="relative mb-10">
+                                        <div className="absolute inset-0 bg-red-600 blur-[60px] opacity-20 animate-pulse" />
+                                        <div className="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center relative z-10 border-4 border-black">
+                                            <CheckCircle size={50} className="text-white" />
+                                        </div>
+                                    </div>
+                                    <h2 className="text-5xl font-black italic text-white uppercase tracking-tighter mb-4 leading-none">REPORTE <span className="text-red-600">ENVIADO</span></h2>
+                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.5em] mb-10">SISTEMA EN PROCESO DE VALIDACIÓN</p>
+                                    <div className="space-y-4 max-w-sm">
+                                        <p className="text-[11px] font-bold text-gray-400 uppercase leading-loose tracking-widest">
+                                            ESTAMOS VERIFICANDO TU TRANSACCIÓN EN LA RED. RECIBIRÁS UN CORREO ELECTRÓNICO CON EL PASO A PASO FINAL.
+                                        </p>
+                                        <div className="pt-10 flex flex-col items-center gap-4">
+                                            <button
+                                                onClick={() => window.location.reload()}
+                                                className="px-10 py-5 bg-white text-black font-black italic text-xs uppercase tracking-[0.4em] rounded-2xl hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                                            >
+                                                FINALIZAR SESIÓN
+                                            </button>
+                                        </div>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="p-8 border-t border-neutral-50 bg-neutral-50/30 flex justify-between items-center">
-                        <button onClick={onLogout} className="text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 hover:text-black transition-colors">
-                            CANCELAR SESIÓN
+                    {/* Footer: Minimalist Dark */}
+                    <div className="p-6 md:p-10 border-t border-white/5 bg-black/40 backdrop-blur-3xl flex flex-col md:flex-row justify-between items-center gap-4 relative pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-red-600/50 via-transparent to-transparent"></div>
+                        <button onClick={onLogout} className="text-[10px] font-black text-white/20 hover:text-red-600 transition-colors uppercase tracking-[0.4em] italic">
+                            CANCELAR OPERACIÓN
                         </button>
                         <div
                             onClick={() => {
@@ -630,10 +675,10 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                     alert("DEBUG MODE ENABLED");
                                 }
                             }}
-                            className="flex items-center gap-2 cursor-pointer select-none"
+                            className="flex items-center gap-3 cursor-pointer group"
                         >
-                            <ShieldAlert size={12} className={debugMode ? "text-green-600" : "text-red-600"} />
-                            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">{debugMode ? 'MODO TEST ACTIVO' : 'TRANSMISIÓN ENCRIPTADA'}</span>
+                            <ShieldAlert size={16} className={`${debugMode ? "text-green-500" : "text-red-700"} group-hover:scale-110 transition-transform`} />
+                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] leading-none group-hover:text-white transition-colors">{debugMode ? 'TERMINAL DEBUG ACTIVO' : 'SISTEMA CIFRADO END-TO-END'}</span>
                         </div>
                     </div>
                 </div>
@@ -641,5 +686,22 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         </div>
     );
 };
+
+// Tactical Success Icon
+const CheckCircle = ({ size, className }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+    >
+        <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+);
 
 export default PaymentPortal;

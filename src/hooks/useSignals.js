@@ -68,8 +68,10 @@ export const useSignals = (appLoadTime = Date.now(), isApproved = false) => {
             });
         }, (error) => {
             console.error('❌ Firebase listener error:', error);
-            // Try to reconnect after error
-            setTimeout(() => setReconnectTrigger(prev => prev + 1), 2000);
+            // Try to reconnect after error, unless it's a permission issue
+            if (error.code !== 'permission-denied') {
+                setTimeout(() => setReconnectTrigger(prev => prev + 1), 5000);
+            }
         });
 
         return () => unsubscribe();

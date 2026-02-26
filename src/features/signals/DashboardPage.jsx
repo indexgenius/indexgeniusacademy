@@ -47,7 +47,10 @@ const DashboardPage = ({ user, broadcastSignal }) => {
             setLoading(false);
         }, (error) => {
             console.error('❌ Dashboard signals listener error:', error);
-            setTimeout(() => setReconnectTrigger(prev => prev + 1), 2000);
+            // Don't retry immediately if it's a permission issue (avoids infinite crash loops)
+            if (error.code !== 'permission-denied') {
+                setTimeout(() => setReconnectTrigger(prev => prev + 1), 5000);
+            }
         });
 
         const qT = query(collection(db, "signals"), orderBy("closedAt", "desc"), limit(1000));
@@ -94,6 +97,7 @@ const DashboardPage = ({ user, broadcastSignal }) => {
             }
         }, (error) => {
             console.error('❌ Dashboard stats listener error:', error);
+            // Permissions issue usually won't be fixed by immediate retry
         });
 
         return () => { unsubS(); unsubT(); };

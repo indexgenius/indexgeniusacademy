@@ -42,11 +42,30 @@
     --glass-border: rgba(0, 0, 0, 0.1);
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+    /* Standard for desktop */
+    height: -webkit-fill-available;
+    /* Hack for mobile chrome/safari */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
   body {
     @apply font-space;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+    /* Fallback */
+    min-height: 100dvh;
+    /* Dynamic viewport height */
+    display: flex;
+    flex-direction: column;
   }
 
   /* Force dark styles on native select elements */
