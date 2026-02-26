@@ -187,7 +187,17 @@ const UserManagement = ({ adminUser }) => {
             });
             alert(`ACCESO A PLANTILLAS: ${!currentStatus ? 'CONCEDIDO' : 'REVOCADO'}`);
         } catch (e) {
-            alert("FALLO AL CAMBIAR ACCESO: " + e.message);
+            alert("FALLO AL ELIMINAR: " + e.message);
+        }
+    };
+
+    const handleDeleteUser = async (uid) => {
+        if (!confirm("¿ESTÁS SEGURO DE ELIMINAR ESTE USUARIO? ESTA ACCIÓN ES IRREVERSIBLE.")) return;
+        try {
+            await deleteDoc(doc(db, "users", uid));
+            alert("USUARIO ELIMINADO");
+        } catch (e) {
+            alert("FALLO AL ELIMINAR: " + e.message);
         }
     };
 
