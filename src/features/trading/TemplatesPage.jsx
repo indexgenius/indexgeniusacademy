@@ -184,8 +184,22 @@ const TemplatesPage = ({ user }) => {
         setLoading(true);
         try {
             const data = await nowPaymentsService.getCurrencies();
-            const popular = ['usdttrc20', 'usdtbec20', 'usdt', 'btc', 'ltc', 'eth', 'trx', 'bnb', 'bnbmainnet'];
+            // Filtrar y priorizar USDT, BTC y BNB (Monedas solicitadas)
+            const popular = ['usdtbsc', 'btc', 'bnbbsc', 'usdttrc20', 'eth', 'ltc', 'trc20', 'trx'];
             let filtered = data.currencies.filter(c => popular.includes(c.toLowerCase()));
+
+            // Orden específico solicitado
+            const order = ['usdtbsc', 'btc', 'bnbbsc'];
+            filtered.sort((a, b) => {
+                const indexA = order.indexOf(a.toLowerCase());
+                const indexB = order.indexOf(b.toLowerCase());
+
+                if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                if (indexA !== -1) return -1;
+                if (indexB !== -1) return 1;
+                return 0;
+            });
+
             if (filtered.length === 0) filtered = data.currencies.slice(0, 12);
             setCurrencies(filtered);
             setModalStep(2);
@@ -838,9 +852,14 @@ const TemplatesPage = ({ user }) => {
                                                     <button
                                                         key={curr}
                                                         onClick={() => handleSelectCurrency(curr)}
-                                                        className="p-4 border border-white/10 bg-white/5 hover:border-[#F3BA2F] transition-all text-center rounded-xl group"
+                                                        className={`p-4 border rounded-xl transition-all text-center group flex flex-col items-center gap-1 ${['usdtbsc', 'btc', 'bnbbsc'].includes(curr.toLowerCase()) ? 'border-[#F3BA2F] bg-[#F3BA2F]/10' : 'border-white/10 bg-white/5 hover:border-[#F3BA2F]'}`}
                                                     >
-                                                        <p className="text-xs font-black text-white group-hover:text-[#F3BA2F] uppercase">{curr}</p>
+                                                        <p className="text-[10px] font-black text-white group-hover:text-[#F3BA2F] uppercase">
+                                                            {curr === 'usdtbsc' ? 'USDT' : curr === 'bnbbsc' ? 'BNB' : curr.toUpperCase()}
+                                                        </p>
+                                                        {['usdtbsc', 'bnbbsc'].includes(curr.toLowerCase()) && (
+                                                            <span className="text-[6px] font-black text-[#F3BA2F] uppercase tracking-tighter">RED: BSC</span>
+                                                        )}
                                                     </button>
                                                 ))}
                                             </div>
@@ -854,9 +873,21 @@ const TemplatesPage = ({ user }) => {
                                                     className="w-40 h-40"
                                                 />
                                             </div>
-                                            <div className="text-center space-y-2">
-                                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">ENVÍA EXACTAMENTE</p>
-                                                <p className="text-2xl font-black text-white italic">{paymentDetails?.pay_amount} <span className="text-[#F3BA2F]">{paymentDetails?.pay_currency?.toUpperCase()}</span></p>
+                                            <div className="text-center space-y-3">
+                                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none">ENVÍA EXACTAMENTE</p>
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <p className="text-3xl font-black text-white italic leading-none">
+                                                        {paymentDetails?.pay_amount} <span className="text-[#F3BA2F]">{paymentDetails?.pay_currency === 'usdtbsc' ? 'USDT' : paymentDetails?.pay_currency === 'bnbbsc' ? 'BNB' : paymentDetails?.pay_currency?.toUpperCase()}</span>
+                                                    </p>
+                                                    <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                                                        <p className="text-[8px] font-black text-[#F3BA2F] uppercase tracking-widest leading-none">
+                                                            RED: {paymentDetails.pay_currency === 'usdtbsc' ? 'BINANCE SMART CHAIN (BEP20)' :
+                                                                paymentDetails.pay_currency === 'bnbbsc' ? 'BINANCE SMART CHAIN (BSC)' :
+                                                                    paymentDetails.pay_currency === 'btc' ? 'BITCOIN NETWORK' :
+                                                                        'RED NATIVA'}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div className="w-full space-y-2">
                                                 <p className="text-[9px] font-black text-gray-600 uppercase text-center">DIRECCIÓN DE DEPÓSITO</p>
