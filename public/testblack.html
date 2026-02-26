@@ -1,62 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
     <meta name="color-scheme" content="light dark">
     <meta name="supported-color-schemes" content="light dark">
+    <!--[if mso]>
+<xml>
+  <o:OfficeDocumentSettings>
+    <o:AllowPNG/>
+    <o:PixelsPerInch>96</o:PixelsPerInch>
+  </o:OfficeDocumentSettings>
+</xml>
+<![endif]-->
     <style>
-        /* Fix for Gmail forcing white backgrounds */
+        /* HACK PARA GMAIL: Forzar fondo negro incluso en modo claro/oscuro */
         u+.body {
             background-image: url('https://dummyimage.com/600x1200/000000/000000') !important;
+        }
+
+        /* Evitar que Gmail aclare u oscurezca los colores */
+        @media (prefers-color-scheme: dark) {
+            .dark-img {
+                display: block !important;
+            }
+
+            .light-img {
+                display: none !important;
+            }
+
+            .text-force-white {
+                color: #ffffff !important;
+            }
+
+            .text-force-red {
+                color: #E50914 !important;
+            }
+        }
+
+        /* Selectores específicos para el motor de Gmail */
+        [data-ogsc] .text-force-white {
+            color: #ffffff !important;
+        }
+
+        [data-ogsc] .text-force-red {
+            color: #E50914 !important;
         }
     </style>
 </head>
 
-<body class="body" style="margin:0; padding:0; background-color:#000000;">
+<body class="body" style="margin:0; padding:0; background-color:#111111; color:#ffffff;">
 
     <table width="100%" cellpadding="0" cellspacing="0" border="0"
-        background="https://dummyimage.com/600x1200/000000/000000"
-        style="background-color:#000000; background-image: url('https://dummyimage.com/600x1200/000000/000000'); background-size: cover; background-repeat: repeat;">
+        background="https://dummyimage.com/600x2000/000000/000000"
+        style="background-color:#000000; background-image: url('https://dummyimage.com/600x2000/000000/000000'); background-size: cover; background-repeat: repeat; width:100% !important;">
         <tr>
-            <td align="center">
+            <td align="center" style="padding: 40px 0;">
 
                 <!-- CONTENEDOR PRINCIPAL -->
-                <table width="600" cellpadding="0" cellspacing="0" border="0">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
                     <tr>
-                        <td style="padding:40px; color:#ffffff; font-family:Arial, sans-serif;">
+                        <td align="center" style="padding:40px; font-family:Arial, sans-serif;">
 
-                            <h1
-                                style="color:#E50914; margin:0; font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 32px;">
-                                ¡MÁXIMO IMPACTO! �⚪
+                            <h1 class="text-force-red"
+                                style="color:#E50914 !important; margin:0; font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 38px; line-height: 1.1; display: block;">
+                                ¡MÁXIMO IMPACTO! ⚡
                             </h1>
 
-                            <p style="color:#ffffff; font-size: 18px; margin-top: 20px; font-weight: bold;">
-                                Este es el test con <span style="color:#E50914;">letras rojas</span> y letras blancas
-                                sobre fondo negro forzado.
+                            <p class="text-force-white"
+                                style="color:#ffffff !important; font-size: 20px; margin-top: 25px; font-weight: bold; line-height: 1.4;">
+                                Este es el test final con <span class="text-force-red"
+                                    style="color:#E50914 !important;">letras rojas</span> y letras blancas sobre fondo
+                                negro forzado.
                             </p>
 
                             <div
-                                style="margin-top: 40px; padding: 25px; border: 2px solid #E50914; background-color: rgba(229, 9, 20, 0.2);">
-                                <p
-                                    style="color:#ffffff; font-weight: bold; margin: 0; letter-spacing: 2px; font-size: 14px;">
-                                    ESTADO: <span style="color:#E50914;">OPERATIVO</span>
+                                style="margin-top: 50px; padding: 30px; border: 3px solid #E50914; background-color: #000000; display: block;">
+                                <p class="text-force-white"
+                                    style="color:#ffffff !important; font-weight: 900; margin: 0; letter-spacing: 3px; font-size: 16px; text-transform: uppercase;">
+                                    ESTADO: <span class="text-force-red"
+                                        style="color:#E50914 !important;">OPERATIVO</span>
                                 </p>
-                                <p style="color:#999999; font-size: 12px; margin-top: 10px; font-style: italic;">
-                                    Si ves esto en rojo y blanco sobre negro, ¡hemos ganado!
+                                <p class="text-force-white"
+                                    style="color:#999999 !important; font-size: 13px; margin-top: 15px; font-style: italic;">
+                                    Si ves esto en rojo brillante y blanco puro sobre negro total, hemos derrotado al
+                                    sistema de Gmail.
                                 </p>
                             </div>
 
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
-                                style="margin-top: 30px;">
+                                style="margin-top: 40px;">
                                 <tr>
-                                    <td align="center" style="background-color:#E50914; padding: 15px;">
-                                        <a href="#"
-                                            style="color:#ffffff; text-decoration:none; font-weight:bold; text-transform:uppercase; letter-spacing:2px; font-size:14px; display:block;">
-                                            BOTÓN ROJO TÁCTICO
+                                    <td align="center" bgcolor="#E50914"
+                                        style="background-color:#E50914 !important; padding: 20px;">
+                                        <a href="https://indexgeniusacademy.com" target="_blank"
+                                            style="color:#ffffff !important; text-decoration:none; font-weight:900; text-transform:uppercase; letter-spacing:4px; font-size:16px; display:block; width:100%;">
+                                            ENTRAR AL SISTEMA
                                         </a>
                                     </td>
                                 </tr>
                             </table>
+
+                            <p class="text-force-white"
+                                style="color:#444444 !important; font-size: 10px; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;">
+                                IndexGenius Academy &copy; 2026 - Protocolo de Seguridad Activo
+                            </p>
 
                         </td>
                     </tr>
