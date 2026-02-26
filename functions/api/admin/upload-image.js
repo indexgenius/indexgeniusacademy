@@ -53,7 +53,7 @@ export async function onRequestPost(context) {
 
         // 3. Generar URL Pública
         // Nota: El bucket debe estar configurado como "Public Setup" en Cloudflare con un dominio o subdominio R2
-        const publicUrlBase = env.R2_PUBLIC_URL || 'https://assets.indexgeniusacademy.com';
+        const publicUrlBase = env.R2_PUBLIC_URL || 'https://pub-c7a361632730477f8edb5a917dd41338.r2.dev';
         const publicUrl = `${publicUrlBase}/${filename}`;
 
         return new Response(JSON.stringify({
