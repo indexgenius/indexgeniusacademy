@@ -107,7 +107,7 @@ const UserManagement = ({ adminUser }) => {
 
             // 2. Fetch the email template, replace data, and send email via Resend
             try {
-                const responseHtml = await fetch('/testemail.html');
+                const responseHtml = await fetch('/welcome-email.html');
                 if (responseHtml.ok) {
                     let htmlContent = await responseHtml.text();
 

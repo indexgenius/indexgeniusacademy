@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<style>
+  u + .body { background-image: url('https://dummyimage.com/600x1200/000000/000000') !important; }
+  @media (prefers-color-scheme: dark) {
+    .text-force-white { color: #ffffff !important; }
+    .text-force-red { color: #E50914 !important; }
+    .text-force-gold { color: #FFD700 !important; }
+  }
+  [data-ogsc] .text-force-white { color: #ffffff !important; }
+  [data-ogsc] .text-force-red { color: #E50914 !important; }
+  [data-ogsc] .text-force-gold { color: #FFD700 !important; }
+</style>
+</head>
+
+<body class="body" style="margin:0; padding:0; background-color:#000000; color:#ffffff;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" 
+       background="https://dummyimage.com/600x2500/000000/000000" 
+       style="background-color:#000000; background-image: url('https://dummyimage.com/600x2500/000000/000000'); background-size: cover; background-repeat: repeat; width:100% !important;">
+  <tr>
+    <td align="center" style="padding: 20px 0;">
+
+      <!-- CONTENEDOR PRINCIPAL -->
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+        <tr>
+          <td align="center" style="padding:20px; font-family:Arial, sans-serif;">
+            
+            <!-- HEADER LOGO/NAME -->
+            <p class="text-force-red" style="color:#E50914 !important; font-size: 10px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase;">
+              INDEX GENIUS ACADEMY ⚡ TRANSMISIÓN OFICIAL
+            </p>
+
+            <!-- FLYER IMAGE -->
+            <div style="margin-top: 20px; border: 2px solid #E50914; line-height: 0;">
+                <img src="{{FLYER_URL}}" alt="Flyer" style="width: 100%; height: auto; display: block;">
+            </div>
+
+            <!-- TITLE -->
+            <h1 class="text-force-white" style="color:#ffffff !important; margin:30px 0 20px 0; font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 28px; line-height: 1.1; letter-spacing: -1px;">
+              {{BROADCAST_TITLE}}
+            </h1>
+
+            <!-- MESSAGE -->
+            <p class="text-force-white" style="color:#ffffff !important; font-size: 16px; line-height: 1.6; text-align: left; background-color: rgba(255,255,255,0.05); padding: 25px; border-left: 4px solid #E50914;">
+              {{BROADCAST_MESSAGE}}
+            </p>
+
+            <!-- ACTION BUTTON -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 40px;">
+                <tr>
+                    <td align="center" bgcolor="#E50914" style="background-color:#E50914 !important; padding: 18px;">
+                        <a href="https://indexgeniusacademy.com" target="_blank" style="color:#ffffff !important; text-decoration:none; font-weight:900; text-transform:uppercase; letter-spacing:4px; font-size:14px; display:block; width:100%;">
+                            INGRESAR AL SISTEMA
+                        </a>
+                    </td>
+                </tr>
+            </table>
+
+            <p class="text-force-white" style="color:#444444 !important; font-size: 9px; margin-top: 50px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;">
+                Este es un comunicado oficial cifrado enviado a {{USER_EMAIL}}
+                <br>IndexGenius Academy &copy; 2026
+            </p>
+
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>
