@@ -4,26 +4,42 @@
 <head>
     <meta name="color-scheme" content="light dark">
     <meta name="supported-color-schemes" content="light dark">
+    <style>
+        /* Fix for Gmail forcing white backgrounds */
+        u+.body {
+            background-image: url('https://dummyimage.com/600x1200/000000/000000') !important;
+        }
+    </style>
 </head>
 
-<body style="margin:0; padding:0; background-color:#000000;">
+<body class="body" style="margin:0; padding:0; background-color:#000000;">
 
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#000000;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+        background="https://dummyimage.com/600x1200/000000/000000"
+        style="background-color:#000000; background-image: url('https://dummyimage.com/600x1200/000000/000000'); background-size: cover; background-repeat: repeat;">
         <tr>
             <td align="center">
 
                 <!-- CONTENEDOR PRINCIPAL -->
-                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#000000;">
+                <table width="600" cellpadding="0" cellspacing="0" border="0">
                     <tr>
-                        <td style="padding:30px; color:#ffffff; font-family:Arial, sans-serif;">
+                        <td style="padding:40px; color:#ffffff; font-family:Arial, sans-serif;">
 
-                            <h1 style="color:#ffffff; margin:0;">
-                                Email fondo negro en móvil 😎
+                            <h1
+                                style="color:#ffffff; margin:0; font-style: italic; font-weight: 900; text-transform: uppercase;">
+                                NUEVO TEST: FONDO FORZADO 😎
                             </h1>
 
-                            <p style="color:#ffffff;">
-                                Ahora sí debería verse negro en todos lados.
+                            <p style="color:#ffffff; font-size: 16px; margin-top: 20px;">
+                                Este correo usa una imagen negra de fondo (Background Image).
+                                Gmail suele respetar las imágenes incluso si intenta forzar el modo claro.
                             </p>
+
+                            <div
+                                style="margin-top: 40px; padding: 20px; border: 1px solid #E50914; background-color: rgba(229, 9, 20, 0.1);">
+                                <p style="color:#E50914; font-weight: bold; margin: 0; letter-spacing: 2px;">ESTADO:
+                                    MODO TÁCTICO</p>
+                            </div>
 
                         </td>
                     </tr>
