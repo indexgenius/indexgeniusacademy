@@ -617,7 +617,19 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                                 </button>
                                             </div>
 
-                                            <div className="pt-6 border-t border-white/5 space-y-3">
+                                            <div className="pt-6 border-t border-white/5 space-y-4">
+                                                <div className="bg-red-600/10 border border-red-600/30 p-4 rounded-2xl flex items-start gap-4">
+                                                    <ShieldAlert size={20} className="text-red-600 shrink-0 mt-1" />
+                                                    <div className="text-left">
+                                                        <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1">INSTRUCCIÓN DE RED OBLIGATORIA</p>
+                                                        <p className="text-[9px] font-bold text-gray-400 uppercase leading-relaxed">
+                                                            {paymentDetails.pay_currency === 'usdtbsc' && "DEBES enviar USDT únicamente a través de la red BINANCE SMART CHAIN (BEP20). El uso de otra red resultará en la pérdida total de fondos."}
+                                                            {paymentDetails.pay_currency === 'btc' && "DEBES enviar BITCOIN únicamente a través de su red nativa (BITCOIN NETWORK). No uses redes envueltas o alternativas."}
+                                                            {paymentDetails.pay_currency === 'bnbbsc' && "DEBES enviar BNB únicamente a través de la red BINANCE SMART CHAIN (BSC - BEP20)."}
+                                                            {!['usdtbsc', 'btc', 'bnbbsc'].includes(paymentDetails.pay_currency) && `Asegúrate de enviar ${paymentDetails.pay_currency.toUpperCase()} por su red correspondiente.`}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                                 <p className="text-[9px] font-bold text-gray-600 uppercase tracking-widest leading-relaxed">
                                                     * Esta es una <span className="text-white">Terminal de Pago Segura</span> generada dinámicamente por la red NOWPayments para esta orden específica.
                                                     Los fondos serán procesados y acreditados a tu cuenta automáticamente tras la confirmación.
