@@ -8,7 +8,8 @@ service cloud.firestore {
     
     // Lista de correos maestros (Administradores Supremos)
     function isMasterAdmin() {
-      return isAuthenticated() && (
+      return isAuthenticated() && 
+        request.auth.token.email != null && (
         request.auth.token.email.lower() == 'admin' ||
         request.auth.token.email.lower() == 'steven@ingenius.fx' ||
         request.auth.token.email.lower() == 'pipoapaza@gmail.com' ||
@@ -23,10 +24,7 @@ service cloud.firestore {
         isAuthenticated() && 
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email.lower() in [
-            'admin', 'steven@ingenius.fx', 'pipoapaza@gmail.com', 'jeilin@jeilin.com', 'jeilin@jeilin.fx', 'jeilin@ingenus.fx'
-          ]
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canBroadcast == true
         )
       );
     }
@@ -81,6 +79,11 @@ service cloud.firestore {
     match /promos/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
     match /site_assets/{id} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
     match /discount_codes/{codeId} { allow read: if isAuthenticated(); allow write: if isAdmin(); }
+    match /payment_logs/{id} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow update, delete: if isAdmin();
+    }
 
     // Permitir a los admins leer cualquier colección por si acaso
     match /{path=**} {

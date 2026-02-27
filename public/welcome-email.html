@@ -1,128 +1,70 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndexGenius Academy</title>
-    <style>
-        /* Reset for email clients */
-        body,
-        table,
-        td,
-        p,
-        a,
-        div {
-            -ms-text-size-adjust: 100%;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        table,
-        td {
-            mso-table-lspace: 0pt;
-            mso-table-rspace: 0pt;
-        }
-
-        img {
-            -ms-interpolation-mode: bicubic;
-            border: 0;
-            height: auto;
-            line-height: 100%;
-            outline: none;
-            text-decoration: none;
-        }
-
-        body {
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            background-color: #000000;
-        }
-
-        /* GMAIL DARK MODE HACKS */
-        u+.body {
-            background-color: #000000 !important;
-            color: #ffffff !important;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .dark-bg {
-                background-color: #000000 !important;
-            }
-
-            .text-white {
-                color: #ffffff !important;
-            }
-        }
-    </style>
 </head>
 
-<body class="body" style="background-color: #000000; color: #ffffff; margin: 0; padding: 0;">
+<body style="margin:0; padding:0; background-color:#111111;">
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #000000;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#111111">
         <tr>
-            <td align="center">
+            <td align="center" style="padding:15px 0;">
 
-                <!-- MAIN CONTAINER: Full Flyer Focus -->
-                <table border="0" cellpadding="0" cellspacing="0" width="600" style="max-width: 600px; width: 100%;">
+                <table width="500" cellpadding="0" cellspacing="0" border="0"
+                    style="max-width:500px; width:100%; background-color:#0b0b0b; border-radius:15px; overflow:hidden;">
 
-                    <!-- THE FLYER IMAGE (Clean, no overlays) -->
+                    <!-- BANNER -->
                     <tr>
-                        <td align="center" style="line-height: 0;">
-                            <img src="https://pub-c7a361632730477f8edb5a917dd41338.r2.dev/flyer_1772144420008_ChatGPT_Image_26_feb_2026%2C_04_31_24_p.m..png"
-                                alt="Bienvenido a IndexGenius Academy"
-                                style="width: 100%; max-width: 600px; height: auto; display: block; border: 0;">
+                        <td align="center" style="line-height:0;">
+                            <img src="https://pub-c7a361632730477f8edb5a917dd41338.r2.dev/flyer_1772148652211_imagen_2026-02-26_183052205.png"
+                                width="500" style="width:100%; max-width:500px; height:auto; display:block; border:0;">
                         </td>
                     </tr>
 
-                    <!-- MINIMAL CREDENTIALS: Blended into the black background -->
+                    <!-- CONTENIDO COMPACTO -->
                     <tr>
-                        <td align="center" style="padding: 40px 20px; background-color: #000000;">
-                            <p
-                                style="margin: 0; font-family: Arial, sans-serif; font-size: 11px; color: #E50914; font-weight: 900; letter-spacing: 4px; text-transform: uppercase;">
-                                ACCESO AUTORIZADO PARA:
-                            </p>
-                            <h2
-                                style="margin: 10px 0 0 0; font-family: Arial, sans-serif; font-size: 24px; color: #ffffff; font-style: italic; font-weight: 900; text-transform: uppercase;">
-                                {{USER_NAME}}
-                            </h2>
+                        <td style="padding:25px 30px;">
 
-                            <!-- INFO BOX: High contrast red border -->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%"
-                                style="margin-top: 30px; border: 1px solid #1a1a1a; background-color: #050505;">
+                            <p
+                                style="margin:0; font-size:10px; color:#e50914; font-weight:900; letter-spacing:2px; font-family:Arial, sans-serif;">
+                                ACCESO CONFIRMADO
+                            </p>
+
+                            <h1
+                                style="margin:10px 0 20px 0; font-size:26px; color:#ffffff; font-weight:900; font-family:Arial, sans-serif; text-transform:uppercase;">
+                                {{USER_NAME}}
+                            </h1>
+
+                            <!-- CAJA CREDENCIALES COMPACTA -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                style="background-color:#161616; border-radius:10px;">
                                 <tr>
-                                    <td style="padding: 25px;">
-                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                                            <tr>
-                                                <td style="padding-bottom: 10px;">
-                                                    <span
-                                                        style="font-family: Arial, sans-serif; font-size: 9px; color: #555; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">USUARIO:</span>
-                                                    <br>
-                                                    <span
-                                                        style="font-family: 'Courier New', Courier, monospace; font-size: 16px; color: #ffffff; font-weight: bold;">{{USER_EMAIL}}</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding-top: 15px; border-top: 1px solid #111;">
-                                                    <span
-                                                        style="font-family: Arial, sans-serif; font-size: 9px; color: #555; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">PASSWORD:</span>
-                                                    <br>
-                                                    <span
-                                                        style="font-family: 'Courier New', Courier, monospace; font-size: 16px; color: #E50914; font-weight: bold;">{{USER_PASSWORD}}</span>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                    <td style="padding:20px;">
+                                        <p
+                                            style="margin:0; font-size:9px; color:#555; font-weight:900; font-family:Arial, sans-serif;">
+                                            USUARIO</p>
+                                        <p
+                                            style="margin:4px 0 15px 0; font-size:14px; color:#ffffff; font-weight:bold; font-family:Courier, monospace;">
+                                            ((USER_EMAIL))</p>
+
+                                        <p
+                                            style="margin:0; font-size:9px; color:#555; font-weight:900; font-family:Arial, sans-serif;">
+                                            CONTRASEÑA</p>
+                                        <p
+                                            style="margin:4px 0 0 0; font-size:14px; color:#e50914; font-weight:bold; font-family:Courier, monospace;">
+                                            {{USER_PASSWORD}}</p>
                                     </td>
                                 </tr>
                             </table>
 
-                            <!-- ACTION BUTTON -->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px;">
+                            <!-- BOTÓN -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:25px;">
                                 <tr>
                                     <td align="center">
-                                        <a href="https://indexgeniusacademy.com" target="_blank"
-                                            style="background-color: #E50914; padding: 18px 40px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 900; color: #ffffff; text-decoration: none; text-transform: uppercase; letter-spacing: 3px; display: inline-block;">
+                                        <a href="https://indexgeniusacademy.com"
+                                            style="background-color:#e50914; color:#ffffff; padding:15px 0; width:100%; text-decoration:none; font-size:13px; font-weight:900; text-transform:uppercase; display:inline-block; letter-spacing:2px; border-radius:4px; font-family:Arial, sans-serif;">
                                             INGRESAR AL SISTEMA
                                         </a>
                                     </td>
@@ -130,13 +72,13 @@
                             </table>
 
                             <p
-                                style="margin-top: 40px; font-family: Arial, sans-serif; font-size: 9px; color: #222; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
-                                IndexGenius Academy &copy; 2026 - Official Transmission
+                                style="margin-top:30px; font-size:9px; color:#333; text-align:center; font-family:Arial, sans-serif;">
+                                INDEXGENIUS ACADEMY © 2026
                             </p>
+
                         </td>
                     </tr>
                 </table>
-
             </td>
         </tr>
     </table>

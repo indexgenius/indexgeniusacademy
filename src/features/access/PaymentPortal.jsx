@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Copy, ShieldCheck, Zap, ArrowRight, Lock, MessageSquare, Crown, Star, ShieldAlert, Upload, Image, X, Tag, Percent, ChevronLeft, CreditCard, Sparkles } from 'lucide-react';
+import { Check, Copy, ShieldCheck, Zap, ArrowRight, Lock, MessageSquare, Crown, Star, ShieldAlert, Upload, Image, X, Tag, Percent, ChevronLeft, CreditCard, Sparkles, RefreshCw } from 'lucide-react';
 import { db } from '../../firebase';
-import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, onSnapshot, collection, addDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { nowPaymentsService } from '../../services/nowPaymentsService';
 
 const PLANS = [
+    {
+        id: 'test-plan',
+        name: 'PLAN DE PRUEBA',
+        price: 10,
+        period: '/ sesión',
+        description: 'Plan táctico para validación de red',
+        features: ['Acceso temporal', 'Validación automática', 'Hash de prueba'],
+        icon: <ShieldAlert size={20} />,
+        accent: 'bg-green-600 text-white',
+        bg: 'from-green-600/20 to-transparent'
+    },
     {
         id: 'index-one',
         name: 'INDEX ONE',
@@ -72,6 +83,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
     const [selectedCurrency, setSelectedCurrency] = useState(null);
     const [paymentDetails, setPaymentDetails] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState(null);
+    const [pollingInterval, setPollingInterval] = useState(null);
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, "payment_methods"), (snapshot) => {
@@ -79,6 +91,46 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         });
         return () => unsub();
     }, []);
+
+    // Recuperar sesión de monitoreo si el usuario ya tiene un pago pendiente
+    useEffect(() => {
+        const recoverLastPayment = async () => {
+            if (!user?.uid) return;
+
+            try {
+                const logsRef = collection(db, "payment_logs");
+                const q = query(
+                    logsRef,
+                    where("userId", "==", user.uid),
+                    where("status", "==", "waiting"),
+                    orderBy("receivedAt", "desc"),
+                    limit(1)
+                );
+
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    const lastLog = snapshot.docs[0].data();
+                    console.log("Detectado pago previo sin confirmar:", lastLog.paymentId);
+
+                    // Cargar detalles completos para mostrar QR e instrucciones
+                    const details = await nowPaymentsService.getPaymentStatus(lastLog.paymentId);
+                    setPaymentDetails(details);
+                    setPaymentStatus(details.payment_status);
+                    setStep(5); // Ir directo al paso de instrucciones de pago
+
+                    startStatusPolling(lastLog.paymentId);
+                }
+            } catch (e) {
+                console.error("Error recuperando último log:", e);
+            }
+        };
+
+        recoverLastPayment();
+
+        return () => {
+            if (pollingInterval) clearInterval(pollingInterval);
+        };
+    }, [user?.uid]);
 
     const getFinalPrice = () => {
         if (!selectedPlan) return 0;
@@ -199,9 +251,26 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
             setPaymentDetails(payment);
             setStep(5);
 
-            // Notificar a Firebase
+            // Iniciar monitoreo automático
+            startStatusPolling(payment.payment_id);
+
+            // Registrar Intento en Firebase (Notificación y Log)
+            const logData = {
+                userId: user.uid,
+                email: user.email,
+                paymentId: payment.payment_id,
+                orderId: orderId,
+                amount: finalPrice,
+                currency: currency,
+                status: 'waiting',
+                plan: selectedPlan.name,
+                receivedAt: serverTimestamp()
+            };
+
+            await addDoc(collection(db, "payment_logs"), logData);
+
             await addDoc(collection(db, "notifications"), {
-                title: "INTENTO PAGO WHITE-LABEL",
+                title: "INTENTO PAGO CRIPTO",
                 message: `${user.email} inició pago de ${currency.toUpperCase()} por $${finalPrice}`,
                 type: 'subscription_attempt',
                 userId: user.uid,
@@ -216,17 +285,46 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         }
     };
 
-    const checkPaymentStatus = async () => {
-        if (!paymentDetails?.payment_id) return;
+
+    const startStatusPolling = (paymentId) => {
+        if (pollingInterval) clearInterval(pollingInterval);
+
+        console.log("Iniciando monitoreo de pago:", paymentId);
+        const interval = setInterval(() => checkPaymentStatus(paymentId), 10000); // Cada 10s
+        setPollingInterval(interval);
+    };
+
+    const checkPaymentStatus = async (forcedId) => {
+        const paymentId = forcedId || paymentDetails?.payment_id;
+        if (!paymentId) return;
+
         try {
-            const status = await nowPaymentsService.getPaymentStatus(paymentDetails.payment_id);
-            setPaymentStatus(status.payment_status);
-            if (status.payment_status === 'finished' || status.payment_status === 'confirmed') {
-                // Pago exitoso, podrías redirigir o mostrar un mensaje de éxito
-                alert("¡Pago confirmado! Tu cuenta se activará en breve.");
+            const status = await nowPaymentsService.getPaymentStatus(paymentId);
+            const currentStatus = status.payment_status;
+
+            console.log(`Estado NowPayments (${paymentId}):`, currentStatus);
+
+            // Si el estado cambió y no es 'waiting', sincronizamos con el backend para que el Admin lo vea
+            if (currentStatus !== paymentStatus && currentStatus !== 'waiting') {
+                console.log("Sincronizando nuevo estado con Auditoría...");
+                fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paymentId: paymentId, userId: user.uid })
+                }).catch(e => console.error("Error sincronizando log:", e));
+            }
+
+            setPaymentStatus(currentStatus);
+
+            if (currentStatus === 'finished' || currentStatus === 'confirmed') {
+                if (pollingInterval) clearInterval(pollingInterval);
+                setPollingInterval(null);
+
+                alert("¡PAGO CONFIRMADO! Acceso concedido.");
+                window.location.reload();
             }
         } catch (err) {
-            console.error("Error checking status:", err);
+            console.error("Error al verificar estado:", err);
         }
     };
 
@@ -631,45 +729,68 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                                 </button>
                                             </div>
 
-                                            <div className="pt-6 border-t border-white/5 space-y-4">
-                                                <div className="bg-red-600/10 border border-red-600/30 p-4 rounded-2xl flex items-start gap-4">
-                                                    <ShieldAlert size={20} className="text-red-600 shrink-0 mt-1" />
-                                                    <div className="text-left">
-                                                        <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1">INSTRUCCIÓN DE RED OBLIGATORIA</p>
-                                                        <p className="text-[9px] font-bold text-gray-400 uppercase leading-relaxed">
-                                                            {paymentDetails.pay_currency === 'usdtbsc' && "DEBES enviar USDT únicamente a través de la red BINANCE SMART CHAIN (BEP20). El uso de otra red resultará en la pérdida total de fondos."}
-                                                            {paymentDetails.pay_currency === 'btc' && "DEBES enviar BITCOIN únicamente a través de su red nativa (BITCOIN NETWORK). No uses redes envueltas o alternativas."}
-                                                            {paymentDetails.pay_currency === 'bnbbsc' && "DEBES enviar BNB únicamente a través de la red BINANCE SMART CHAIN (BSC - BEP20)."}
-                                                            {!['usdtbsc', 'btc', 'bnbbsc'].includes(paymentDetails.pay_currency) && `Asegúrate de enviar ${paymentDetails.pay_currency.toUpperCase()} por su red correspondiente.`}
-                                                        </p>
+                                            <div className="pt-8 border-t border-white/5 space-y-8">
+                                                {/* Status Timeline */}
+                                                <div className="flex justify-between items-start max-w-md mx-auto relative px-4">
+                                                    <div className="absolute top-4 left-0 right-0 h-[2px] bg-white/5 z-0 mx-8">
+                                                        <div className={`h-full bg-red-600 transition-all duration-1000 ${paymentStatus === 'confirmed' || paymentStatus === 'finished' ? 'w-full' : paymentStatus === 'sending' || paymentStatus === 'confirming' ? 'w-1/2' : 'w-0'}`} />
+                                                    </div>
+
+                                                    <div className="relative z-10 flex flex-col items-center gap-3">
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${['waiting', 'confirming', 'confirmed', 'sending', 'finished'].includes(paymentStatus) ? 'bg-red-600 border-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)]' : 'bg-black border-white/10 text-white/30'}`}>
+                                                            <div className="text-[10px] font-black italic">01</div>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className={`text-[9px] font-black uppercase tracking-widest ${['waiting', 'confirming', 'confirmed', 'sending', 'finished'].includes(paymentStatus) ? 'text-white' : 'text-white/20'}`}>DEPÓSITO</p>
+                                                            <p className="text-[7px] font-bold text-gray-600 uppercase">PENDIENTE</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="relative z-10 flex flex-col items-center gap-3">
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${['confirming', 'confirmed', 'sending', 'finished'].includes(paymentStatus) ? 'bg-red-600 border-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)]' : 'bg-black border-white/10 text-white/30'} ${['confirming', 'sending'].includes(paymentStatus) ? 'animate-pulse' : ''}`}>
+                                                            {['confirming', 'sending'].includes(paymentStatus) ? <RefreshCw className="animate-spin" size={12} /> : <div className="text-[10px] font-black italic">02</div>}
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className={`text-[9px] font-black uppercase tracking-widest ${['confirming', 'confirmed', 'sending', 'finished'].includes(paymentStatus) ? 'text-white' : 'text-white/20'}`}>RED BLOCKCHAIN</p>
+                                                            <p className="text-[7px] font-bold text-gray-600 uppercase">{paymentStatus === 'confirming' || paymentStatus === 'sending' ? 'ESCANEANDO...' : 'VERIFICANDO'}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="relative z-10 flex flex-col items-center gap-3">
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${['confirmed', 'finished'].includes(paymentStatus) ? 'bg-green-600 border-green-600 text-white shadow-[0_0_20px_rgba(34,197,94,0.5)]' : 'bg-black border-white/10 text-white/30'}`}>
+                                                            {['confirmed', 'finished'].includes(paymentStatus) ? <Check size={18} /> : <div className="text-[10px] font-black italic">03</div>}
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className={`text-[9px] font-black uppercase tracking-widest ${['confirmed', 'finished'].includes(paymentStatus) ? 'text-white' : 'text-white/20'}`}>ACTIVACIÓN</p>
+                                                            <p className="text-[7px] font-bold text-gray-600 uppercase">ACCESO TOTAL</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-widest leading-relaxed">
-                                                    * Esta es una <span className="text-white">Terminal de Pago Segura</span> generada dinámicamente por la red NOWPayments para esta orden específica.
-                                                    Los fondos serán procesados y acreditados a tu cuenta automáticamente tras la confirmación.
-                                                </p>
-                                            </div>
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                                                <div className="p-5 bg-black/60 border border-white/5 rounded-2xl flex flex-col items-center gap-1">
-                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">ORDER TRACKING ID</p>
-                                                    <p className="text-xs font-black text-white">#{paymentDetails.payment_id.substring(0, 10).toUpperCase()}</p>
-                                                </div>
                                                 <button
-                                                    onClick={checkPaymentStatus}
-                                                    className="p-5 bg-red-600 text-white rounded-2xl font-black italic uppercase text-[11px] flex items-center justify-center gap-3 hover:bg-white hover:text-red-600 transition-all shadow-2xl shadow-red-600/20 group"
+                                                    onClick={() => checkPaymentStatus()}
+                                                    className="w-full py-7 bg-red-600 text-white font-black italic rounded-2xl hover:scale-[1.02] active:scale-95 transition-all flex flex-col items-center justify-center relative overflow-hidden group shadow-[0_20px_60px_rgba(220,38,38,0.3)]"
                                                 >
-                                                    SINCRONIZAR ESTADO <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                                    <span className="text-lg tracking-tighter uppercase relative z-10">YA REALICÉ EL PAGO</span>
+                                                    <span className="text-[9px] font-black text-white/50 uppercase tracking-[0.4em] relative z-10 italic">VERIFICAR TRANSACCIÓN EN RED</span>
+
+                                                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+                                                    <div className="absolute top-0 bottom-0 left-[-100%] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite] group-hover:animate-none" />
                                                 </button>
+
+                                                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-widest text-center leading-relaxed">
+                                                    * No cierres esta ventana hasta que el sistema confirme tu depósito. <br />
+                                                    El proceso suele tardar de <span className="text-white">2 a 10 minutos</span> dependiendo de la red.
+                                                </p>
                                             </div>
                                         </div>
 
-                                        {debugMode && (
+                                        {(debugMode || user?.email === 'jeilin@jeilin.com') && (
                                             <button
                                                 onClick={handleMockSuccess}
-                                                className="w-full p-4 mt-6 bg-green-600/10 border border-green-600/30 text-green-500 rounded-2xl font-black italic uppercase text-[10px] hover:bg-green-600 hover:text-white transition-all"
+                                                className="w-full p-4 mt-6 bg-red-600/20 border border-red-600/50 text-red-500 rounded-2xl font-black italic uppercase text-[10px] hover:bg-red-600 hover:text-white transition-all shadow-[0_0_20px_rgba(220,38,38,0.2)]"
                                             >
-                                                [DEV] VALIDAR PAGO INSTANTÁNEO
+                                                [ ACCESO DE EMERGENCIA: FORZAR ACTIVACIÓN ]
                                             </button>
                                         )}
                                     </div>

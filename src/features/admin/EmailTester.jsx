@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Mail, Check, AlertTriangle, Send, Plus, Image } from 'lucide-react';
+import { Mail, Check, AlertTriangle, Send, Plus, Image, Eye, RefreshCw, Copy } from 'lucide-react';
 
 const EmailTester = ({ adminUser }) => {
     const [testEmail, setTestEmail] = useState('');
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [responseMsg, setResponseMsg] = useState('');
     const [selectedTemplate, setSelectedTemplate] = useState('welcome_new'); // welcome_new, extension, standard, black_test
+    const [rawHtml, setRawHtml] = useState('');
 
     const [uploading, setUploading] = useState(false);
     const [flyerUrl, setFlyerUrl] = useState('');
@@ -48,6 +48,59 @@ const EmailTester = ({ adminUser }) => {
         }
     };
 
+    const getPopulatedHtml = async () => {
+        if (selectedTemplate === 'raw_html') return rawHtml;
+
+        let templatePath = '/testemail.html';
+        if (selectedTemplate === 'black_test') templatePath = '/testblack.html';
+        if (selectedTemplate === 'welcome_new') templatePath = '/welcome-email.html';
+        if (selectedTemplate === 'elite_welcome') templatePath = '/elite-welcome.html';
+        if (selectedTemplate === 'extension') templatePath = '/extension-email.html';
+
+        try {
+            const responseHtml = await fetch(templatePath);
+            if (!responseHtml.ok) throw new Error(`No se pudo cargar ${templatePath}`);
+            let html = await responseHtml.text();
+
+            // Populate mock data
+            html = html.replace(/{{USER_NAME}}/g, "Tester Admin");
+            html = html.replace(/{{PLAN_NAME}}/g, "PLAN DE PRUEBA VIP");
+            html = html.replace(/{{PLAN_PRICE}}/g, "25.00");
+            html = html.replace(/{{USER_EMAIL}}/g, testEmail || "admin@indexgenius.com");
+            html = html.replace(/{{USER_PASSWORD}}/g, "PasswordSegura123!");
+            html = html.replace(/{{DAYS_ADDED}}/g, "7");
+            html = html.replace(/{{NEW_EXPIRY}}/g, "26 DE MARZO, 2026");
+
+            return html;
+        } catch (e) {
+            console.error("Fetch Error:", e);
+            throw e;
+        }
+    };
+
+    const handlePreview = async () => {
+        try {
+            const html = await getPopulatedHtml();
+            const previewWin = window.open('', '_blank');
+            if (previewWin) {
+                previewWin.document.write(html);
+                previewWin.document.close();
+            }
+        } catch (e) {
+            alert("Error al generar preview");
+        }
+    };
+
+    const handleCopyHtml = async () => {
+        try {
+            const html = await getPopulatedHtml();
+            await navigator.clipboard.writeText(html);
+            alert("CÓDIGO HTML COPIADO AL PORTAPAPELES. ¡Ya puedes pegarlo donde quieras!");
+        } catch (e) {
+            alert("Error al copiar HTML");
+        }
+    };
+
     const handleTestEmail = async (e) => {
         e.preventDefault();
         if (!testEmail) return;
@@ -56,31 +109,11 @@ const EmailTester = ({ adminUser }) => {
         setResponseMsg('');
 
         try {
-            // Fetch HTML template
-            let templatePath = '/testemail.html';
-            if (selectedTemplate === 'black_test') templatePath = '/testblack.html';
-            if (selectedTemplate === 'welcome_new') templatePath = '/welcome-email.html';
-            if (selectedTemplate === 'elite_welcome') templatePath = '/elite-welcome.html';
-            if (selectedTemplate === 'extension') templatePath = '/extension-email.html';
+            const htmlContent = await getPopulatedHtml();
 
-            const responseHtml = await fetch(templatePath);
-            if (!responseHtml.ok) throw new Error(`No se pudo cargar ${templatePath}`);
-            let htmlContent = await responseHtml.text();
-
-            // Populate mock data
-            htmlContent = htmlContent.replace(/{{USER_NAME}}/g, "Tester Admin");
-            htmlContent = htmlContent.replace(/{{PLAN_NAME}}/g, "PLAN DE PRUEBA VIP");
-            htmlContent = htmlContent.replace(/{{PLAN_PRICE}}/g, "25.00");
-            htmlContent = htmlContent.replace(/{{USER_EMAIL}}/g, testEmail);
-            htmlContent = htmlContent.replace(/{{USER_PASSWORD}}/g, "PasswordSegura123!");
-            htmlContent = htmlContent.replace(/{{DAYS_ADDED}}/g, "7");
-            htmlContent = htmlContent.replace(/{{NEW_EXPIRY}}/g, "26 DE MARZO, 2026");
-
-            // Send via API endpoint
-            let apiUrl = 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
-            if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-                apiUrl = '/api/auth/send-welcome-email';
-            }
+            let apiUrl = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+                ? '/api/auth/send-welcome-email'
+                : 'https://indexgeniusacademy.com/api/auth/send-welcome-email';
 
             const res = await fetch(apiUrl, {
                 method: 'POST',
@@ -93,14 +126,12 @@ const EmailTester = ({ adminUser }) => {
             });
 
             const data = await res.json();
-
             if (res.ok && data.success) {
                 setStatus('success');
-                setResponseMsg('¡Correo enviado con éxito a ' + testEmail + '!');
+                setResponseMsg('¡Correo enviado con éxito!');
             } else {
-                throw new Error(data.error || 'Error desconocido al enviar el email');
+                throw new Error(data.error || 'Error al enviar');
             }
-
         } catch (error) {
             console.error("Test Email Error:", error);
             setStatus('error');
@@ -157,10 +188,28 @@ const EmailTester = ({ adminUser }) => {
                         onClick={() => setSelectedTemplate('elite_welcome')}
                         className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'elite_welcome' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BIENVENIDA ELITE (SIN INFO)
+                        BIENVENIDA ELITE
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedTemplate('raw_html')}
+                        className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'raw_html' ? 'bg-purple-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        PEGAR HTML PROPIO
                     </button>
                 </div>
             </div>
+
+            {selectedTemplate === 'raw_html' && (
+                <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <textarea
+                        value={rawHtml}
+                        onChange={(e) => setRawHtml(e.target.value)}
+                        placeholder="<!-- Pega tu código HTML aquí -->"
+                        className="w-full h-64 bg-white/5 border border-purple-500/30 p-4 text-xs font-mono text-purple-400 outline-none focus:border-purple-500 transition-all placeholder:text-purple-900"
+                    />
+                </div>
+            )}
 
             {/* CLOUDFLARE R2 UPLOADER */}
             <div className="bg-red-600/5 border border-red-600/30 p-4 mb-8 relative z-10">
@@ -220,13 +269,31 @@ const EmailTester = ({ adminUser }) => {
                     />
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={status === 'loading'}
-                    className="w-full py-4 bg-red-600 text-white font-black italic text-xs tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                >
-                    {status === 'loading' ? 'ENVIANDO...' : 'ENVIAR CORREO DE PRUEBA'} <Send size={16} />
-                </button>
+                <div className="flex flex-wrap gap-4">
+                    <button
+                        type="submit"
+                        disabled={status === 'loading'}
+                        className="flex-1 min-w-[150px] py-4 bg-red-600 text-white font-black italic text-xs tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                    >
+                        {status === 'loading' ? 'ENVIANDO...' : 'ENVIAR PRUEBA'} <Send size={16} />
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handlePreview}
+                        className="px-6 py-4 bg-white/5 border border-white/20 text-white font-black italic text-xs tracking-[0.3em] uppercase hover:bg-white/20 transition-all flex items-center justify-center gap-3"
+                    >
+                        PREVIEW <Eye size={16} />
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleCopyHtml}
+                        className="px-6 py-4 bg-purple-900/20 border border-purple-500/30 text-purple-400 font-black italic text-[9px] tracking-[0.2em] uppercase hover:bg-purple-600 hover:text-white transition-all flex items-center justify-center gap-3"
+                    >
+                        COPIAR HTML <Copy size={16} />
+                    </button>
+                </div>
             </form>
 
             {status === 'success' && (

@@ -27,7 +27,7 @@ export const nowPaymentsService = {
                     price_currency: 'usd',
                     order_id: data.order_id,
                     order_description: data.order_description,
-                    ipn_callback_url: data.ipn_callback_url || 'https://ingenusfx.com/api/callback/nowpayments',
+                    ipn_callback_url: data.ipn_callback_url || 'https://indexgeniusacademy.com/api/nowpayments-webhook',
                     success_url: data.success_url || window.location.origin,
                     cancel_url: data.cancel_url || window.location.origin,
                     is_fee_paid_by_user: true, // User pays the fee
@@ -111,7 +111,7 @@ export const nowPaymentsService = {
                     pay_currency: data.pay_currency,
                     order_id: data.order_id,
                     order_description: data.order_description,
-                    ipn_callback_url: data.ipn_callback_url || 'https://ingenusfx.com/api/callback/nowpayments',
+                    ipn_callback_url: data.ipn_callback_url || 'https://indexgeniusacademy.com/api/nowpayments-webhook',
                     is_fee_paid_by_user: true, // User pays the fee
                 }),
             });

@@ -14,6 +14,7 @@ import PromoManager from './PromoManager';
 import MembershipControl from './MembershipControl';
 import BroadcastLive from '../live/BroadcastLive';
 import DiscountManager from './DiscountManager';
+import PaymentAudit from './PaymentAudit';
 
 const AdminPage = ({ user, broadcastSignal }) => {
     const [subTab, setSubTab] = useState('signals');
@@ -30,6 +31,7 @@ const AdminPage = ({ user, broadcastSignal }) => {
         { id: 'keys', icon: Key, label: 'LLAVES ACCESO' },
         { id: 'memberships', icon: BookOpen, label: 'MEMBRESÍAS' },
         { id: 'payments', icon: Wallet, label: 'GESTOR PAGOS' },
+        { id: 'audit', icon: ShieldCheck, label: 'AUDITORÍA CRIPTO' },
         { id: 'discounts', icon: Tag, label: 'DESCUENTOS' },
     ];
 
@@ -71,6 +73,7 @@ const AdminPage = ({ user, broadcastSignal }) => {
                 {subTab === 'keys' && <AccessKeys user={user} />}
                 {subTab === 'memberships' && <MembershipControl />}
                 {subTab === 'payments' && <PaymentControl />}
+                {subTab === 'audit' && <PaymentAudit />}
                 {subTab === 'discounts' && <DiscountManager />}
             </div>
         </div>
