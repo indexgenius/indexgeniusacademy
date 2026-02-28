@@ -7,17 +7,6 @@ import { nowPaymentsService } from '../../services/nowPaymentsService';
 
 const PLANS = [
     {
-        id: 'test-plan',
-        name: 'PLAN DE PRUEBA',
-        price: 10,
-        period: '/ sesión',
-        description: 'Plan táctico para validación de red',
-        features: ['Acceso temporal', 'Validación automática', 'Hash de prueba'],
-        icon: <ShieldAlert size={20} />,
-        accent: 'bg-green-600 text-white',
-        bg: 'from-green-600/20 to-transparent'
-    },
-    {
         id: 'index-one',
         name: 'INDEX ONE',
         price: 60,
@@ -74,9 +63,9 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
         const saved = localStorage.getItem('selectedPlan');
         if (saved) {
             const parsed = JSON.parse(saved);
-            return PLANS.find(p => p.id === parsed.id) || PLANS[1];
+            return PLANS.find(p => p.id === parsed.id) || PLANS[0];
         }
-        return PLANS[1];
+        return PLANS[0];
     });
 
     const [currencies, setCurrencies] = useState([]);
