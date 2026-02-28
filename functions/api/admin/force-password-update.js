@@ -22,6 +22,7 @@ export async function onRequestPost(context) {
     };
 
     try {
+        // v1.0.1 - Forced deployment to sync Cloudflare Env Vars
         const { userId, newPassword } = await request.json();
 
         if (!userId || !newPassword) {
@@ -36,7 +37,13 @@ export async function onRequestPost(context) {
         const privateKey = env.FIREBASE_PRIVATE_KEY;
 
         if (!clientEmail || !privateKey) {
-            return new Response(JSON.stringify({ error: "Credenciales de Admin no configuradas en el servidor (FIREBASE_CLIENT_EMAIL/PRIVATE_KEY)" }), {
+            const missing = [];
+            if (!clientEmail) missing.push("FIREBASE_CLIENT_EMAIL");
+            if (!privateKey) missing.push("FIREBASE_PRIVATE_KEY");
+
+            return new Response(JSON.stringify({
+                error: `Faltan llaves en Cloudflare: ${missing.join(', ')}. Asegúrate de agregarlas en Settings -> Functions -> Environment Variables.`
+            }), {
                 status: 500,
                 headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });
