@@ -3,7 +3,7 @@ import { Zap, Lock, User, ArrowRight, Chrome, Mail, Eye, EyeOff, Phone } from 'l
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, googleProvider, db } from '../../firebase';
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const AuthPage = ({ onLogin, initialMode = 'login' }) => {
     const [email, setEmail] = useState('');
@@ -23,61 +23,6 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
             setIsLogin(false);
         }
     }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-        setSuccess('');
-
-        const normalizedEmail = email.trim().toLowerCase();
-
-        if (isResetMode) {
-            handleResetPassword(normalizedEmail);
-            return;
-        }
-
-        let generatedPassword = password;
-        if (!isLogin && !isResetMode) {
-            generatedPassword = Math.random().toString(36).slice(-10) + "Ig24!";
-            setPassword(generatedPassword);
-        }
-
-        try {
-            let userCredential;
-            if (isLogin) {
-                userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
-            } else {
-                userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, generatedPassword);
-                if (name) await updateProfile(userCredential.user, { displayName: name });
-
-                const referralCode = localStorage.getItem('referralCode');
-                const userData = {
-                    email: normalizedEmail,
-                    displayName: name,
-                    phone: phone,
-                    status: 'payment_required',
-                    role: 'user',
-                    createdAt: serverTimestamp(),
-                    subscriptionActive: false,
-                    tmpPassword: generatedPassword
-                };
-
-                if (referralCode) {
-                    userData.referredBy = referralCode;
-                }
-
-                await setDoc(doc(db, "users", userCredential.user.uid), userData);
-                localStorage.removeItem('referralCode');
-            }
-            await onLogin(userCredential.user);
-        } catch (err) {
-            console.error("Auth Error:", err);
-            setError(isLogin ? 'CREDENCIALES INVÁLIDAS' : 'ERROR AL REGISTRAR (EMAIL EN USO?)');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleResetPassword = async (normalizedEmail) => {
         if (!normalizedEmail) {
@@ -102,12 +47,117 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
 
     const handleGoogleLogin = async () => {
         setLoading(true);
+        setError('');
         try {
             const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const normalizedEmail = user.email.toLowerCase();
+
+            // Verify if a profile with this email already exists with a different provider
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("email", "==", normalizedEmail));
+            const snap = await getDocs(q);
+
+            // Find an entry with different UID (meaning another Firebase account linked to this email)
+            const existingWithDifferentUid = snap.docs.find(d => d.id !== user.uid);
+
+            if (existingWithDifferentUid) {
+                const data = existingWithDifferentUid.data();
+                if (data.provider === 'password') {
+                    setError('HAS USADO ESTE CORREO CON CONTRASEÑA. USA TU EMAIL Y CLAVE PARA ENTRAR.');
+                    await auth.signOut();
+                    setLoading(false);
+                    return;
+                }
+            }
+
             await onLogin(result.user);
         } catch (err) {
             console.error("Google Login Error:", err);
             setError('ERROR AL INICIAR CON GOOGLE');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccess('');
+
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (isResetMode) {
+            handleResetPassword(normalizedEmail);
+            return;
+        }
+
+        let generatedPassword = password;
+        if (!isLogin && !isResetMode) {
+            generatedPassword = Math.random().toString(36).slice(-10) + "Ig24!";
+            setPassword(generatedPassword);
+        }
+
+        try {
+            let userCredential;
+            if (isLogin) {
+                userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+
+                // Check for duplicate profile via Google
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("email", "==", normalizedEmail));
+                const snap = await getDocs(q);
+
+                const existingGoogleUser = snap.docs.find(d => d.id !== userCredential.user.uid && d.data().provider === 'google.com');
+                if (existingGoogleUser) {
+                    setError('HAS USADO ESTE CORREO CON GOOGLE. USA EL BOTÓN DE GOOGLE IDENTITY.');
+                    await auth.signOut();
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                // Pre-check for duplicate profile via Google
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("email", "==", normalizedEmail));
+                const snap = await getDocs(q);
+
+                if (!snap.empty) {
+                    const existingData = snap.docs[0].data();
+                    if (existingData.provider === 'google.com') {
+                        setError('HAS USADO ESTE CORREO CON GOOGLE. USA EL BOTÓN DE GOOGLE IDENTITY.');
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, generatedPassword);
+                if (name) await updateProfile(userCredential.user, { displayName: name });
+
+                const referralCode = localStorage.getItem('referralCode');
+                const userData = {
+                    email: normalizedEmail,
+                    displayName: name,
+                    phone: phone,
+                    status: 'payment_required',
+                    role: 'user',
+                    createdAt: serverTimestamp(),
+                    subscriptionActive: false,
+                    tmpPassword: generatedPassword,
+                    provider: 'password'
+                };
+
+                if (referralCode) {
+                    userData.referredBy = referralCode;
+                }
+
+                await setDoc(doc(db, "users", userCredential.user.uid), userData);
+                localStorage.removeItem('referralCode');
+            }
+            await onLogin(userCredential.user);
+        } catch (err) {
+            console.error("Auth Error:", err);
+            setError(isLogin ? 'CREDENCIALES INVÁLIDAS' : 'ERROR AL REGISTRAR (EMAIL EN USO?)');
         } finally {
             setLoading(false);
         }
