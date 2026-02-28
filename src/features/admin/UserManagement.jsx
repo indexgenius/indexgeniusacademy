@@ -272,15 +272,39 @@ const UserManagement = ({ adminUser }) => {
                 updates.email = editEmail.toLowerCase().trim();
             }
 
+            // Forcing actual Auth Password Change
             if (editPassword) {
                 updates.tmpPassword = editPassword;
+
+                // Call forzar-cambio API to sync with Auth
+                const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+                const forceUrl = window.location.hostname === 'localhost' ? '/api/admin/force-password-update' : '/api/admin/force-password-update';
+
+                const forceRes = await fetch(forceUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        userId: editingUser.id,
+                        newPassword: editPassword
+                    })
+                });
+
+                const forceData = await forceRes.json();
+                if (!forceData.success) {
+                    throw new Error("ERROR AL SINCRONIZAR CONTRASEÑA EN AUTH: " + (forceData.error || "Desconocido"));
+                }
+                console.log("✅ Contraseña sincronizada en Firebase Auth");
             }
 
             await updateDoc(doc(db, "users", editingUser.id), updates);
-            alert("DATOS DE USUARIO ACTUALIZADOS EN FIRESTORE");
+            alert("✓ UNIDAD ACTUALIZADA: La contraseña ha sido forzada en el sistema de seguridad.");
             setEditingUser(null);
         } catch (e) {
-            alert("FALLO EN LA ACTUALIZACIÓN: " + e.message);
+            console.error(e);
+            alert("FALLO EN EL PROTOCOLO: " + e.message);
         } finally {
             setEditUpdating(false);
         }
@@ -558,15 +582,17 @@ const UserManagement = ({ adminUser }) => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">CONTRASEÑA TEMPORAL / NOTA</label>
+                                <label className="text-[10px] font-black text-white bg-red-600 px-2 py-0.5 uppercase tracking-widest">FORZAR NUEVA CONTRASEÑA</label>
                                 <input
                                     type="text"
                                     value={editPassword}
                                     onChange={e => setEditPassword(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 p-4 text-white font-mono text-xs outline-none focus:border-blue-500"
-                                    placeholder="NUEVA CONTRASEÑA"
+                                    className="w-full bg-white/5 border border-red-600/50 p-4 text-white font-mono text-xs outline-none focus:border-red-600"
+                                    placeholder="NUEVA CONTRASEÑA PARA LA UNIDAD"
                                 />
-                                <p className="text-[8px] text-gray-600 uppercase">Nota: Cambiar esto solo actualiza el registro visible. Usa 'ENVIAR RESET' para cambio real en Auth.</p>
+                                <p className="text-[8px] text-red-600 font-black uppercase tracking-tighter">
+                                    ¡AVISO! ESTO CAMBIARÁ EL ACCESO REAL DEL USUARIO DE FORMA INMEDIATA.
+                                </p>
                             </div>
 
                             <div className="space-y-2">
