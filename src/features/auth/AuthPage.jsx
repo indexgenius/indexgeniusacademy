@@ -104,34 +104,14 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
             if (isLogin) {
                 userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
 
-                // Check for duplicate profile via Google
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, where("email", "==", normalizedEmail));
-                const snap = await getDocs(q);
-
-                const existingGoogleUser = snap.docs.find(d => d.id !== userCredential.user.uid && d.data().provider === 'google.com');
-                if (existingGoogleUser) {
-                    setError('HAS USADO ESTE CORREO CON GOOGLE. USA EL BOTÓN DE GOOGLE IDENTITY.');
-                    await auth.signOut();
-                    setLoading(false);
-                    return;
-                }
+                // Una vez logueado, ya tenemos permisos para leer nuestro propio documento (request.auth.uid == userId)
+                // Pero NO para hacer queries de colección (getDocs(q)) a menos que seamos admin.
+                // Por lo tanto, evitamos la búsqueda de duplicados aquí para no disparar el error de permisos.
             } else {
-                // Pre-check for duplicate profile via Google
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, where("email", "==", normalizedEmail));
-                const snap = await getDocs(q);
-
-                if (!snap.empty) {
-                    const existingData = snap.docs[0].data();
-                    if (existingData.provider === 'google.com') {
-                        setError('HAS USADO ESTE CORREO CON GOOGLE. USA EL BOTÓN DE GOOGLE IDENTITY.');
-                        setLoading(false);
-                        return;
-                    }
-                }
-
+                // REGISTRO: Intentamos crear el usuario directamente. 
+                // Si el email ya existe en Auth, Firebase lanzará 'auth/email-already-in-use'.
                 userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, generatedPassword);
+
                 if (name) await updateProfile(userCredential.user, { displayName: name });
 
                 const referralCode = localStorage.getItem('referralCode');
@@ -151,13 +131,25 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
                     userData.referredBy = referralCode;
                 }
 
+                // Esta escritura funcionará porque acabamos de autenticarnos (request.auth.uid == userCredential.user.uid)
                 await setDoc(doc(db, "users", userCredential.user.uid), userData);
                 localStorage.removeItem('referralCode');
             }
             await onLogin(userCredential.user);
         } catch (err) {
-            console.error("Auth Error:", err);
-            setError(isLogin ? 'CREDENCIALES INVÁLIDAS' : 'ERROR AL REGISTRAR (EMAIL EN USO?)');
+            console.error("Auth Error Details:", err);
+
+            if (err.code === 'auth/email-already-in-use') {
+                setError('ESTE EMAIL YA ESTÁ EN USO. INTENTA INICIAR SESIÓN.');
+            } else if (err.code === 'permission-denied') {
+                setError('ERROR DE PERMISOS (FIRESTORE). CONSULTA AL ADMIN.');
+            } else if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+                setError('CREDENCIALES INVÁLIDAS');
+            } else if (err.code === 'auth/weak-password') {
+                setError('LA CONTRASEÑA ES MUY DÉBIL');
+            } else {
+                setError(isLogin ? 'ERROR AL INICIAR SESIÓN' : 'ERROR AL REGISTRAR UNIDAD');
+            }
         } finally {
             setLoading(false);
         }
