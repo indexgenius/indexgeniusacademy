@@ -25,7 +25,39 @@ export async function onRequestPost({ request, env }) {
         } catch (e) {
             body = {};
         }
-        const { email, name, htmlContent } = body;
+        const { email, name, htmlContent, attachments } = body;
+
+        // Function to fetch a file from URL and convert to Base64
+        const fetchFileAsBase64 = async (url) => {
+            try {
+                const response = await fetch(url);
+                const buffer = await response.arrayBuffer();
+                const bytes = new Uint8Array(buffer);
+                let binary = '';
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return btoa(binary);
+            } catch (e) {
+                console.error("Fetch file error:", e);
+                return null;
+            }
+        };
+
+        const resendAttachments = [];
+        if (attachments && Array.isArray(attachments)) {
+            for (const att of attachments) {
+                if (att.url) {
+                    const content = await fetchFileAsBase64(att.url);
+                    if (content) {
+                        resendAttachments.push({
+                            filename: att.filename || "document.pdf",
+                            content: content
+                        });
+                    }
+                }
+            }
+        }
 
         // Resend API Key from Cloudflare environment variable only
         const apiKey = env.RESEND_API_KEY;
@@ -36,13 +68,12 @@ export async function onRequestPost({ request, env }) {
             });
         }
 
-        // IMPORTANTE: Al usar "onboarding@resend.dev" como remitente en una cuenta nueva, 
-        // Resend de momento SOLO te permitirá enviar correos AL MISMO CORREO con el que creaste tu cuenta de Resend.
         const resendPayload = {
-            from: "IndexGenius Academy <facturas@indexgeniusacademy.com>",
+            from: "IndexGenius Academy <support@indexgeniusacademy.com>",
             to: [email],
-            subject: "Bienvenido a IndexGenius Academy - Credenciales y Factura",
-            html: htmlContent
+            subject: body.subject || "Bienvenido a IndexGenius Academy - Credenciales y Factura",
+            html: htmlContent,
+            attachments: resendAttachments.length > 0 ? resendAttachments : undefined
         };
 
         const response = await fetch("https://api.resend.com/emails", {

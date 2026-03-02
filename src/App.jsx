@@ -205,20 +205,22 @@ function App() {
       }} />;
   }
 
-  // 2. If user exists, handle status gating
-  if (user?.status === 'payment_required') return <PaymentPortal user={user} onLogout={logout} />;
-  if (user?.status === 'pending' || user?.status === 'rejected') return <PendingApproval onLogout={logout} status={user.status} user={user} />;
+  // 2. If user exists, handle status gating (admins bypass ALL gates)
+  if (!isAdmin && !isSupreme) {
+    if (user?.status === 'payment_required') return <PaymentPortal user={user} onLogout={logout} />;
+    if (user?.status === 'pending' || user?.status === 'rejected') return <PendingApproval onLogout={logout} status={user.status} user={user} />;
 
-  const isExpired = () => {
-    if (user?.status === 'renewal_pending') return true;
-    if (user?.subscriptionEnd) {
-      const end = user.subscriptionEnd.toDate ? user.subscriptionEnd.toDate() : new Date(user.subscriptionEnd);
-      return end < new Date();
-    }
-    return false;
-  };
+    const isExpired = () => {
+      if (user?.status === 'renewal_pending') return true;
+      if (user?.subscriptionEnd) {
+        const end = user.subscriptionEnd.toDate ? user.subscriptionEnd.toDate() : new Date(user.subscriptionEnd);
+        return end < new Date();
+      }
+      return false;
+    };
 
-  if (isExpired()) return <PaymentPortal user={user} onLogout={logout} isExpired={true} />;
+    if (isExpired()) return <PaymentPortal user={user} onLogout={logout} isExpired={true} />;
+  }
 
 
 

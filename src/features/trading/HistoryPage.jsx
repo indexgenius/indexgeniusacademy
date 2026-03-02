@@ -96,10 +96,10 @@ const HistoryPage = ({ user }) => {
             <div className="flex items-center justify-between border-b border-white/10 pb-6">
                 <div>
                     <h2 className="text-3xl lg:text-5xl font-black italic tracking-tighter text-white uppercase mb-2">
-                        Trading History
+                        Historial de Trading
                     </h2>
                     <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">
-                        COMPLETE OPERATIONS LOG • REAL-TIME ANALYTICS
+                        Registro completo de operaciones y métricas en tiempo real.
                     </p>
                 </div>
                 <History className="text-red-600" size={40} />

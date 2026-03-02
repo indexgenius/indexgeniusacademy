@@ -10,6 +10,7 @@ import CEOSection from './components/CEOSection';
 import BrokerSection from './components/BrokerSection';
 import InstallGuide from './components/InstallGuide';
 import Footer from './components/Footer';
+import TelegramFloat from './components/TelegramFloat';
 
 
 
@@ -191,6 +192,7 @@ const LandingPage = ({ onShowAuth }) => {
             )}
 
             <Footer setView={handleViewChange} view={view} />
+            <TelegramFloat />
         </div>
     );
 };

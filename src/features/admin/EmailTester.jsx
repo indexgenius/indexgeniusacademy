@@ -1,4 +1,5 @@
-import { Mail, Check, AlertTriangle, Send, Plus, Image, Eye, RefreshCw, Copy } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Check, AlertTriangle, Send, Plus, Image, Eye, RefreshCw, Copy, FileText } from 'lucide-react';
 
 const EmailTester = ({ adminUser }) => {
     const [testEmail, setTestEmail] = useState('');
@@ -6,11 +7,15 @@ const EmailTester = ({ adminUser }) => {
     const [responseMsg, setResponseMsg] = useState('');
     const [selectedTemplate, setSelectedTemplate] = useState('welcome_new'); // welcome_new, extension, standard, black_test
     const [rawHtml, setRawHtml] = useState('');
+    const [customSubject, setCustomSubject] = useState('');
+    const [customMessage, setCustomMessage] = useState('');
 
     const [uploading, setUploading] = useState(false);
     const [flyerUrl, setFlyerUrl] = useState('');
+    const [pdfUrl, setPdfUrl] = useState('');
+    const [includeAttachment, setIncludeAttachment] = useState(false);
 
-    const handleFlyerUpload = async (e) => {
+    const handleFileUpload = async (e, type = 'image') => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -21,7 +26,7 @@ const EmailTester = ({ adminUser }) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('filename', `flyer_${Date.now()}_${file.name.replace(/\s/g, '_')}`);
+            formData.append('filename', `${type}_${Date.now()}_${file.name.replace(/\s/g, '_')}`);
 
             let apiUrl = 'https://indexgeniusacademy.com/api/admin/upload-image';
             if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
@@ -35,8 +40,9 @@ const EmailTester = ({ adminUser }) => {
 
             const data = await res.json();
             if (res.ok && data.success) {
-                setFlyerUrl(data.url);
-                alert("FLYER SUBIDO A CLOUDFLARE R2 CON ÉXITO");
+                if (type === 'image') setFlyerUrl(data.url);
+                else setPdfUrl(data.url);
+                alert(`${type.toUpperCase()} SUBIDO A CLOUDFLARE CON ÉXITO`);
             } else {
                 throw new Error(data.error || 'Fallo en la conexión con Cloudflare R2');
             }
@@ -50,6 +56,18 @@ const EmailTester = ({ adminUser }) => {
 
     const getPopulatedHtml = async () => {
         if (selectedTemplate === 'raw_html') return rawHtml;
+        if (selectedTemplate === 'compose') {
+            return `
+            <div style="background-color: #000; color: #fff; font-family: 'Inter', sans-serif; padding: 40px; text-align: center;">
+                <img src="https://indexgeniusacademy.com/img/logos/IMG_5208.PNG" style="width: 80px; margin-bottom: 20px;" />
+                <h1 style="font-style: italic; font-weight: 900; letter-spacing: -1px; margin-bottom: 30px; text-transform: uppercase;">INDEXGENIUS <span style="color: #ff0000;">ACADEMY</span></h1>
+                <div style="background-color: #111; border: 1px solid #333; padding: 30px; text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                    ${customMessage.replace(/\n/g, '<br>')}
+                </div>
+                <p style="font-size: 10px; color: #666; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px;">© 2026 INDEXGENIUS ACADEMY - ELITE TRADING UNIT</p>
+            </div>
+            `;
+        }
 
         let templatePath = '/testemail.html';
         if (selectedTemplate === 'black_test') templatePath = '/testblack.html';
@@ -120,8 +138,10 @@ const EmailTester = ({ adminUser }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: testEmail,
-                    name: "Tester Admin",
-                    htmlContent: htmlContent
+                    name: "Trader Elite",
+                    subject: selectedTemplate === 'compose' ? customSubject : undefined,
+                    htmlContent: htmlContent,
+                    attachments: includeAttachment && pdfUrl ? [{ url: pdfUrl, filename: "GUIA_ACADEMY.pdf" }] : undefined
                 })
             });
 
@@ -197,8 +217,38 @@ const EmailTester = ({ adminUser }) => {
                     >
                         PEGAR HTML PROPIO
                     </button>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedTemplate('compose')}
+                        className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${selectedTemplate === 'compose' ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        REDACCIÓN LIBRE
+                    </button>
                 </div>
             </div>
+
+            {selectedTemplate === 'compose' && (
+                <div className="space-y-4 mb-8 bg-blue-600/5 border border-blue-600/30 p-6 animate-in slide-in-from-top-4 duration-500">
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest pl-1">Asunto del Correo</label>
+                        <input
+                            value={customSubject}
+                            onChange={(e) => setCustomSubject(e.target.value)}
+                            placeholder="Escribe el título que verá el usuario..."
+                            className="w-full bg-black/40 border border-blue-600/10 p-3 text-xs font-bold text-white outline-none focus:border-blue-600 transition-all"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest pl-1">Mensaje (Soporta múltiples líneas)</label>
+                        <textarea
+                            value={customMessage}
+                            onChange={(e) => setCustomMessage(e.target.value)}
+                            placeholder="Redacta aquí tu comunicado oficial..."
+                            className="w-full h-48 bg-black/40 border border-blue-600/10 p-4 text-xs font-medium text-white/90 outline-none focus:border-blue-600 transition-all resize-none"
+                        />
+                    </div>
+                </div>
+            )}
 
             {selectedTemplate === 'raw_html' && (
                 <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -211,48 +261,54 @@ const EmailTester = ({ adminUser }) => {
                 </div>
             )}
 
-            {/* CLOUDFLARE R2 UPLOADER */}
-            <div className="bg-red-600/5 border border-red-600/30 p-4 mb-8 relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-red-600/10 border border-red-600/20">
-                        <Image className="text-red-600" size={16} />
+            {/* CLOUDFLARE R2 UPLOADER - IMAGES & PDF */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 relative z-10">
+                {/* Image flyer subida */}
+                <div className="bg-red-600/5 border border-red-600/30 p-4">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-red-600/10 border border-red-600/20">
+                            <Image className="text-red-600" size={16} />
+                        </div>
+                        <p className="text-[10px] font-black text-white uppercase tracking-tighter">SUBIDA DE FLYERS (PNG/JPG)</p>
                     </div>
-                    <div>
-                        <p className="text-[10px] font-black text-white uppercase tracking-tighter">SUBIDA DE FLYERS (CLOUDFLARE R2)</p>
-                        <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">URL PÚBLICA PARA EL BIENVENIDA.PNG</p>
+
+                    <div className="flex flex-col gap-3">
+                        <label className="w-full h-12 flex items-center justify-center bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all border-dashed">
+                            {uploading ? <RefreshCw className="text-red-600 animate-spin" size={12} /> : <span className="text-[9px] font-black text-white uppercase italic">ELEGIR IMAGEN</span>}
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image')} disabled={uploading} />
+                        </label>
+                        {flyerUrl && (
+                            <input readOnly value={flyerUrl} className="w-full bg-black/40 text-[8px] font-mono text-white/50 p-2 outline-none" />
+                        )}
                     </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4 items-end">
-                    <div className="flex-1 space-y-2">
-                        <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">SELECCIONAR ARCHIVO (PNG/JPG)</label>
-                        <label className="w-full h-12 flex items-center justify-center bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all border-dashed">
-                            {uploading ? (
-                                <div className="flex items-center gap-2">
-                                    <RefreshCw className="text-red-600 animate-spin" size={12} />
-                                    <span className="text-[9px] font-black text-white uppercase">SUBIENDO...</span>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-2">
-                                    <Plus size={14} className="text-red-600" />
-                                    <span className="text-[9px] font-black text-white uppercase italic">ELEGIR IMAGEN</span>
-                                </div>
-                            )}
-                            <input type="file" className="hidden" accept="image/*" onChange={handleFlyerUpload} disabled={uploading} />
-                        </label>
+                {/* PDF subida */}
+                <div className="bg-blue-600/5 border border-blue-600/30 p-4">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-blue-600/10 border border-blue-600/20">
+                            <FileText className="text-blue-500" size={16} />
+                        </div>
+                        <p className="text-[10px] font-black text-white uppercase tracking-tighter">SUBIDA DE GUÍAS (PDF)</p>
                     </div>
 
-                    {flyerUrl && (
-                        <div className="flex-1 bg-black border border-green-600/30 p-3 space-y-1">
-                            <p className="text-[8px] font-black text-green-500 uppercase tracking-widest">URL GENERADA:</p>
-                            <input
-                                readOnly
-                                value={flyerUrl}
-                                onClick={(e) => { e.target.select(); document.execCommand('copy'); alert('URL COPIADA AL PORTAPAPELES'); }}
-                                className="w-full bg-transparent text-[9px] font-mono text-white outline-none cursor-pointer overflow-hidden text-ellipsis"
-                            />
-                        </div>
-                    )}
+                    <div className="flex flex-col gap-3">
+                        <label className="w-full h-12 flex items-center justify-center bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all border-dashed">
+                            {uploading ? <RefreshCw className="text-blue-500 animate-spin" size={12} /> : <span className="text-[9px] font-black text-white uppercase italic">ELEGIR PDF</span>}
+                            <input type="file" className="hidden" accept="application/pdf" onChange={(e) => handleFileUpload(e, 'pdf')} disabled={uploading} />
+                        </label>
+                        {pdfUrl && (
+                            <div className="flex items-center gap-3">
+                                <input readOnly value={pdfUrl} className="flex-1 bg-black/40 text-[8px] font-mono text-white/50 p-2 outline-none" />
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                    <div onClick={() => setIncludeAttachment(!includeAttachment)} className={`w-10 h-5 rounded-full p-1 transition-all ${includeAttachment ? 'bg-green-600' : 'bg-gray-700'}`}>
+                                        <div className={`w-3 h-3 bg-white rounded-full transition-all ${includeAttachment ? 'translate-x-5' : 'translate-x-0'}`} />
+                                    </div>
+                                    <span className="text-[8px] font-black text-white uppercase">ADJUNTAR</span>
+                                </label>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

@@ -69,7 +69,7 @@ const AcademyPage = ({ user }) => {
         <div className="space-y-8">
             <div className="flex flex-col">
                 <h2 className="text-5xl font-black italic tracking-tighter text-white uppercase">ACADEMY <span className="text-red-600">HUB</span></h2>
-                <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">CLASSIFIED EDUCATIONAL MATERIAL</p>
+                <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Contenido educativo clasificado para tu evolución como trader</p>
             </div>
 
             <div className="flex flex-wrap gap-2 border-b border-white/10 pb-1">

@@ -627,28 +627,51 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto custom-scrollbar-hidden">
-                                            {currencies.map(curr => (
-                                                <button
-                                                    key={curr}
-                                                    onClick={() => handleSelectCurrency(curr)}
-                                                    disabled={loading}
-                                                    className={`p-6 bg-white/[0.03] border rounded-2xl transition-all text-center group flex flex-col items-center gap-4 ${['usdtbsc', 'btc', 'bnbbsc'].includes(curr.toLowerCase()) ? 'border-red-600/50 bg-red-600/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]' : 'border-white/5 hover:border-red-600 hover:bg-white/5'}`}
-                                                >
-                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-red-600 group-hover:scale-110 transition-all border ${['usdtbsc', 'btc', 'bnbbsc'].includes(curr.toLowerCase()) ? 'bg-red-600 text-white border-red-500' : 'bg-white/5 text-white border-white/5'}`}>
-                                                        <span className="text-[10px] font-black group-hover:text-white italic">
-                                                            {curr === 'usdtbsc' ? 'USDT' : curr === 'bnbbsc' ? 'BNB' : curr.substring(0, 3).toUpperCase()}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="text-[10px] font-black uppercase text-white tracking-widest">
-                                                            {curr === 'usdtbsc' ? 'USDT (BEP20)' : curr === 'bnbbsc' ? 'BNB (BSC)' : curr.toUpperCase()}
-                                                        </span>
-                                                        {['usdtbsc', 'bnbbsc'].includes(curr.toLowerCase()) && (
-                                                            <span className="text-[7px] font-black text-red-600 uppercase tracking-tighter">RED: SMART CHAIN</span>
-                                                        )}
-                                                    </div>
-                                                </button>
-                                            ))}
+                                            {currencies.map(curr => {
+                                                const cryptoMeta = {
+                                                    usdtbsc: { name: 'USDT (BEP20)', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png', network: 'SMART CHAIN' },
+                                                    usdttrc20: { name: 'USDT (TRC20)', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png', network: 'TRON' },
+                                                    btc: { name: 'BTC', logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png', network: 'BITCOIN' },
+                                                    bnbbsc: { name: 'BNB (BSC)', logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png', network: 'SMART CHAIN' },
+                                                    eth: { name: 'ETH', logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', network: 'ETHEREUM' },
+                                                    ltc: { name: 'LTC', logo: 'https://cryptologos.cc/logos/litecoin-ltc-logo.png', network: 'LITECOIN' },
+                                                    trx: { name: 'TRX', logo: 'https://cryptologos.cc/logos/tron-trx-logo.png', network: 'TRON' },
+                                                    trc20: { name: 'USDT (TRC20)', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png', network: 'TRON' },
+                                                };
+                                                const meta = cryptoMeta[curr.toLowerCase()] || { name: curr.toUpperCase(), logo: null, network: null };
+                                                const isPriority = ['usdtbsc', 'btc', 'bnbbsc'].includes(curr.toLowerCase());
+
+                                                return (
+                                                    <button
+                                                        key={curr}
+                                                        onClick={() => handleSelectCurrency(curr)}
+                                                        disabled={loading}
+                                                        className={`p-6 bg-white/[0.03] border rounded-2xl transition-all text-center group flex flex-col items-center gap-4 hover:scale-[1.03] active:scale-95 ${isPriority ? 'border-red-600/50 bg-red-600/5 shadow-[0_0_20px_rgba(220,38,38,0.1)]' : 'border-white/5 hover:border-red-600 hover:bg-white/5'}`}
+                                                    >
+                                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 overflow-hidden ${isPriority ? 'bg-white/10 shadow-[0_0_25px_rgba(220,38,38,0.2)]' : 'bg-white/5'}`}>
+                                                            {meta.logo ? (
+                                                                <img
+                                                                    src={meta.logo}
+                                                                    alt={meta.name}
+                                                                    className="w-9 h-9 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.15)] group-hover:drop-shadow-[0_0_12px_rgba(220,38,38,0.4)] transition-all"
+                                                                />
+                                                            ) : (
+                                                                <span className="text-[11px] font-black text-white/60 group-hover:text-white italic">
+                                                                    {curr.substring(0, 3).toUpperCase()}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[10px] font-black uppercase text-white tracking-widest">
+                                                                {meta.name}
+                                                            </span>
+                                                            {meta.network && (
+                                                                <span className={`text-[7px] font-black uppercase tracking-tighter ${isPriority ? 'text-red-600' : 'text-gray-600'}`}>RED: {meta.network}</span>
+                                                            )}
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                     {loading && currencies.length > 0 && (

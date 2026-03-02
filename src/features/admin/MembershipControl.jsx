@@ -20,22 +20,28 @@ const MembershipControl = () => {
         return () => unsub();
     }, []);
 
-    const getStatusColor = (user) => {
-        if (!user.subscriptionEnd) return 'text-gray-500';
+    const getNumericDaysLeft = (user) => {
+        if (!user.subscriptionEnd) return -9999;
         const end = user.subscriptionEnd.toDate ? user.subscriptionEnd.toDate() : new Date(user.subscriptionEnd);
-        if (end.getFullYear() > 3000) return 'text-purple-500'; // Lifetime
-        const daysLeft = Math.ceil((end - new Date()) / (1000 * 60 * 60 * 24));
+        if (end.getFullYear() > 3000) return 999999; // Lifetime goes last
+        return Math.ceil((end - new Date()) / (1000 * 60 * 60 * 24));
+    };
+
+    const getStatusColor = (user) => {
+        const daysLeft = getNumericDaysLeft(user);
+        if (daysLeft === -9999) return 'text-gray-500';
+        if (daysLeft >= 999999) return 'text-purple-500';
         if (daysLeft < 0) return 'text-red-600';
-        if (daysLeft < 5) return 'text-yellow-500';
+        if (daysLeft <= 7) return 'text-yellow-500';
         return 'text-green-500';
     };
 
     const getDaysLeft = (user) => {
-        if (!user.subscriptionEnd) return 'N/A';
-        const end = user.subscriptionEnd.toDate ? user.subscriptionEnd.toDate() : new Date(user.subscriptionEnd);
-        if (end.getFullYear() > 3000) return 'LIFETIME';
-        const daysLeft = Math.ceil((end - new Date()) / (1000 * 60 * 60 * 24));
-        return daysLeft < 0 ? 'EXPIRED' : `${daysLeft} DAYS`;
+        const daysLeft = getNumericDaysLeft(user);
+        if (daysLeft === -9999) return 'N/A';
+        if (daysLeft >= 999999) return 'LIFETIME';
+        if (daysLeft < 0) return 'EXPIRED';
+        return `${daysLeft} DAYS`;
     };
 
     const setLifetime = async (userId, userEmail) => {
@@ -249,10 +255,26 @@ const MembershipControl = () => {
         setProcessing(false);
     };
 
-    const filteredUsers = users.filter(u =>
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredUsers = users
+        .filter(u =>
+            u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            u.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .sort((a, b) => {
+            const daysA = getNumericDaysLeft(a);
+            const daysB = getNumericDaysLeft(b);
+            // Both expired: sort by most recently expired first (closer to 0)
+            if (daysA < 0 && daysB < 0) return daysA - daysB;
+            // Expired always goes first
+            if (daysA < 0) return -1;
+            if (daysB < 0) return 1;
+            // Lifetime goes last
+            if (daysA >= 999999 && daysB >= 999999) return 0;
+            if (daysA >= 999999) return 1;
+            if (daysB >= 999999) return -1;
+            // Both active: fewer days first (ascending)
+            return daysA - daysB;
+        });
 
     return (
         <div className="space-y-6">
@@ -358,6 +380,34 @@ const MembershipControl = () => {
                                         <div className="text-[9px] text-gray-600 font-mono mt-0.5">
                                             {user.subscriptionEnd?.toDate ? user.subscriptionEnd.toDate().toLocaleDateString() : 'SIN DATOS'}
                                         </div>
+                                        {(() => {
+                                            const days = getNumericDaysLeft(user);
+                                            if (days >= 0 && days <= 7 && days < 999999) {
+                                                return (
+                                                    <div className="mt-1.5 px-2 py-1 border text-[8px] font-black uppercase tracking-wider animate-pulse"
+                                                        style={{
+                                                            backgroundColor: days <= 2 ? 'rgba(220,38,38,0.15)' : 'rgba(234,179,8,0.15)',
+                                                            borderColor: days <= 2 ? 'rgba(220,38,38,0.4)' : 'rgba(234,179,8,0.4)',
+                                                            color: days <= 2 ? '#ef4444' : '#eab308'
+                                                        }}>
+                                                        ⚠ {days === 0 ? '¡EXPIRA HOY!' : days === 1 ? '¡SOLO QUEDA 1 DÍA!' : `¡SOLO QUEDAN ${days} DÍAS!`}
+                                                    </div>
+                                                );
+                                            }
+                                            if (days < 0 && days > -9999) {
+                                                return (
+                                                    <div className="mt-1.5 px-2 py-1 border text-[8px] font-black uppercase tracking-wider"
+                                                        style={{
+                                                            backgroundColor: 'rgba(220,38,38,0.2)',
+                                                            borderColor: 'rgba(220,38,38,0.5)',
+                                                            color: '#dc2626'
+                                                        }}>
+                                                        ✖ VENCIÓ HACE {Math.abs(days)} {Math.abs(days) === 1 ? 'DÍA' : 'DÍAS'}
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
                                     </div>
                                 </div>
 

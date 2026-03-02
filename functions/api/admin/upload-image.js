@@ -33,7 +33,12 @@ export async function onRequestPost(context) {
 
         const formData = await request.formData();
         const file = formData.get('file');
-        const filename = formData.get('filename') || `flyer_${Date.now()}.png`;
+        let filename = formData.get('filename');
+
+        if (!filename && file) {
+            const ext = file.name ? file.name.split('.').pop() : (file.type === 'application/pdf' ? 'pdf' : 'png');
+            filename = `asset_${Date.now()}.${ext}`;
+        }
 
         if (!file) {
             return new Response(JSON.stringify({ success: false, error: 'No se recibió ningún archivo' }), {

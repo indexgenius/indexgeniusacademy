@@ -1,21 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Lock, User, ArrowRight, Chrome, Mail, Eye, EyeOff, Phone } from 'lucide-react';
+import { Zap, Lock, User, ArrowRight, Chrome, Mail, Eye, EyeOff, Phone, Search, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, googleProvider, db } from '../../firebase';
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import useCountryCodes from '../../hooks/useCountryCodes';
 
 const AuthPage = ({ onLogin, initialMode = 'login' }) => {
+    const { countries, loading: countriesLoading } = useCountryCodes();
     const [email, setEmail] = useState('');
     const [isLogin, setIsLogin] = useState(initialMode === 'login');
     const [isResetMode, setIsResetMode] = useState(false);
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [showCountryPicker, setShowCountryPicker] = useState(false);
+    const [countrySearch, setCountrySearch] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+
+    // Set default country when loaded
+    useEffect(() => {
+        if (countries.length > 0 && !selectedCountry) {
+            setSelectedCountry(countries[0]);
+        }
+    }, [countries]);
 
     useEffect(() => {
         const hasRef = localStorage.getItem('referralCode');
@@ -118,7 +130,7 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
                 const userData = {
                     email: normalizedEmail,
                     displayName: name,
-                    phone: phone,
+                    phone: `${selectedCountry?.code || '+1'}${phone.replace(/\D/g, '')}`,
                     status: 'payment_required',
                     role: 'user',
                     createdAt: serverTimestamp(),
@@ -224,9 +236,80 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-2">NÚMERO DE TELÉFONO</label>
-                                                <div className="relative">
-                                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
-                                                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="INGRESA TU TELÉFONO" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                <div className="flex gap-2">
+                                                    {/* Country Code Selector */}
+                                                    <div className="relative">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => { setShowCountryPicker(!showCountryPicker); setCountrySearch(''); }}
+                                                            className="h-full px-3 bg-white/5 border border-white/10 flex items-center gap-2 hover:border-red-600 transition-colors min-w-[100px]"
+                                                        >
+                                                            <span className="text-lg">{selectedCountry?.flag || '🏳️'}</span>
+                                                            <span className="text-[11px] font-black text-white">{selectedCountry?.code || '+1'}</span>
+                                                            <ChevronDown size={12} className="text-gray-500" />
+                                                        </button>
+
+                                                        <AnimatePresence>
+                                                            {showCountryPicker && (
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, y: -5 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    exit={{ opacity: 0, y: -5 }}
+                                                                    className="absolute top-full left-0 mt-1 w-72 bg-black border border-white/10 shadow-2xl z-50 max-h-64 overflow-hidden flex flex-col"
+                                                                >
+                                                                    {/* Search */}
+                                                                    <div className="p-2 border-b border-white/10 sticky top-0 bg-black z-10">
+                                                                        <div className="relative">
+                                                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={14} />
+                                                                            <input
+                                                                                type="text"
+                                                                                value={countrySearch}
+                                                                                onChange={(e) => setCountrySearch(e.target.value)}
+                                                                                placeholder="BUSCAR PAÍS..."
+                                                                                className="w-full bg-white/5 border border-white/10 p-2.5 pl-9 text-[10px] font-black text-white outline-none focus:border-red-600 uppercase"
+                                                                                autoFocus
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* List */}
+                                                                    <div className="overflow-y-auto custom-scrollbar flex-1">
+                                                                        {countriesLoading ? (
+                                                                            <div className="p-4 text-center text-[10px] font-black text-gray-500 uppercase">CARGANDO...</div>
+                                                                        ) : (
+                                                                            countries
+                                                                                .filter(c => {
+                                                                                    if (!countrySearch) return true;
+                                                                                    const term = countrySearch.toLowerCase();
+                                                                                    return c.name.toLowerCase().includes(term) || c.code.includes(term) || c.iso.toLowerCase().includes(term);
+                                                                                })
+                                                                                .map((country, i) => (
+                                                                                    <button
+                                                                                        key={`${country.iso}-${i}`}
+                                                                                        type="button"
+                                                                                        onClick={() => {
+                                                                                            setSelectedCountry(country);
+                                                                                            setShowCountryPicker(false);
+                                                                                            setCountrySearch('');
+                                                                                        }}
+                                                                                        className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-600/10 transition-colors text-left border-b border-white/5 last:border-0 ${selectedCountry?.iso === country.iso ? 'bg-red-600/5' : ''}`}
+                                                                                    >
+                                                                                        <span className="text-lg">{country.flag}</span>
+                                                                                        <span className="text-[10px] font-black text-white uppercase flex-1 truncate">{country.name}</span>
+                                                                                        <span className="text-[10px] font-mono text-gray-500">{country.code}</span>
+                                                                                    </button>
+                                                                                ))
+                                                                        )}
+                                                                    </div>
+                                                                </motion.div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </div>
+
+                                                    {/* Phone Number */}
+                                                    <div className="relative flex-1">
+                                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+                                                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="NÚMERO SIN CÓDIGO" className="w-full bg-white/5 border border-white/10 p-4 pl-12 text-sm font-bold text-white outline-none" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </>
@@ -260,7 +343,7 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
                         {success && <p className="text-[10px] font-black text-green-500 tracking-widest text-center uppercase">{success}</p>}
 
                         <button type="submit" disabled={loading} className="w-full py-5 bg-red-600 text-white font-black italic text-sm tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all flex items-center justify-center gap-4 group disabled:opacity-50">
-                            {loading ? 'PROCESANDO...' : (isResetMode ? 'ENVIAR RECUPERACIÓN' : (isLogin ? 'INICIAR SESIÓN' : 'REGISTRARME'))}
+                            {loading ? 'PROCESANDO...' : (isResetMode ? 'ENVIAR RECUPERACIÓN' : (isLogin ? 'INICIAR SESIÓN' : 'JOIN NOW'))}
                             <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                         </button>
                     </form>
