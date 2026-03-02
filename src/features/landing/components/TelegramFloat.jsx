@@ -8,20 +8,15 @@ const TelegramFloat = () => {
     const [hasBeenClosed, setHasBeenClosed] = useState(false);
 
     useEffect(() => {
-        // Show after 3 seconds
-        const timer = setTimeout(() => {
-            if (!localStorage.getItem('telegram_float_closed')) {
-                setIsVisible(true);
-            }
-        }, 3000);
+        // Show immediately
+        setIsVisible(true);
 
         // Auto collapse after 10 seconds if not interacted
         const collapseTimer = setTimeout(() => {
             setIsExpanded(false);
-        }, 13000);
+        }, 10000);
 
         return () => {
-            clearTimeout(timer);
             clearTimeout(collapseTimer);
         };
     }, []);
@@ -30,7 +25,6 @@ const TelegramFloat = () => {
         e.stopPropagation();
         setIsVisible(false);
         setHasBeenClosed(true);
-        localStorage.setItem('telegram_float_closed', 'true');
     };
 
     const toggleExpand = () => {
