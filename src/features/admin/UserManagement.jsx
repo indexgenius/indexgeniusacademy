@@ -19,6 +19,7 @@ const UserManagement = ({ adminUser }) => {
     const [preApproveEmail, setPreApproveEmail] = useState(''); // New state variable
     const [preApproveLoading, setPreApproveLoading] = useState(false); // New state variable
     const [preApproveName, setPreApproveName] = useState(''); // New state variable
+    const [editPlan, setEditPlan] = useState('');
 
     useEffect(() => {
         const unsubPending = onSnapshot(query(collection(db, "users"), where("status", "==", "pending")), (snapshot) => {
@@ -57,9 +58,11 @@ const UserManagement = ({ adminUser }) => {
                 createdAt: serverTimestamp(),
                 approvedBy: adminUser.email,
                 displayName: preApproveName || null,
-                selectedPlan: 'ELITE ACCESS', // Default plan
-                membershipPrice: '25' // Default price
-            }, { merge: true }); // Use merge to avoid overwriting if doc exists
+                selectedPlan: 'INDEX PRO',
+                planName: 'INDEX PRO',
+                planId: 'index-pro',
+                membershipPrice: '150'
+            }, { merge: true });
 
             alert(`Correo ${preApproveEmail} pre-aprobado. Cuando se registre, será aprobado automáticamente.`);
             setPreApproveEmail('');
@@ -79,7 +82,7 @@ const UserManagement = ({ adminUser }) => {
             const expiry = new Date();
             expiry.setDate(expiry.getDate() + 30);
 
-            await updateDoc(doc(db, "users", userDoc.id), {
+            const updates = {
                 status: 'approved',
                 subscriptionActive: true,
                 subscriptionStart: now,
@@ -87,7 +90,28 @@ const UserManagement = ({ adminUser }) => {
                 approvedAt: serverTimestamp(),
                 receiptUrl: null,
                 paymentReported: null
-            });
+            };
+
+            // Intelligent plan detection for legacy or manual registrations
+            if (!userDoc.planId && userDoc.selectedPlan) {
+                const sName = userDoc.selectedPlan.toUpperCase();
+                if (sName.includes('BLACK')) {
+                    updates.planId = 'index-black';
+                    updates.planName = 'INDEX BLACK';
+                } else if (sName.includes('PRO') || sName.includes('ELITE')) {
+                    updates.planId = 'index-pro';
+                    updates.planName = 'INDEX PRO';
+                } else {
+                    updates.planId = 'index-one';
+                    updates.planName = 'INDEX ONE';
+                }
+            } else if (!userDoc.planId && !userDoc.selectedPlan) {
+                // Total fallback for old users with zero plan info
+                updates.planId = 'index-one';
+                updates.planName = 'INDEX ONE';
+            }
+
+            await updateDoc(doc(db, "users", userDoc.id), updates);
 
             const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
 
@@ -299,9 +323,16 @@ const UserManagement = ({ adminUser }) => {
                 console.log("✅ Contraseña sincronizada en Firebase Auth");
             }
 
+            if (editPlan) {
+                updates.planId = editPlan;
+                updates.planName = editPlan === 'index-one' ? 'INDEX ONE' : editPlan === 'index-pro' ? 'INDEX PRO' : 'INDEX BLACK';
+                updates.selectedPlan = updates.planName; // Sync with legacy naming
+            }
+
             await updateDoc(doc(db, "users", editingUser.id), updates);
-            alert("✓ UNIDAD ACTUALIZADA: La contraseña ha sido forzada en el sistema de seguridad.");
+            alert("✓ UNIDAD ACTUALIZADA: Los cambios de acceso y plan han sido aplicados.");
             setEditingUser(null);
+            setEditPlan('');
         } catch (e) {
             console.error(e);
             alert("FALLO EN EL PROTOCOLO: " + e.message);
@@ -499,6 +530,11 @@ const UserManagement = ({ adminUser }) => {
                                             {u.status === 'approved' ? (u.subscriptionActive ? 'ACTIVO' : 'EXPIRADO') : u.status}
                                         </span>
                                     </div>
+                                    {u.planId && (
+                                        <span className={`text-[7px] font-black px-2 py-0.5 border uppercase ${u.planId === 'index-black' ? 'bg-black text-white border-white/20 shadow-lg' : u.planId === 'index-pro' ? 'bg-red-600 text-white border-red-500' : 'bg-white/5 text-gray-400 border-white/10'}`}>
+                                            {u.planName || u.planId}
+                                        </span>
+                                    )}
                                     {u.status === 'payment_required' && (
                                         <button
                                             onClick={() => handleApprove(u)}
@@ -516,6 +552,7 @@ const UserManagement = ({ adminUser }) => {
                                         setEditingUser(u);
                                         setEditEmail(u.email || '');
                                         setEditPassword(u.tmpPassword || '');
+                                        setEditPlan(u.planId || 'index-one');
                                         if (u.subscriptionEnd) {
                                             const date = u.subscriptionEnd.toMillis ? new Date(u.subscriptionEnd.toMillis()) : new Date(u.subscriptionEnd);
                                             setEditExpiry(date.toISOString().split('T')[0]);
@@ -603,6 +640,19 @@ const UserManagement = ({ adminUser }) => {
                                     onChange={e => setEditExpiry(e.target.value)}
                                     className="w-full bg-white/5 border border-white/10 p-4 text-white font-mono outline-none focus:border-blue-500"
                                 />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">PLAN DE ACCESO</label>
+                                <select
+                                    value={editPlan}
+                                    onChange={e => setEditPlan(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 p-4 text-white font-black text-xs outline-none focus:border-red-600 appearance-none cursor-pointer"
+                                >
+                                    <option value="index-one" className="bg-black text-white">INDEX ONE (BÁSICO)</option>
+                                    <option value="index-pro" className="bg-black text-white">INDEX PRO (PROFESIONAL)</option>
+                                    <option value="index-black" className="bg-black text-white">INDEX BLACK (ELITE)</option>
+                                </select>
                             </div>
 
                             <div className="flex gap-2 pt-4">

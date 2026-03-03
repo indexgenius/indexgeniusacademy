@@ -127,6 +127,9 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
                 if (name) await updateProfile(userCredential.user, { displayName: name });
 
                 const referralCode = localStorage.getItem('referralCode');
+                const selectedPlanStr = localStorage.getItem('selectedPlan');
+                const selectedPlan = selectedPlanStr ? JSON.parse(selectedPlanStr) : null;
+
                 const userData = {
                     email: normalizedEmail,
                     displayName: name,
@@ -136,7 +139,9 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
                     createdAt: serverTimestamp(),
                     subscriptionActive: false,
                     tmpPassword: generatedPassword,
-                    provider: 'password'
+                    provider: 'password',
+                    planId: selectedPlan?.id || 'index-one',
+                    planName: selectedPlan?.name || 'INDEX ONE'
                 };
 
                 if (referralCode) {

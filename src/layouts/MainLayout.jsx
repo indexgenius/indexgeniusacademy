@@ -33,6 +33,7 @@ const MainLayout = ({
                 canBroadcast={isSupreme || user?.canBroadcast}
                 isSupreme={isSupreme}
                 unreadAnnouncements={unreadAnnouncements}
+                user={user}
             />
 
             <main className="flex-1 lg:ml-64 min-h-[100dvh] overflow-y-auto z-0 pb-20 lg:pb-0">

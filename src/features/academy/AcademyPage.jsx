@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, ChevronLeft, ChevronRight, Clock, BookOpen } from 'lucide-react';
+import { ArrowLeft, Plus, ChevronLeft, ChevronRight, Clock, BookOpen, Lock } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, doc, setDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp } from 'firebase/firestore';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -52,6 +52,25 @@ const AcademyPage = ({ user }) => {
         await setDoc(doc(db, "users", user.uid, "progress", vidId), { completed: !curr, updatedAt: serverTimestamp() });
     };
 
+    const userPlan = user?.planId || 'index-one';
+    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
+
+    const canAccessLevel = (levelId) => {
+        if (isAdmin) return true;
+        if (levelId === 'BEGINNER') return true;
+        // All other levels require index-pro or index-black
+        return userPlan === 'index-pro' || userPlan === 'index-black';
+    };
+
+    const handleLevelClick = (level) => {
+        if (!canAccessLevel(level.id)) {
+            alert(`🔒 NIVEL BLOQUEADO: El contenido ${level.label} es exclusivo para miembros con un PLAN PRO o BLACK.\n\nCompleta el nivel principiante y sube de nivel para desbloquear estas estrategias avanzadas.`);
+            return;
+        }
+        setActiveTab(level.id);
+        setActiveModule(null);
+    };
+
     const currentVideos = videos.filter(v => !v.blocked && v.level === activeTab);
     const modulesMap = currentVideos.reduce((acc, v) => {
         const m = v.module || 'GENERAL DECLASSIFIED';
@@ -73,11 +92,24 @@ const AcademyPage = ({ user }) => {
             </div>
 
             <div className="flex flex-wrap gap-2 border-b border-white/10 pb-1">
-                {LEVELS.map(l => (
-                    <button key={l.id} onClick={() => { setActiveTab(l.id); setActiveModule(null); }} className={`px-6 py-3 text-[10px] font-black uppercase tracking-widest skew-x-[-10deg] ${activeTab === l.id ? 'bg-red-600 text-white shadow-red-glow' : 'bg-white/5 text-gray-500 hover:text-white'}`}>
-                        {l.label}
-                    </button>
-                ))}
+                {LEVELS.map(l => {
+                    const blocked = !canAccessLevel(l.id);
+                    return (
+                        <button
+                            key={l.id}
+                            onClick={() => handleLevelClick(l)}
+                            className={`px-6 py-3 text-[10px] font-black uppercase tracking-widest skew-x-[-10deg] transition-all relative ${activeTab === l.id
+                                ? 'bg-red-600 text-white shadow-red-glow'
+                                : blocked ? 'bg-white/5 text-gray-700 opacity-50 cursor-not-allowed' : 'bg-white/5 text-gray-500 hover:text-white'
+                                }`}
+                        >
+                            <div className="flex items-center gap-2">
+                                {l.label}
+                                {blocked && <Lock size={10} className="text-red-600" />}
+                            </div>
+                        </button>
+                    );
+                })}
             </div>
 
             <div className="bg-black border border-white/10 p-6 relative overflow-hidden">

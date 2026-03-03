@@ -325,6 +325,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                 subscriptionStart: serverTimestamp(),
                 subscriptionEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
                 selectedPlan: selectedPlan.name,
+                planId: selectedPlan.id,
                 paymentMethod: 'TEST_MODE'
             });
             alert("¡MODO PRUEBA: Pago simulado con éxito!");
@@ -359,6 +360,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                 paymentReported: true,
                 paymentReportedAt: serverTimestamp(),
                 selectedPlan: selectedPlan.name,
+                planId: selectedPlan.id,
                 receiptUrl
             });
         } catch (e) {
@@ -629,14 +631,14 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto custom-scrollbar-hidden">
                                             {currencies.map(curr => {
                                                 const cryptoMeta = {
-                                                    usdtbsc: { name: 'USDT (BEP20)', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png', network: 'SMART CHAIN' },
-                                                    usdttrc20: { name: 'USDT (TRC20)', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png', network: 'TRON' },
-                                                    btc: { name: 'BTC', logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png', network: 'BITCOIN' },
-                                                    bnbbsc: { name: 'BNB (BSC)', logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png', network: 'SMART CHAIN' },
-                                                    eth: { name: 'ETH', logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', network: 'ETHEREUM' },
-                                                    ltc: { name: 'LTC', logo: 'https://cryptologos.cc/logos/litecoin-ltc-logo.png', network: 'LITECOIN' },
-                                                    trx: { name: 'TRX', logo: 'https://cryptologos.cc/logos/tron-trx-logo.png', network: 'TRON' },
-                                                    trc20: { name: 'USDT (TRC20)', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png', network: 'TRON' },
+                                                    usdtbsc: { name: 'USDT (BEP20)', logo: '/img/crypto/usdt.png', network: 'SMART CHAIN' },
+                                                    usdttrc20: { name: 'USDT (TRC20)', logo: '/img/crypto/usdt.png', network: 'TRON' },
+                                                    btc: { name: 'BTC', logo: '/img/crypto/btc.png', network: 'BITCOIN' },
+                                                    bnbbsc: { name: 'BNB (BSC)', logo: '/img/crypto/bnb.png', network: 'SMART CHAIN' },
+                                                    eth: { name: 'ETH', logo: '/img/crypto/eth.png', network: 'ETHEREUM' },
+                                                    ltc: { name: 'LTC', logo: '/img/crypto/ltc.png', network: 'LITECOIN' },
+                                                    trx: { name: 'TRX', logo: '/img/crypto/trx.png', network: 'TRON' },
+                                                    trc20: { name: 'USDT (TRC20)', logo: '/img/crypto/usdt.png', network: 'TRON' },
                                                 };
                                                 const meta = cryptoMeta[curr.toLowerCase()] || { name: curr.toUpperCase(), logo: null, network: null };
                                                 const isPriority = ['usdtbsc', 'btc', 'bnbbsc'].includes(curr.toLowerCase());

@@ -78,8 +78,8 @@ const PendingApproval = ({ onLogout, status = 'pending', user }) => {
                 </div>
 
                 <div className="mt-12 pt-8 border-t border-white/5 flex items-center justify-center gap-6 opacity-30 grayscale">
-                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026" alt="USDT" className="h-6" />
-                    <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png?v=026" alt="BNB" className="h-6" />
+                    <img src="/img/crypto/usdt.png" alt="USDT" className="h-6" />
+                    <img src="/img/crypto/bnb.png" alt="BNB" className="h-6" />
                     <div className="text-[10px] font-black text-white">SECURE AUTH v2.4</div>
                 </div>
             </motion.div>

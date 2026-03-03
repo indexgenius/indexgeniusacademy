@@ -1,6 +1,6 @@
-import { LayoutDashboard, Users, User, Settings, LogOut, TrendingUp, Zap, Menu, X, FileCode, GraduationCap, Shield, Megaphone, History, Video } from 'lucide-react';
+import { LayoutDashboard, Users, User, Settings, LogOut, TrendingUp, Zap, Menu, X, FileCode, GraduationCap, Shield, Megaphone, History, Video, Lock } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, isSupreme, unreadAnnouncements = 0 }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, isSupreme, unreadAnnouncements = 0, user }) => {
     const menuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'SEÑALES' },
         { id: 'live-classes', icon: Video, label: 'CLASES EN VIVO' },
@@ -16,7 +16,28 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
         { id: 'profile', icon: User, label: 'PERFIL' },
     ];
 
+    const isAdminOrSupreme = isSupreme || canBroadcast;
+
+    // Define PLAN_ACCESS: Which plans can access which tabs
+    const PLAN_ACCESS = {
+        'index-one': ['dashboard', 'trading-history', 'monthly-history', 'academy', 'groups', 'announcements', 'profile'],
+        'index-pro': ['dashboard', 'live-classes', 'trading-history', 'monthly-history', 'academy', 'templates', 'groups', 'announcements', 'profile'],
+        'index-black': ['dashboard', 'live-classes', 'trading-history', 'monthly-history', 'academy', 'templates', 'affiliate', 'groups', 'announcements', 'profile']
+    };
+
+    const userPlan = user?.planId || 'index-one';
+    const hasAccess = (tabId) => {
+        if (isAdminOrSupreme) return true;
+        const allowed = PLAN_ACCESS[userPlan] || PLAN_ACCESS['index-one'];
+        return allowed.includes(tabId);
+    };
+
     const handleTabClick = (id) => {
+        if (!hasAccess(id)) {
+            const planMsg = userPlan === 'index-one' ? 'un PLAN PRO o BLACK' : 'un PLAN BLACK';
+            alert(`🔒 SECCIÓN BLOQUEDA: Esta herramienta es exclusiva para usuarios con ${planMsg}.\n\nPara subir de nivel, contacta a soporte o revisa los planes en el portal.`);
+            return;
+        }
         setActiveTab(id);
         onClose();
     };
@@ -50,30 +71,40 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
                 </div>
 
                 <nav className="flex-1 px-4 lg:px-6 space-y-1">
-                    {menuItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => handleTabClick(item.id)}
-                            className={`w-full flex items-center gap-3 px-4 lg:px-6 py-3 lg:py-4 transition-all duration-300 group relative ${activeTab === item.id
-                                ? 'text-white'
-                                : 'text-gray-500 hover:text-white'
-                                }`}
-                        >
-                            {activeTab === item.id && (
-                                <div className="absolute left-0 w-1 h-6 lg:h-8 bg-red-600 shadow-red-glow"></div>
-                            )}
-                            <item.icon
-                                size={16}
-                                className={`transition-colors duration-300 ${activeTab === item.id ? 'text-red-600' : 'group-hover:text-red-600'}`}
-                            />
-                            <span className="font-black text-[11px] tracking-[0.2em] uppercase flex-1 text-left">{item.label}</span>
-                            {item.count > 0 && (
-                                <span className="bg-red-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-none shadow-red-glow animate-pulse">
-                                    {item.count}
-                                </span>
-                            )}
-                        </button>
-                    ))}
+                    {menuItems.map((item) => {
+                        const blocked = !hasAccess(item.id);
+                        return (
+                            <button
+                                key={item.id}
+                                onClick={() => handleTabClick(item.id)}
+                                className={`w-full flex items-center gap-3 px-4 lg:px-6 py-3 lg:py-4 transition-all duration-300 group relative ${activeTab === item.id
+                                    ? 'text-white'
+                                    : blocked ? 'text-gray-700 cursor-not-allowed opacity-50' : 'text-gray-500 hover:text-white'
+                                    }`}
+                            >
+                                {activeTab === item.id && (
+                                    <div className="absolute left-0 w-1 h-6 lg:h-8 bg-red-600 shadow-red-glow"></div>
+                                )}
+                                <div className="relative">
+                                    <item.icon
+                                        size={16}
+                                        className={`transition-colors duration-300 ${activeTab === item.id ? 'text-red-600' : 'group-hover:text-red-600'}`}
+                                    />
+                                    {blocked && (
+                                        <div className="absolute -top-1.5 -right-1.5 bg-black rounded-full p-0.5">
+                                            <Lock size={8} className="text-red-600" />
+                                        </div>
+                                    )}
+                                </div>
+                                <span className="font-black text-[11px] tracking-[0.2em] uppercase flex-1 text-left">{item.label}</span>
+                                {item.count > 0 && (
+                                    <span className="bg-red-600 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-none shadow-red-glow animate-pulse">
+                                        {item.count}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </nav>
 
                 <div className="p-6 lg:p-8 space-y-4">
