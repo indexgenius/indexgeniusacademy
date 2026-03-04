@@ -14,7 +14,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
     const [manualEntryState, setManualEntryState] = useState(entry || '');
 
     const isActive = status === 'ACTIVE';
-    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
+    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
 
     useEffect(() => {
         if (!timestamp || !isActive) return;

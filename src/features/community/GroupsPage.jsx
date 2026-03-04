@@ -26,7 +26,7 @@ const GroupsPage = ({ user }) => {
     }, [user?.uid]);
 
     const userPlan = user?.planId || 'index-one';
-    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
+    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
 
     const canJoinGroup = (g) => {
         if (isAdmin) return true;

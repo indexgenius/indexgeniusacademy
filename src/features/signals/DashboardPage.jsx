@@ -11,7 +11,7 @@ const DashboardPage = ({ user, broadcastSignal }) => {
     const [stats, setStats] = useState({ winRatio: 0, pipsToday: 0 });
     const [reconnectTrigger, setReconnectTrigger] = useState(0);
 
-    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
+    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
 
     // Detect when app comes back from background (Android PWA fix)
     useEffect(() => {

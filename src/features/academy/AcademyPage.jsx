@@ -53,7 +53,7 @@ const AcademyPage = ({ user }) => {
     };
 
     const userPlan = user?.planId || 'index-one';
-    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.canBroadcast;
+    const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
 
     const canAccessLevel = (levelId) => {
         if (isAdmin) return true;

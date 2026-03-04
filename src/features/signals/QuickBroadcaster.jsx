@@ -16,13 +16,15 @@ const DERIV_INDICES = [
 ];
 
 const WELTRADE_INDICES = [
+    { name: 'GainX 400', symbol: 'GainX400', type: 'BOOM', category: 'BOOM' },
     { name: 'GainX 600', symbol: 'GainX600', type: 'BOOM', category: 'BOOM' },
     { name: 'GainX 800', symbol: 'GainX800', type: 'BOOM', category: 'BOOM' },
-    { name: 'GainX 1000', symbol: 'GainX1000', type: 'BOOM', category: 'BOOM' },
+    { name: 'GainX 999', symbol: 'GainX999', type: 'BOOM', category: 'BOOM' },
     { name: 'GainX 1200', symbol: 'GainX1200', type: 'BOOM', category: 'BOOM' },
     { name: 'PainX 400', symbol: 'PainX400', type: 'CRASH', category: 'CRASH' },
     { name: 'PainX 600', symbol: 'PainX600', type: 'CRASH', category: 'CRASH' },
     { name: 'PainX 800', symbol: 'PainX800', type: 'CRASH', category: 'CRASH' },
+    { name: 'PainX 999', symbol: 'PainX999', type: 'CRASH', category: 'CRASH' },
     { name: 'PainX 1200', symbol: 'PainX1200', type: 'CRASH', category: 'CRASH' },
 ];
 
