@@ -195,8 +195,8 @@ function App() {
     }
     return <Login
       initialMode={authInitialMode}
-      onLogin={(u) => {
-        login(u);
+      onLogin={async (u) => {
+        await login(u);
         setShowAuth(false);
         // If user is brand new (created just now or payment_required), 
         // we might want to flag that they should see the guide

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Lock, User, ArrowRight, Chrome, Mail, Eye, EyeOff, Phone, Search, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, googleProvider, db } from '../../firebase';
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, RecaptchaVerifier } from 'firebase/auth';
 import { collection, query, where, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import useCountryCodes from '../../hooks/useCountryCodes';
 
@@ -29,11 +29,25 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
         }
     }, [countries]);
 
+    const recaptchaVerifierRef = useRef(null);
+
     useEffect(() => {
         const hasRef = localStorage.getItem('referralCode');
         if (hasRef && hasRef.length > 5 && hasRef !== '/') {
             setIsLogin(false);
         }
+
+        // Cleanup reCAPTCHA on unmount
+        return () => {
+            if (recaptchaVerifierRef.current) {
+                try {
+                    recaptchaVerifierRef.current.clear();
+                    recaptchaVerifierRef.current = null;
+                } catch (e) {
+                    console.warn("reCAPTCHA cleanup error:", e);
+                }
+            }
+        };
     }, []);
 
     const handleResetPassword = async (normalizedEmail) => {
@@ -60,13 +74,14 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
     const handleGoogleLogin = async () => {
         setLoading(true);
         setError('');
+        let loggedUser = null;
         try {
             const result = await signInWithPopup(auth, googleProvider);
+            loggedUser = result.user;
             // No hacemos búsqueda de colección para evitar error de permisos (firestore rules).
-            // authService.handleUserSession se encargará de crear el perfil si no existe.
             await onLogin(result.user);
         } catch (err) {
-            console.error("Google Login Error:", err);
+            console.error(`❌ Google Login Error (${loggedUser?.email || 'no-session'}):`, err);
             setError('ERROR AL INICIAR CON GOOGLE');
         } finally {
             setLoading(false);
@@ -352,6 +367,8 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
                             </button>
                         </div>
                     )}
+                    {/* Hidden Recaptcha container to prevent "already rendered" issues */}
+                    <div id="recaptcha-container-auth" className="hidden"></div>
                 </div>
             </motion.div>
         </div>

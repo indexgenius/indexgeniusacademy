@@ -40,6 +40,14 @@ const PhoneCaptureModal = ({ user }) => {
         }
     }, [user]);
 
+    // Setup recaptcha ONLY when visible and container is ready
+    useEffect(() => {
+        if (isVisible) {
+            const timer = setTimeout(setupRecaptcha, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [isVisible]);
+
     // Resend countdown timer
     useEffect(() => {
         if (resendTimer > 0) {
@@ -52,33 +60,70 @@ const PhoneCaptureModal = ({ user }) => {
     useEffect(() => {
         return () => {
             if (recaptchaVerifierRef.current) {
-                try { recaptchaVerifierRef.current.clear(); } catch (e) { /* ignore */ }
+                try {
+                    recaptchaVerifierRef.current.clear();
+                    window._fbRecaptchaPhoneInitialized = false;
+                } catch (e) { /* ignore */ }
                 recaptchaVerifierRef.current = null;
             }
         };
     }, []);
 
     const setupRecaptcha = () => {
-        // Clear any existing verifier
-        if (recaptchaVerifierRef.current) {
-            try { recaptchaVerifierRef.current.clear(); } catch (e) { /* ignore */ }
-            recaptchaVerifierRef.current = null;
+        if (typeof window === 'undefined') return;
+
+        // Prevent double rendering by checking both ref and a global flag
+        if (recaptchaVerifierRef.current || window._fbRecaptchaPhoneInitialized) {
+            console.log('🛡️ reCAPTCHA already active - bypassing init');
+            return;
         }
 
-        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-            size: 'invisible',
-            callback: () => {
-                console.log('✅ reCAPTCHA verified');
-            },
-            'expired-callback': () => {
-                console.log('⚠️ reCAPTCHA expired');
-                setError('CAPTCHA EXPIRADO. REINTENTA.');
-            }
-        });
+        const containerId = 'recaptcha-container-phone';
+        const container = document.getElementById(containerId);
+
+        if (!container) {
+            console.warn('⚠️ reCAPTCHA container not found yet');
+            return;
+        }
+
+        try {
+            console.log('🛡️ Initializing reCAPTCHA Security Protocol...');
+
+            // Wipe container content to prevent "Already rendered"
+            container.innerHTML = '';
+
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, containerId, {
+                size: 'invisible',
+                callback: () => {
+                    console.log('✅ Security challenge resolved');
+                },
+                'expired-callback': () => {
+                    console.warn('⚠️ reCAPTCHA session expired');
+                    if (recaptchaVerifierRef.current) {
+                        recaptchaVerifierRef.current.clear();
+                        recaptchaVerifierRef.current = null;
+                        window._fbRecaptchaPhoneInitialized = false;
+                    }
+                }
+            });
+
+            recaptchaVerifierRef.current.render().then(() => {
+                window._fbRecaptchaPhoneInitialized = true;
+                console.log('✅ Security layer rendered');
+            }).catch(e => {
+                console.error("Render fail:", e);
+                window._fbRecaptchaPhoneInitialized = false;
+            });
+        } catch (e) {
+            console.error("Recaptcha Setup Exception:", e);
+        }
     };
 
     const sendVerificationCode = async () => {
-        const fullNumber = `${selectedCountry.fullCode || selectedCountry.code}${phone.replace(/\D/g, '')}`;
+        let codePrefix = selectedCountry?.code || '+1';
+        if (!codePrefix.startsWith('+')) codePrefix = '+' + codePrefix;
+
+        const fullNumber = `${codePrefix}${phone.replace(/\D/g, '')}`;
 
         // Validate minimum length
         if (phone.replace(/\D/g, '').length < 7) {
@@ -90,7 +135,12 @@ const PhoneCaptureModal = ({ user }) => {
         setError('');
 
         try {
-            setupRecaptcha();
+            // Re-setup if cleared or not present
+            if (!recaptchaVerifierRef.current) {
+                setupRecaptcha();
+            }
+
+            console.log('📱 Attempting SMS delivery to:', fullNumber);
 
             const phoneProvider = new PhoneAuthProvider(auth);
             const vId = await phoneProvider.verifyPhoneNumber(
@@ -239,8 +289,8 @@ const PhoneCaptureModal = ({ user }) => {
                         <div className="absolute top-0 left-0 w-2 h-full bg-red-600 opacity-50"></div>
                         <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-3xl -z-10"></div>
 
-                        {/* Invisible reCAPTCHA container */}
-                        <div ref={recaptchaContainerRef} id="recaptcha-container"></div>
+                        {/* Invisible reCAPTCHA container - using unique ID */}
+                        <div ref={recaptchaContainerRef} id="recaptcha-container-phone"></div>
 
                         <div className="flex flex-col items-center text-center space-y-6">
                             {/* Icon */}
