@@ -62,27 +62,8 @@ const AuthPage = ({ onLogin, initialMode = 'login' }) => {
         setError('');
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-            const normalizedEmail = user.email.toLowerCase();
-
-            // Verify if a profile with this email already exists with a different provider
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("email", "==", normalizedEmail));
-            const snap = await getDocs(q);
-
-            // Find an entry with different UID (meaning another Firebase account linked to this email)
-            const existingWithDifferentUid = snap.docs.find(d => d.id !== user.uid);
-
-            if (existingWithDifferentUid) {
-                const data = existingWithDifferentUid.data();
-                if (data.provider === 'password') {
-                    setError('HAS USADO ESTE CORREO CON CONTRASEÑA. USA TU EMAIL Y CLAVE PARA ENTRAR.');
-                    await auth.signOut();
-                    setLoading(false);
-                    return;
-                }
-            }
-
+            // No hacemos búsqueda de colección para evitar error de permisos (firestore rules).
+            // authService.handleUserSession se encargará de crear el perfil si no existe.
             await onLogin(result.user);
         } catch (err) {
             console.error("Google Login Error:", err);

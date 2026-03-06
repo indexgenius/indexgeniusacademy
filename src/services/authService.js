@@ -58,8 +58,16 @@ export const authService = {
             lastLogin: new Date().toISOString()
         };
 
+        console.log('🔍 Starting handleUserSession for UID:', userData.uid);
         const userRef = doc(db, "users", userData.uid);
-        const userSnap = await getDoc(userRef);
+        let userSnap;
+        try {
+            userSnap = await getDoc(userRef);
+            console.log('✅ getDoc success, exists:', userSnap.exists());
+        } catch (e) {
+            console.error('❌ getDoc FAILED:', e);
+            throw e;
+        }
 
         if (!userSnap.exists()) {
             userData.status = 'payment_required';
@@ -96,7 +104,15 @@ export const authService = {
         // Save session token locally
         localStorage.setItem(SESSION_KEY, sessionToken);
 
-        await setDoc(userRef, userData, { merge: true });
+        try {
+            console.log('📝 Attempting setDoc (merge) for UID:', userData.uid);
+            await setDoc(userRef, userData, { merge: true });
+            console.log('✅ setDoc success');
+        } catch (e) {
+            console.error('❌ setDoc FAILED:', e);
+            throw e;
+        }
+
         localStorage.removeItem('referralCode');
         const finalUser = { ...userData, ...(userSnap.exists() ? userSnap.data() : {}) };
 
