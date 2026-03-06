@@ -435,6 +435,14 @@ const PhoneCaptureModal = ({ user }) => {
                                                 <>ENVIAR CÓDIGO SMS <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" /></>
                                             )}
                                         </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsVisible(false)}
+                                            className="w-full py-3 bg-white/5 border border-white/10 text-gray-500 font-black text-[10px] tracking-[0.4em] uppercase hover:text-white hover:border-white/30 transition-all mt-2"
+                                        >
+                                            RELLENAR MÁS TARDE (SALTAR)
+                                        </button>
                                     </motion.div>
                                 )}
 
