@@ -20,7 +20,6 @@ const PhoneCaptureModal = ({ user }) => {
     const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
     const [resendTimer, setResendTimer] = useState(0);
 
-    const recaptchaContainerRef = useRef(null);
     const recaptchaVerifierRef = useRef(null);
     const otpInputRefs = useRef([]);
 
@@ -82,7 +81,7 @@ const PhoneCaptureModal = ({ user }) => {
         const container = document.getElementById(containerId);
 
         if (!container) {
-            console.warn('⚠️ reCAPTCHA container not found yet');
+            console.warn('⚠️ Global reCAPTCHA container not found in App.jsx');
             return;
         }
 
@@ -164,6 +163,8 @@ const PhoneCaptureModal = ({ user }) => {
                 setError('DEMASIADOS INTENTOS. ESPERA UNOS MINUTOS.');
             } else if (err.code === 'auth/quota-exceeded') {
                 setError('LÍMITE DE SMS EXCEDIDO. INTÉNTALO MÁS TARDE.');
+            } else if (err.code === 'auth/operation-not-allowed') {
+                setError('ERROR: EL SERVICIO DE SMS ESTÁ DESACTIVADO EN EL PANEL DE FIREBASE.');
             } else {
                 setError(`ERROR: ${err.message}`);
             }
@@ -289,8 +290,7 @@ const PhoneCaptureModal = ({ user }) => {
                         <div className="absolute top-0 left-0 w-2 h-full bg-red-600 opacity-50"></div>
                         <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-3xl -z-10"></div>
 
-                        {/* Invisible reCAPTCHA container - using unique ID */}
-                        <div ref={recaptchaContainerRef} id="recaptcha-container-phone"></div>
+                        {/* (Used to have a local recaptcha container here, now global in App.jsx) */}
 
                         <div className="flex flex-col items-center text-center space-y-6">
                             {/* Icon */}

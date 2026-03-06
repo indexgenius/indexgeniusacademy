@@ -263,6 +263,8 @@ function App() {
       {activeTab === 'groups' && <Groups user={user} />}
       {activeTab === 'profile' && <Profile user={user} />}
       <PhoneCaptureModal user={user} />
+      {/* Global persistent container for ReCaptcha to avoid "Already rendered" or "null style" errors during transitions */}
+      <div id="recaptcha-container-phone" className="hidden"></div>
       {user?.status === 'approved' && <PromoModal />}
       {user?.status === 'approved' && (
         <NotificationPromptModal
