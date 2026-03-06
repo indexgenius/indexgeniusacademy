@@ -24,11 +24,36 @@ const LandingPage = ({ onShowAuth }) => {
         if (ref && ref.length > 5 && ref !== '/') {
             setIsReferred(true);
         }
+
+        // --- URL SYNCHRONIZATION ---
+        const handlePopState = () => {
+            const params = new URLSearchParams(window.location.search);
+            const section = params.get('v') || 'home';
+            if (['home', 'ceo', 'broker'].includes(section)) {
+                setView(section);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        handlePopState(); // Read initial URL or handle back/forward
+
+        return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
     const handleViewChange = (newView) => {
         setView(newView);
-        setIsMenuOpen(false); // Close menu on view change
+        setIsMenuOpen(false);
+
+        // Update URL without refreshing the page
+        const url = new URL(window.location);
+        if (newView === 'home') {
+            url.searchParams.delete('v');
+        } else {
+            url.searchParams.set('v', newView);
+        }
+        window.history.pushState({ section: newView }, '', url);
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
