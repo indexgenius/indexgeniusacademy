@@ -45,13 +45,13 @@ const PLANS = [
 const CLOUDINARY_CLOUD_NAME = "ddfx8syri";
 const CLOUDINARY_UPLOAD_PRESET = "facturas";
 
-const PaymentPortal = ({ user, onLogout, isExpired }) => {
+const PaymentPortal = ({ user, onLogout, isExpired, isUpgrade, upgradePlanId, upgradeDiff, onClose }) => {
     const [paymentMethods, setPaymentMethods] = useState([]);
     const [copied, setCopied] = useState(null);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [receiptUrl, setReceiptUrl] = useState('');
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(isUpgrade ? 2 : 1);
     const [discountCode, setDiscountCode] = useState('');
     const [discountApplied, setDiscountApplied] = useState(null);
     const [discountLoading, setDiscountLoading] = useState(false);
@@ -60,6 +60,9 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
     const [debugMode, setDebugMode] = useState(false);
 
     const [selectedPlan, setSelectedPlan] = useState(() => {
+        if (isUpgrade && upgradePlanId) {
+            return PLANS.find(p => p.id === upgradePlanId) || PLANS[0];
+        }
         const saved = localStorage.getItem('selectedPlan');
         if (saved) {
             const parsed = JSON.parse(saved);
@@ -123,7 +126,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
 
     const getFinalPrice = () => {
         if (!selectedPlan) return 0;
-        let price = selectedPlan.price;
+        let price = isUpgrade ? upgradeDiff : selectedPlan.price;
         if (discountApplied) {
             if (discountApplied.type === 'percentage') {
                 price = price - (price * discountApplied.value / 100);
@@ -399,7 +402,15 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
 
                 <div className="flex-1 flex flex-col min-h-0 bg-transparent">
                     {/* Header: Clean & Tactical */}
-                    <div className="p-8 md:p-10 pb-6">
+                    <div className="p-8 md:p-10 pb-6 relative">
+                        {isUpgrade && (
+                            <button
+                                onClick={onClose}
+                                className="absolute top-8 right-8 p-2 text-white/20 hover:text-white transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                        )}
                         <div className="flex justify-between items-center mb-10">
                             <div className="flex items-center gap-4">
                                 <div className="h-0.5 w-12 bg-red-600" />
@@ -413,7 +424,7 @@ const PaymentPortal = ({ user, onLogout, isExpired }) => {
                         </div>
 
                         <h1 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tight leading-none">
-                            {step === 1 ? 'ELIGE TU' : step === 2 ? 'CANAL DE' : step === 4 ? 'MONEDA' : step === 5 ? 'ORDEN DE' : 'REPORTE'} <span className="text-red-600">{step === 1 ? 'ESTRATEGIA' : step === 2 ? 'DEPÓSITO' : step === 4 ? 'CRIPTO' : 'PAGO'}</span>
+                            {isUpgrade ? 'UPGRADE' : step === 1 ? 'ELIGE TU' : step === 2 ? 'CANAL DE' : step === 4 ? 'MONEDA' : step === 5 ? 'ORDEN DE' : 'REPORTE'} <span className="text-red-600">{isUpgrade ? 'LEVEL' : step === 1 ? 'ESTRATEGIA' : step === 2 ? 'DEPÓSITO' : step === 4 ? 'CRIPTO' : 'PAGO'}</span>
                         </h1>
                     </div>
 

@@ -1,6 +1,6 @@
 import { LayoutDashboard, Users, User, Settings, LogOut, TrendingUp, Zap, Menu, X, FileCode, GraduationCap, Shield, Megaphone, History, Video, Lock } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, isSupreme, unreadAnnouncements = 0, user }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadcast, isSupreme, unreadAnnouncements = 0, user, onBlockedClick }) => {
     const menuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'SEÑALES' },
         { id: 'live-classes', icon: Video, label: 'CLASES EN VIVO' },
@@ -34,8 +34,15 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
 
     const handleTabClick = (id) => {
         if (!hasAccess(id)) {
-            const planMsg = userPlan === 'index-one' ? 'un PLAN PRO o BLACK' : 'un PLAN BLACK';
-            alert(`🔒 SECCIÓN BLOQUEDA: Esta herramienta es exclusiva para usuarios con ${planMsg}.\n\nPara subir de nivel, contacta a soporte o revisa los planes en el portal.`);
+            let requiredPlan = 'index-pro';
+            if (id === 'affiliate' || id === 'supreme') requiredPlan = 'index-black';
+
+            if (onBlockedClick) {
+                onBlockedClick(requiredPlan);
+            } else {
+                const planMsg = userPlan === 'index-one' ? 'un PLAN PRO o BLACK' : 'un PLAN BLACK';
+                alert(`🔒 SECCIÓN BLOQUEDA: Esta herramienta es exclusiva para usuarios con ${planMsg}.\n\nPara subir de nivel, contacta a soporte o revisa los planes en el portal.`);
+            }
             return;
         }
         setActiveTab(id);

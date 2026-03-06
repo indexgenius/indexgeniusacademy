@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import { Bell, Send, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MembershipExtensionModal from '../features/notifications/MembershipExtensionModal';
+import UpgradeModal from '../features/access/UpgradeModal';
 
 const MainLayout = ({
     user,
@@ -17,9 +18,11 @@ const MainLayout = ({
     broadcastSignal,
     customMsg,
     setCustomMsg,
+    onUpgradeInitiated,
     children
 }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [upgradeModal, setUpgradeModal] = useState({ open: false, targetPlan: 'index-pro' });
     const isSupreme = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com';
 
     return (
@@ -34,6 +37,19 @@ const MainLayout = ({
                 isSupreme={isSupreme}
                 unreadAnnouncements={unreadAnnouncements}
                 user={user}
+                onBlockedClick={(plan) => setUpgradeModal({ open: true, targetPlan: plan })}
+            />
+
+            <UpgradeModal
+                isOpen={upgradeModal.open}
+                onClose={() => setUpgradeModal({ ...upgradeModal, open: false })}
+                targetPlan={upgradeModal.targetPlan}
+                currentPlan={user?.planId || 'index-one'}
+                user={user}
+                onUpgrade={(plan, diff) => {
+                    setUpgradeModal({ ...upgradeModal, open: false });
+                    if (onUpgradeInitiated) onUpgradeInitiated(plan, diff);
+                }}
             />
 
             <main className="flex-1 lg:ml-64 min-h-[100dvh] overflow-y-auto z-0 pb-20 lg:pb-0">

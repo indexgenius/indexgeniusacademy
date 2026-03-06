@@ -46,6 +46,7 @@ function App() {
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [customMsg, setCustomMsg] = useState('');
   const [reconnectTrigger, setReconnectTrigger] = useState(0);
+  const [upgradeData, setUpgradeData] = useState(null);
 
   // URL Auth Action Detection
   const urlParams = new URLSearchParams(window.location.search);
@@ -238,7 +239,16 @@ function App() {
       broadcastSignal={broadcastSignal}
       customMsg={customMsg}
       setCustomMsg={setCustomMsg}
+      onUpgradeInitiated={(plan, diff) => setUpgradeData({ plan, diff })}
     >
+      {upgradeData && <PaymentPortal
+        user={user}
+        onLogout={logout}
+        isUpgrade={true}
+        upgradePlanId={upgradeData.plan}
+        upgradeDiff={upgradeData.diff}
+        onClose={() => setUpgradeData(null)}
+      />}
       {activeTab === 'dashboard' && <Dashboard user={user} broadcastSignal={broadcastSignal} />}
       {activeTab === 'live-classes' && <LiveClasses user={user} />}
       {activeTab === 'announcements' && <Announcements user={user} />}
