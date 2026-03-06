@@ -261,7 +261,7 @@ function App() {
       {activeTab === 'supreme' && isSupreme && <SupremeDashboard user={user} />}
       {activeTab === 'admin' && (user?.canBroadcast || isAdmin) && <Admin user={user} broadcastSignal={broadcastSignal} />}
       {activeTab === 'groups' && <Groups user={user} />}
-      {activeTab === 'profile' && <Profile user={user} />}
+      {activeTab === 'profile' && <Profile user={user} onUpgradeInitiated={onUpgradeInitiated} />}
       <PhoneCaptureModal user={user} />
       {/* Global persistent container for ReCaptcha - Posicionarlo fuera de pantalla en lugar de display:none evita errores de Google script */}
       <div id="recaptcha-container-phone" style={{ position: 'fixed', left: '-9999px', bottom: '0', pointerEvents: 'none' }}></div>
