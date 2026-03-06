@@ -165,8 +165,10 @@ const PhoneCaptureModal = ({ user }) => {
                 setError('LÍMITE DE SMS EXCEDIDO. INTÉNTALO MÁS TARDE.');
             } else if (err.code === 'auth/operation-not-allowed') {
                 setError('ERROR: EL SERVICIO DE SMS ESTÁ DESACTIVADO EN EL PANEL DE FIREBASE.');
+            } else if (err.code === 'auth/billing-not-enabled') {
+                setError('ERROR: DEBES ACTIVAR EL PLAN BLAZE EN FIREBASE PARA ENVIAR SMS.');
             } else {
-                setError(`ERROR: ${err.message}`);
+                setError(`ERROR FIREBASE: ${err.message}`);
             }
         } finally {
             setLoading(false);
