@@ -28,7 +28,16 @@ const LandingPage = ({ onShowAuth }) => {
         // --- URL SYNCHRONIZATION ---
         const handlePopState = () => {
             const params = new URLSearchParams(window.location.search);
-            const section = params.get('v') || 'home';
+            const rawSection = params.get('v') || 'home';
+
+            // Map Spanish URL terms back to internal state names
+            const sectionMap = {
+                'inicio': 'home',
+                'nosotros': 'ceo',
+                'aliados': 'broker'
+            };
+            const section = sectionMap[rawSection] || rawSection;
+
             if (['home', 'ceo', 'broker'].includes(section)) {
                 setView(section);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -47,10 +56,18 @@ const LandingPage = ({ onShowAuth }) => {
 
         // Update URL without refreshing the page
         const url = new URL(window.location);
-        if (newView === 'home') {
+        const urlMap = {
+            'home': 'inicio',
+            'ceo': 'nosotros',
+            'broker': 'aliados'
+        };
+
+        const spanishView = urlMap[newView] || newView;
+
+        if (spanishView === 'inicio') {
             url.searchParams.delete('v');
         } else {
-            url.searchParams.set('v', newView);
+            url.searchParams.set('v', spanishView);
         }
         window.history.pushState({ section: newView }, '', url);
 
