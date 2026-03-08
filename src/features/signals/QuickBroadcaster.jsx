@@ -26,6 +26,16 @@ const WELTRADE_INDICES = [
     { name: 'PainX 800', symbol: 'PainX800', type: 'CRASH', category: 'CRASH' },
     { name: 'PainX 999', symbol: 'PainX999', type: 'CRASH', category: 'CRASH' },
     { name: 'PainX 1200', symbol: 'PainX1200', type: 'CRASH', category: 'CRASH' },
+    { name: 'BullX 1000', symbol: 'BullX1000', type: 'BOOM', category: 'BOOM' },
+    { name: 'BullX 900', symbol: 'BullX900', type: 'BOOM', category: 'BOOM' },
+    { name: 'BullX 777', symbol: 'BullX777', type: 'BOOM', category: 'BOOM' },
+    { name: 'BullX 500', symbol: 'BullX500', type: 'BOOM', category: 'BOOM' },
+    { name: 'BullX 400', symbol: 'BullX400', type: 'BOOM', category: 'BOOM' },
+    { name: 'BearX 1000', symbol: 'BearX1000', type: 'CRASH', category: 'CRASH' },
+    { name: 'BearX 900', symbol: 'BearX900', type: 'CRASH', category: 'CRASH' },
+    { name: 'BearX 777', symbol: 'BearX777', type: 'CRASH', category: 'CRASH' },
+    { name: 'BearX 500', symbol: 'BearX500', type: 'CRASH', category: 'CRASH' },
+    { name: 'BearX 400', symbol: 'BearX400', type: 'CRASH', category: 'CRASH' },
 ];
 
 const QuickBroadcaster = ({ broadcastSignal }) => {

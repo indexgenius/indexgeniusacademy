@@ -47,6 +47,16 @@ const SignalCenter = ({ broadcastSignal }) => {
             ]
         },
         {
+            label: "BULLX SERIES (BOOM TYPE)",
+            options: [
+                { value: "BullX 1000", label: "BullX 1000" },
+                { value: "BullX 900", label: "BullX 900" },
+                { value: "BullX 777", label: "BullX 777" },
+                { value: "BullX 500", label: "BullX 500" },
+                { value: "BullX 400", label: "BullX 400" },
+            ]
+        },
+        {
             label: "PAINX SERIES (VOLATILE/BEARISH)",
             options: [
                 { value: "PainX 400", label: "PainX 400" },
@@ -54,6 +64,16 @@ const SignalCenter = ({ broadcastSignal }) => {
                 { value: "PainX 800", label: "PainX 800" },
                 { value: "PainX 999", label: "PainX 999" },
                 { value: "PainX 1200", label: "PainX 1200" },
+            ]
+        },
+        {
+            label: "BEARX SERIES (CRASH TYPE)",
+            options: [
+                { value: "BearX 1000", label: "BearX 1000" },
+                { value: "BearX 900", label: "BearX 900" },
+                { value: "BearX 777", label: "BearX 777" },
+                { value: "BearX 500", label: "BearX 500" },
+                { value: "BearX 400", label: "BearX 400" },
             ]
         }
     ];
@@ -298,9 +318,9 @@ const SignalCenter = ({ broadcastSignal }) => {
                         <>
                             <div className="bg-blue-950/20 border border-blue-900/40 p-5 col-span-2">
                                 <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">ENTRADA RÁPIDA WELTRADE (GAINX/PAINX)</p>
-                                <div className="grid grid-cols-5 lg:grid-cols-5 gap-2">
-                                    {['GainX 400', 'GainX 600', 'GainX 800', 'GainX 999', 'GainX 1200', 'PainX 400', 'PainX 600', 'PainX 800', 'PainX 999', 'PainX 1200'].map(p => (
-                                        <button key={p} onClick={() => quickSignal(p, p.startsWith('G') ? 'BUY' : 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-[9px] font-black hover:bg-blue-600 hover:text-white transition-all">{p}</button>
+                                <div className="grid grid-cols-4 lg:grid-cols-5 gap-2">
+                                    {['GainX 400', 'GainX 600', 'GainX 800', 'GainX 999', 'GainX 1200', 'PainX 400', 'PainX 600', 'PainX 800', 'PainX 999', 'PainX 1200', 'BullX 1000', 'BullX 900', 'BullX 777', 'BullX 500', 'BullX 400', 'BearX 1000', 'BearX 900', 'BearX 777', 'BearX 500', 'BearX 400'].map(p => (
+                                        <button key={p} onClick={() => quickSignal(p, (p.startsWith('G') || p.startsWith('Bull')) ? 'BUY' : 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-[9px] font-black hover:bg-blue-600 hover:text-white transition-all">{p}</button>
                                     ))}
                                 </div>
                             </div>
