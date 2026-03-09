@@ -10,6 +10,7 @@ const DashboardPage = ({ user, broadcastSignal }) => {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ winRatio: 0, pipsToday: 0 });
     const [reconnectTrigger, setReconnectTrigger] = useState(0);
+    const [activeBroker, setActiveBroker] = useState('ALL');
 
     const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
 
@@ -138,19 +139,43 @@ const DashboardPage = ({ user, broadcastSignal }) => {
                 </div>
             </div>
 
+            {/* Broker Filtering Tabs */}
+            <div className="flex border-b border-white/10 overflow-x-auto custom-scrollbar pb-1 gap-2">
+                {[
+                    { id: 'ALL', label: 'TODAS', color: 'bg-white/5 text-gray-400' },
+                    { id: 'DERIV', label: 'DERIV', color: 'bg-red-600/10 text-red-500 border-red-600/20' },
+                    { id: 'WELTRADE', label: 'WELTRADE', color: 'bg-blue-600/10 text-blue-500 border-blue-600/20' },
+                    { id: 'BM', label: 'BM GLOBAL', color: 'bg-yellow-600/10 text-yellow-500 border-yellow-600/20' },
+                ].map(b => (
+                    <button
+                        key={b.id}
+                        onClick={() => setActiveBroker(b.id)}
+                        className={`px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 whitespace-nowrap ${activeBroker === b.id
+                            ? (b.id === 'ALL' ? 'border-white text-white' : (b.id === 'DERIV' ? 'border-red-600 text-red-600' : (b.id === 'WELTRADE' ? 'border-blue-600 text-blue-600' : 'border-yellow-600 text-yellow-600')))
+                            : 'border-transparent text-gray-600 hover:text-white'}`}
+                    >
+                        {b.label}
+                    </button>
+                ))}
+            </div>
+
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
                     <Loader2 className="text-red-600 animate-spin" size={48} />
                     <p className="text-[10px] font-black tracking-widest text-gray-500 uppercase">SYNCING TERMINALS...</p>
                 </div>
-            ) : signals.length === 0 ? (
+            ) : signals.filter(s => activeBroker === 'ALL' ? true : (s.broker === activeBroker || (activeBroker === 'DERIV' && !s.broker))).length === 0 ? (
                 <div className="col-span-full py-20 text-center space-y-4 bg-white/5 border border-dashed border-white/10">
                     <TrendingUp className="mx-auto text-gray-700 opacity-20" size={50} />
-                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">NO HAY SEÑALES REGISTRADAS HOY</p>
+                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em]">
+                        {activeBroker === 'ALL' ? 'NO HAY SEÑALES REGISTRADAS HOY' : `SIN SEÑALES DE ${activeBroker} HOY`}
+                    </p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {signals.map(s => <SignalCard key={s.id} {...s} user={user} broadcastSignal={broadcastSignal} />)}
+                    {signals
+                        .filter(s => activeBroker === 'ALL' ? true : (s.broker === activeBroker || (activeBroker === 'DERIV' && !s.broker)))
+                        .map(s => <SignalCard key={s.id} {...s} user={user} broadcastSignal={broadcastSignal} />)}
                 </div>
             )}
         </div>

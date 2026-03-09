@@ -34,7 +34,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
         try {
             let hitPrice = 'MARKET PRICE';
 
-            const isManualAsset = broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300';
+            const isManualAsset = broker === 'WELTRADE' || broker === 'BM' || pair === 'BOOM 300' || pair === 'CRASH 300';
 
             if (isManualAsset) {
                 hitPrice = newStatus === 'WON' ? (manualTP || tp) : (manualSL || sl);
@@ -103,7 +103,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             <div className="flex justify-between items-start mb-4 lg:mb-8 relative z-10">
                 <div className="space-y-1 lg:space-y-2">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 tracking-[0.1em] ${broker === 'WELTRADE' ? 'bg-blue-600 text-white' : 'bg-red-600 text-white'}`}>
+                        <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 tracking-[0.1em] ${broker === 'WELTRADE' ? 'bg-blue-600 text-white' : (broker === 'BM' ? 'bg-yellow-600 text-black' : 'bg-red-600 text-white')}`}>
                             {broker || 'DERIV'}
                         </span>
                     </div>
@@ -141,7 +141,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                                     type="text"
                                     value={manualEntryState}
                                     onChange={(e) => setManualEntryState(e.target.value)}
-                                    className="bg-white/5 border border-white/20 p-1 text-white text-xl lg:text-3xl font-black outline-none focus:border-blue-500 transition-colors w-full max-w-[150px]"
+                                    className={`bg-white/5 border border-white/20 p-1 text-white text-xl lg:text-3xl font-black outline-none focus:border-blue-500 transition-colors w-full max-w-[150px] ${broker === 'BM' ? 'focus:border-yellow-500' : ''}`}
                                 />
                                 <span className="text-[6px] text-blue-400 font-bold uppercase tracking-tighter italic">Manual Edit Active</span>
                             </div>
@@ -173,7 +173,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                     {/* Admin Actions */}
                     {isAdmin && isActive && (
                         <div className="flex flex-col items-end gap-3 mt-4">
-                            {(broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300') && (
+                            {(broker === 'WELTRADE' || broker === 'BM' || pair === 'BOOM 300' || pair === 'CRASH 300') && (
                                 <div className="flex gap-2 mb-2">
                                     <div className="flex flex-col gap-1">
                                         <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">TP PRICE</label>
