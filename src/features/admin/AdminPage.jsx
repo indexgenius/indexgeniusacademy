@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, Megaphone, ShieldCheck, BookOpen, Key, Users, Wallet, Bell, Image as ImageIcon, Video, Tag } from 'lucide-react';
+import { Radio, Megaphone, ShieldCheck, BookOpen, Key, Users, Wallet, Bell, Image as ImageIcon, Video, Tag, Mail } from 'lucide-react';
 import NotificationBroadcaster from './NotificationBroadcaster';
 
 // Sub-modules
@@ -15,6 +15,7 @@ import MembershipControl from './MembershipControl';
 import BroadcastLive from '../live/BroadcastLive';
 import DiscountManager from './DiscountManager';
 import PaymentAudit from './PaymentAudit';
+import EmailTester from './EmailTester';
 
 const AdminPage = ({ user, broadcastSignal }) => {
     const [subTab, setSubTab] = useState('signals');
@@ -32,6 +33,7 @@ const AdminPage = ({ user, broadcastSignal }) => {
         { id: 'memberships', icon: BookOpen, label: 'MEMBRESÍAS' },
         { id: 'payments', icon: Wallet, label: 'GESTOR PAGOS' },
         { id: 'audit', icon: ShieldCheck, label: 'AUDITORÍA CRIPTO' },
+        { id: 'email', icon: Mail, label: 'ENVIAR EMAILS' },
         { id: 'discounts', icon: Tag, label: 'DESCUENTOS' },
     ];
 
@@ -74,6 +76,7 @@ const AdminPage = ({ user, broadcastSignal }) => {
                 {subTab === 'memberships' && <MembershipControl />}
                 {subTab === 'payments' && <PaymentControl />}
                 {subTab === 'audit' && <PaymentAudit />}
+                {subTab === 'email' && <EmailTester adminUser={user} />}
                 {subTab === 'discounts' && <DiscountManager />}
             </div>
         </div>

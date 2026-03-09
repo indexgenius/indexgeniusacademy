@@ -35,7 +35,7 @@ const SignalCenter = ({ broadcastSignal }) => {
                 { value: "CRASH 300", label: "CRASH 300" },
             ]
         }
-    ] : [
+    ] : broker === 'WELTRADE' ? [
         {
             label: "GAINX SERIES (VOLATILE/BULLISH)",
             options: [
@@ -47,16 +47,6 @@ const SignalCenter = ({ broadcastSignal }) => {
             ]
         },
         {
-            label: "BULLX SERIES (BOOM TYPE)",
-            options: [
-                { value: "BullX 1000", label: "BullX 1000" },
-                { value: "BullX 900", label: "BullX 900" },
-                { value: "BullX 777", label: "BullX 777" },
-                { value: "BullX 500", label: "BullX 500" },
-                { value: "BullX 400", label: "BullX 400" },
-            ]
-        },
-        {
             label: "PAINX SERIES (VOLATILE/BEARISH)",
             options: [
                 { value: "PainX 400", label: "PainX 400" },
@@ -64,6 +54,17 @@ const SignalCenter = ({ broadcastSignal }) => {
                 { value: "PainX 800", label: "PainX 800" },
                 { value: "PainX 999", label: "PainX 999" },
                 { value: "PainX 1200", label: "PainX 1200" },
+            ]
+        }
+    ] : [
+        {
+            label: "BULLX SERIES (BOOM TYPE)",
+            options: [
+                { value: "BullX 1000", label: "BullX 1000" },
+                { value: "BullX 900", label: "BullX 900" },
+                { value: "BullX 777", label: "BullX 777" },
+                { value: "BullX 500", label: "BullX 500" },
+                { value: "BullX 400", label: "BullX 400" },
             ]
         },
         {
@@ -122,7 +123,7 @@ const SignalCenter = ({ broadcastSignal }) => {
             broker: broker,
             silent: isHistorical
         });
-        setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1200', type: 'BUY', entry: '', tp: '', sl: '', exitPrice: '', pips: '' });
+        setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : (broker === 'WELTRADE' ? 'GainX 1200' : 'BullX 1000'), type: 'BUY', entry: '', tp: '', sl: '', exitPrice: '', pips: '' });
         setEditingSignalId(null);
         setIsHistorical(false);
         setBroadcasting(false);
@@ -167,18 +168,24 @@ const SignalCenter = ({ broadcastSignal }) => {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 pt-6">
             <div className="xl:col-span-8 space-y-8">
                 {/* Broker Selector */}
-                <div className="flex gap-4 p-1 bg-black/40 border border-white/10 max-w-sm">
+                <div className="flex gap-4 p-1 bg-black/40 border border-white/10 max-w-lg">
                     <button
                         onClick={() => { setBroker('DERIV'); setSignalForm(prev => ({ ...prev, pair: 'BOOM 1000' })); }}
                         className={`flex-1 py-4 lg:py-3 text-[11px] lg:text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white shadow-red-glow/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        PLATAFORMA DERIV
+                        DERIV
                     </button>
                     <button
                         onClick={() => { setBroker('WELTRADE'); setSignalForm(prev => ({ ...prev, pair: 'GainX 1200' })); }}
                         className={`flex-1 py-4 lg:py-3 text-[11px] lg:text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-blue-600 text-white shadow-blue-glow/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        WELTRADE GLOBAL
+                        WELTRADE
+                    </button>
+                    <button
+                        onClick={() => { setBroker('BM'); setSignalForm(prev => ({ ...prev, pair: 'BullX 1000' })); }}
+                        className={`flex-1 py-4 lg:py-3 text-[11px] lg:text-[10px] font-black uppercase tracking-widest transition-all ${broker === 'BM' ? 'bg-yellow-600 text-white shadow-yellow-glow/40' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                    >
+                        BM GLOBAL
                     </button>
                 </div>
 
@@ -288,7 +295,7 @@ const SignalCenter = ({ broadcastSignal }) => {
                                 {!broadcasting && <Rocket size={18} />}
                             </button>
                             {editingSignalId && (
-                                <button onClick={() => { setEditingSignalId(null); setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : 'GainX 1200', type: 'BUY', entry: '', tp: '', sl: '', exitPrice: '', pips: '' }); }} className="px-6 py-5 bg-white/5 border border-white/10 text-gray-500"><StopCircle /></button>
+                                <button onClick={() => { setEditingSignalId(null); setSignalForm({ pair: broker === 'DERIV' ? 'BOOM 1000' : (broker === 'WELTRADE' ? 'GainX 1200' : 'BullX 1000'), type: 'BUY', entry: '', tp: '', sl: '', exitPrice: '', pips: '' }); }} className="px-6 py-5 bg-white/5 border border-white/10 text-gray-500"><StopCircle /></button>
                             )}
                         </div>
                     </form>
@@ -314,13 +321,24 @@ const SignalCenter = ({ broadcastSignal }) => {
                                 </div>
                             </div>
                         </>
-                    ) : (
+                    ) : broker === 'WELTRADE' ? (
                         <>
                             <div className="bg-blue-950/20 border border-blue-900/40 p-5 col-span-2">
                                 <p className="text-[10px] font-black text-blue-500 uppercase mb-4 italic">ENTRADA RÁPIDA WELTRADE (GAINX/PAINX)</p>
-                                <div className="grid grid-cols-4 lg:grid-cols-5 gap-2">
-                                    {['GainX 400', 'GainX 600', 'GainX 800', 'GainX 999', 'GainX 1200', 'PainX 400', 'PainX 600', 'PainX 800', 'PainX 999', 'PainX 1200', 'BullX 1000', 'BullX 900', 'BullX 777', 'BullX 500', 'BullX 400', 'BearX 1000', 'BearX 900', 'BearX 777', 'BearX 500', 'BearX 400'].map(p => (
-                                        <button key={p} onClick={() => quickSignal(p, (p.startsWith('G') || p.startsWith('Bull')) ? 'BUY' : 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-[9px] font-black hover:bg-blue-600 hover:text-white transition-all">{p}</button>
+                                <div className="grid grid-cols-5 gap-2">
+                                    {['GainX 400', 'GainX 600', 'GainX 800', 'GainX 999', 'GainX 1200', 'PainX 400', 'PainX 600', 'PainX 800', 'PainX 999', 'PainX 1200'].map(p => (
+                                        <button key={p} onClick={() => quickSignal(p, p.startsWith('G') ? 'BUY' : 'SELL')} className="py-4 bg-blue-600/10 border border-blue-600/20 text-[9px] font-black hover:bg-blue-600 hover:text-white transition-all">{p}</button>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="bg-yellow-950/20 border border-yellow-900/40 p-5 col-span-2">
+                                <p className="text-[10px] font-black text-yellow-500 uppercase mb-4 italic">ENTRADA RÁPIDA BM (BULLX/BEARX)</p>
+                                <div className="grid grid-cols-5 gap-2">
+                                    {['BullX 1000', 'BullX 900', 'BullX 777', 'BullX 500', 'BullX 400', 'BearX 1000', 'BearX 900', 'BearX 777', 'BearX 500', 'BearX 400'].map(p => (
+                                        <button key={p} onClick={() => quickSignal(p, p.startsWith('Bull') ? 'BUY' : 'SELL')} className="py-4 bg-yellow-600/10 border border-yellow-600/20 text-[9px] font-black hover:bg-yellow-600 hover:text-white transition-all">{p}</button>
                                     ))}
                                 </div>
                             </div>

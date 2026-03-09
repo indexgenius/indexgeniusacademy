@@ -26,6 +26,9 @@ const WELTRADE_INDICES = [
     { name: 'PainX 800', symbol: 'PainX800', type: 'CRASH', category: 'CRASH' },
     { name: 'PainX 999', symbol: 'PainX999', type: 'CRASH', category: 'CRASH' },
     { name: 'PainX 1200', symbol: 'PainX1200', type: 'CRASH', category: 'CRASH' },
+];
+
+const BM_INDICES = [
     { name: 'BullX 1000', symbol: 'BullX1000', type: 'BOOM', category: 'BOOM' },
     { name: 'BullX 900', symbol: 'BullX900', type: 'BOOM', category: 'BOOM' },
     { name: 'BullX 777', symbol: 'BullX777', type: 'BOOM', category: 'BOOM' },
@@ -48,7 +51,7 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [manualEntry, setManualEntry] = useState('');
 
-    const currentIndices = broker === 'DERIV' ? DERIV_INDICES : WELTRADE_INDICES;
+    const currentIndices = broker === 'DERIV' ? DERIV_INDICES : (broker === 'WELTRADE' ? WELTRADE_INDICES : BM_INDICES);
 
     useEffect(() => {
         if (broker !== 'DERIV') return;
@@ -125,6 +128,12 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
                     >
                         WELTRADE
                     </button>
+                    <button
+                        onClick={() => { setBroker('BM'); setSelectedIndex(BM_INDICES[0]); }}
+                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'BM' ? 'bg-yellow-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        BM
+                    </button>
                 </div>
             </div>
 
@@ -157,7 +166,7 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
 
                 <div className="grid grid-cols-2 gap-3">
                     {['MAIN', 'REENTRY'].map(act => (
-                        <button key={act} disabled={loadingIndex === selectedIndex.name} onClick={() => sendSignal(act, selectedIndex)} className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${act === 'MAIN' ? (broker === 'DERIV' ? 'bg-red-600' : 'bg-blue-600') + ' text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                        <button key={act} disabled={loadingIndex === selectedIndex.name} onClick={() => sendSignal(act, selectedIndex)} className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${act === 'MAIN' ? (broker === 'DERIV' ? 'bg-red-600' : (broker === 'WELTRADE' ? 'bg-blue-600' : 'bg-yellow-600')) + ' text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
                             {loadingIndex === selectedIndex.name ? <Loader2 className="animate-spin mx-auto" size={12} /> : (act === 'MAIN' ? (selectedIndex.type === 'BOOM' ? 'BUY' : 'SELL') : act)}
                         </button>
                     ))}

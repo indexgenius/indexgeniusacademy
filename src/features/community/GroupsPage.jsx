@@ -9,7 +9,23 @@ const GroupsPage = ({ user }) => {
     const [subscriptions, setSubscriptions] = useState({});
     const [loading, setLoading] = useState(true);
 
-    const IconMap = { ShieldCheck, Globe, MessageSquare, Users, MessageCircle, Send, Facebook, Instagram, Twitter, Youtube };
+    const IconMap = {
+        ShieldCheck,
+        Globe,
+        MessageSquare,
+        Users,
+        MessageCircle,
+        Send,
+        Facebook,
+        Instagram,
+        Twitter,
+        Youtube,
+        whatsapp: MessageCircle,
+        telegram: Send,
+        instagram: Instagram,
+        facebook: Facebook,
+        youtube: Youtube
+    };
 
     useEffect(() => {
         const unsubG = onSnapshot(collection(db, "groups"), (snap) => {
@@ -70,15 +86,29 @@ const GroupsPage = ({ user }) => {
                         >
                             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 w-full md:w-auto text-center sm:text-left">
                                 <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 bg-white/5 border border-white/10 rounded-full flex items-center justify-center group-hover:scale-105 transition-all overflow-hidden relative shadow-lg bg-black">
-                                    {['whatsapp', 'telegram', 'instagram', 'facebook', 'twitter', 'youtube', 'discord', 'crypto', 'forex', 'trading'].includes(g.icon?.toLowerCase()) || g.image ? (
+                                    {g.image ? (
                                         <img
-                                            src={g.image || `/img/group-icons/${g.icon?.toLowerCase()}.png`}
+                                            src={g.image}
                                             alt={g.name}
                                             className="w-full h-full object-cover"
                                         />
+                                    ) : [
+                                        'whatsapp', 'telegram', 'instagram', 'youtube', 'discord', 'crypto', 'forex', 'trading'
+                                    ].includes(g.icon?.toLowerCase()) ? (
+                                        <img
+                                            src={`/img/group-icons/${g.icon.toLowerCase()}.png`}
+                                            alt={g.name}
+                                            className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+                                        />
                                     ) : (
                                         <div className="text-gray-400 group-hover:text-white transition-colors">
-                                            {IconMap[g.icon] ? React.createElement(IconMap[g.icon], { size: window.innerWidth < 640 ? 24 : 32 }) : <Users size={window.innerWidth < 640 ? 24 : 32} />}
+                                            {IconMap[g.icon?.toLowerCase()] || IconMap[g.icon] ?
+                                                React.createElement(IconMap[g.icon?.toLowerCase()] || IconMap[g.icon], {
+                                                    size: window.innerWidth < 640 ? 24 : 32,
+                                                    className: g.icon?.toLowerCase() === 'whatsapp' ? 'text-green-500' : ''
+                                                }) :
+                                                <Users size={window.innerWidth < 640 ? 24 : 32} />
+                                            }
                                         </div>
                                     )}
                                     {blocked && (
@@ -90,11 +120,11 @@ const GroupsPage = ({ user }) => {
                                 <div className="min-w-0">
                                     <h3 className="text-xl sm:text-3xl font-black italic text-white uppercase pr-2">{g.name}</h3>
                                     <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2 sm:mt-1">
-                                        <span className={`${isPublic ? 'bg-white text-black' : 'bg-red-600 text-white'} text-[8px] font-black px-2 py-1 flex items-center gap-1`}>
-                                            {g.status}
+                                        <span className={`${(isPublic && !g.name?.toLowerCase().includes('privado')) ? 'bg-white text-black' : 'bg-red-600 text-white'} text-[8px] font-black px-2 py-1 flex items-center gap-1 uppercase`}>
+                                            {(isPublic && !g.name?.toLowerCase().includes('privado')) ? g.status : 'PRIVADO'}
                                             {blocked && <ShieldCheck size={8} />}
                                         </span>
-                                        {subscriptions[g.id] && <span className="bg-green-600 text-[8px] font-black px-2 py-1">SUBSCRIBED</span>}
+                                        {subscriptions[g.id] && <span className="bg-green-600 text-[8px] font-black px-2 py-1 uppercase">SUBSCRIBIDO</span>}
                                     </div>
                                 </div>
                             </div>

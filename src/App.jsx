@@ -225,6 +225,8 @@ function App() {
 
 
 
+  const handleUpgradeInitiated = (plan, diff) => setUpgradeData({ plan, diff });
+
   return (
     <MainLayout
       user={user}
@@ -239,7 +241,7 @@ function App() {
       broadcastSignal={broadcastSignal}
       customMsg={customMsg}
       setCustomMsg={setCustomMsg}
-      onUpgradeInitiated={(plan, diff) => setUpgradeData({ plan, diff })}
+      onUpgradeInitiated={handleUpgradeInitiated}
     >
       {upgradeData && <PaymentPortal
         user={user}
@@ -261,7 +263,7 @@ function App() {
       {activeTab === 'supreme' && isSupreme && <SupremeDashboard user={user} />}
       {activeTab === 'admin' && (user?.canBroadcast || isAdmin) && <Admin user={user} broadcastSignal={broadcastSignal} />}
       {activeTab === 'groups' && <Groups user={user} />}
-      {activeTab === 'profile' && <Profile user={user} onUpgradeInitiated={onUpgradeInitiated} />}
+      {activeTab === 'profile' && <Profile user={user} onUpgradeInitiated={handleUpgradeInitiated} />}
       <PhoneCaptureModal user={user} />
       {/* Global persistent container for ReCaptcha - Posicionarlo fuera de pantalla en lugar de display:none evita errores de Google script */}
       <div id="recaptcha-container-phone" style={{ position: 'fixed', left: '-9999px', bottom: '0', pointerEvents: 'none' }}></div>

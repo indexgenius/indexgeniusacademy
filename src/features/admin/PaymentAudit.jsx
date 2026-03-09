@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, orderBy, onSnapshot, limit, Timestamp, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { ShieldCheck, Clock, CheckCircle, XCircle, RefreshCw, User, Globe, Search, Filter, Check } from 'lucide-react';
+import { collection, query, orderBy, onSnapshot, limit, Timestamp, doc, updateDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { ShieldCheck, Clock, CheckCircle, XCircle, RefreshCw, User, Globe, Search, Filter, Check, Trash2, Ban } from 'lucide-react';
 
 const PaymentAudit = () => {
     const [logs, setLogs] = useState([]);
@@ -57,6 +57,41 @@ const PaymentAudit = () => {
         } catch (error) {
             console.error("Error en aprobación manual:", error);
             alert("Error al activar usuario: " + error.message);
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleReject = async (log) => {
+        if (!window.confirm(`¿RECHAZAR el pago de ${log.email}?\nEl estado pasará a ERROR / EXPIRADO.`)) return;
+
+        setActionLoading(log.id);
+        try {
+            const logRef = doc(db, "payment_logs", log.id);
+            await updateDoc(logRef, {
+                status: 'failed',
+                rejectedAt: serverTimestamp(),
+                rejectedByAdmin: true
+            });
+            alert(`RECHAZADO: El pago de ${log.email} ha sido marcado como fallido.`);
+        } catch (error) {
+            console.error("Error al rechazar pago:", error);
+            alert("Error al rechazar: " + error.message);
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleDelete = async (log) => {
+        if (!window.confirm(`¿ELIMINAR DEFINITIVAMENTE este registro de ${log.email}?\nEsta acción no se puede deshacer.`)) return;
+
+        setActionLoading(log.id);
+        try {
+            await deleteDoc(doc(db, "payment_logs", log.id));
+            alert(`ELIMINADO: El registro ha sido borrado.`);
+        } catch (error) {
+            console.error("Error al eliminar registro:", error);
+            alert("Error al eliminar: " + error.message);
         } finally {
             setActionLoading(null);
         }
@@ -248,19 +283,41 @@ const PaymentAudit = () => {
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                {!isCompleted ? (
+                                                <div className="flex items-center gap-2">
+                                                    {!isCompleted ? (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleManualApprove(log)}
+                                                                disabled={actionLoading === log.id}
+                                                                className="px-3 py-1.5 bg-green-600/10 border border-green-600/30 text-green-500 text-[9px] font-black uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all disabled:opacity-50 flex items-center gap-1"
+                                                            >
+                                                                {actionLoading === log.id ? <RefreshCw size={10} className="animate-spin" /> : <ShieldCheck size={10} />}
+                                                                APROBAR
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleReject(log)}
+                                                                disabled={actionLoading === log.id}
+                                                                className="px-3 py-1.5 bg-orange-600/10 border border-orange-600/30 text-orange-500 text-[9px] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all disabled:opacity-50 flex items-center gap-1"
+                                                            >
+                                                                <Ban size={10} />
+                                                                RECHAZAR
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
+                                                            <Check size={16} />
+                                                        </div>
+                                                    )}
+
                                                     <button
-                                                        onClick={() => handleManualApprove(log)}
+                                                        onClick={() => handleDelete(log)}
                                                         disabled={actionLoading === log.id}
-                                                        className="px-4 py-2 bg-red-600/10 border border-red-600/30 text-red-600 text-[9px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all disabled:opacity-50"
+                                                        className="p-2 bg-red-600/10 border border-red-600/30 text-red-600 hover:bg-red-600 hover:text-white transition-all disabled:opacity-50 rounded-sm"
+                                                        title="ELIMINAR REGISTRO"
                                                     >
-                                                        {actionLoading === log.id ? 'ACTIVANDO...' : 'APROBAR'}
+                                                        <Trash2 size={12} />
                                                     </button>
-                                                ) : (
-                                                    <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
-                                                        <Check size={16} />
-                                                    </div>
-                                                )}
+                                                </div>
                                             </td>
                                             <td className="p-4 text-right">
                                                 <div className="flex flex-col items-end">
