@@ -118,21 +118,21 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
                 <div className="flex gap-2 p-1 bg-white/5 border border-white/10 scale-90 lg:scale-100 origin-right">
                     <button
                         onClick={() => { setBroker('DERIV'); setSelectedIndex(DERIV_INDICES[0]); }}
-                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        DERIV
+                        BRIDGE MARKETS (D)
                     </button>
                     <button
                         onClick={() => { setBroker('WELTRADE'); setSelectedIndex(WELTRADE_INDICES[0]); }}
-                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        WELTRADE
+                        BRIDGE MARKETS (W)
                     </button>
                     <button
                         onClick={() => { setBroker('BM'); setSelectedIndex(BM_INDICES[0]); }}
-                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'BM' ? 'bg-yellow-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'BM' ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BM
+                        BRIDGE MARKETS (BM)
                     </button>
                 </div>
             </div>
@@ -156,17 +156,17 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
-                    <input type="text" placeholder="ENTRY PRICE (OPTIONAL)" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none focus:border-blue-500 transition-colors" value={manualEntry} onChange={e => setManualEntry(e.target.value)} />
+                    <input type="text" placeholder="ENTRY PRICE (OPTIONAL)" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none focus:border-purple-500 transition-colors" value={manualEntry} onChange={e => setManualEntry(e.target.value)} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <input type="text" placeholder="SL PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none" value={sl} onChange={e => setSl(e.target.value)} />
-                    <input type="text" placeholder="TP PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none" value={tp} onChange={e => setTp(e.target.value)} />
+                    <input type="text" placeholder="SL PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none focus:border-red-500" value={sl} onChange={e => setSl(e.target.value)} />
+                    <input type="text" placeholder="TP PRICE" className="w-full bg-white/5 border border-white/10 p-3 text-white text-[10px] uppercase font-black outline-none focus:border-[#00ff41]" value={tp} onChange={e => setTp(e.target.value)} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                     {['MAIN', 'REENTRY'].map(act => (
-                        <button key={act} disabled={loadingIndex === selectedIndex.name} onClick={() => sendSignal(act, selectedIndex)} className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${act === 'MAIN' ? (broker === 'DERIV' ? 'bg-red-600' : (broker === 'WELTRADE' ? 'bg-blue-600' : 'bg-yellow-600')) + ' text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                        <button key={act} disabled={loadingIndex === selectedIndex.name} onClick={() => sendSignal(act, selectedIndex)} className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${act === 'MAIN' ? 'bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.4)]' : 'bg-white/5 text-gray-400 hover:text-white'} text-white`}>
                             {loadingIndex === selectedIndex.name ? <Loader2 className="animate-spin mx-auto" size={12} /> : (act === 'MAIN' ? (selectedIndex.type === 'BOOM' ? 'BUY' : 'SELL') : act)}
                         </button>
                     ))}

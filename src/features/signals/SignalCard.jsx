@@ -9,9 +9,10 @@ import { signalService } from '../../services/signalService';
 const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, time, timestamp, user, broadcastSignal, exitPrice, broker, sender }) => {
     const [updating, setUpdating] = useState(false);
     const [isExpired, setIsExpired] = useState(false);
-    const [manualSL, setManualSL] = useState('');
-    const [manualTP, setManualTP] = useState('');
+    const [manualSL, setManualSL] = useState(sl || '');
+    const [manualTP, setManualTP] = useState(tp || '');
     const [manualEntryState, setManualEntryState] = useState(entry || '');
+    const [isSaving, setIsSaving] = useState(false);
 
     const isActive = status === 'ACTIVE';
     const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
@@ -27,6 +28,24 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
         const interval = setInterval(check, 60000);
         return () => clearInterval(interval);
     }, [timestamp, isActive]);
+
+    const handleUpdateValues = async () => {
+        if (!isAdmin || !isActive) return;
+        setIsSaving(true);
+        try {
+            const signalRef = doc(db, "signals", id);
+            await updateDoc(signalRef, {
+                entry: manualEntryState.toString(),
+                sl: manualSL.toString(),
+                tp: manualTP.toString()
+            });
+        } catch (e) {
+            console.error("Error updating signal values:", e);
+            alert("Error al guardar cambios: " + e.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleStatusUpdate = async (newStatus) => {
         if (!isAdmin) return;
@@ -44,7 +63,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             }
 
             const signalRef = doc(db, "signals", id);
-            const finalEntry = (broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300') ? manualEntryState : entry;
+            const finalEntry = (broker === 'WELTRADE' || broker === 'BM' || pair === 'BOOM 300' || pair === 'CRASH 300') ? manualEntryState : entry;
 
             // Calculate Pips
             let pips = 0;
@@ -103,8 +122,8 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             <div className="flex justify-between items-start mb-4 lg:mb-8 relative z-10">
                 <div className="space-y-1 lg:space-y-2">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 tracking-[0.1em] ${broker === 'WELTRADE' ? 'bg-blue-600 text-white' : (broker === 'BM' ? 'bg-yellow-600 text-black' : 'bg-red-600 text-white')}`}>
-                            {broker || 'DERIV'}
+                        <span className="text-[8px] font-black uppercase px-1.5 py-0.5 tracking-[0.1em] bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.5)]">
+                            BRIDGE MARKETS
                         </span>
                     </div>
                     <h3 className="text-xl lg:text-4xl font-black italic uppercase text-white tracking-tighter leading-none">
@@ -135,27 +154,34 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                 <div className="space-y-6">
                     <div>
                         <p className="text-[8px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">ENTRY POINT</p>
-                        {isActive && isAdmin && (broker === 'WELTRADE' || pair === 'BOOM 300' || pair === 'CRASH 300') ? (
-                            <div className="flex flex-col gap-1">
-                                <input
-                                    type="text"
-                                    value={manualEntryState}
-                                    onChange={(e) => setManualEntryState(e.target.value)}
-                                    className={`bg-white/5 border border-white/20 p-1 text-white text-xl lg:text-3xl font-black outline-none focus:border-blue-500 transition-colors w-full max-w-[150px] ${broker === 'BM' ? 'focus:border-yellow-500' : ''}`}
-                                />
-                                <span className="text-[6px] text-blue-400 font-bold uppercase tracking-tighter italic">Manual Edit Active</span>
-                            </div>
-                        ) : (
-                            <p className="text-3xl lg:text-5xl font-black text-white tracking-tight">{entry}</p>
-                        )}
+                        <p className="text-3xl lg:text-5xl font-black text-white tracking-tight">{entry}</p>
                     </div>
                     <div>
                         <p className="text-[8px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">
                             {status === 'WON' ? 'CLOSED AT' : 'TARGET PROFIT'}
                         </p>
-                        <p className={`text-base lg:text-xl font-black tracking-widest ${status === 'WON' ? 'text-[#00ff41]' : 'text-[#00ff41]'}`}>
-                            {status === 'WON' ? (exitPrice || tp || '---') : (tp || '---')}
-                        </p>
+                        {isActive && isAdmin && (broker === 'BM' || broker === 'WELTRADE') ? (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={manualTP}
+                                    onChange={(e) => setManualTP(e.target.value)}
+                                    className="w-24 bg-white/5 border border-white/20 p-1 text-[#00ff41] text-base lg:text-xl font-black outline-none focus:border-[#00ff41] transition-colors"
+                                />
+                                <button
+                                    onClick={handleUpdateValues}
+                                    disabled={isSaving}
+                                    className="p-1.5 bg-purple-600/20 hover:bg-purple-600 text-purple-400 hover:text-white transition-all rounded"
+                                    title="Guardar TP"
+                                >
+                                    {isSaving ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                                </button>
+                            </div>
+                        ) : (
+                            <p className={`text-base lg:text-xl font-black tracking-widest ${status === 'WON' ? 'text-[#00ff41]' : 'text-[#00ff41]'}`}>
+                                {status === 'WON' ? (exitPrice || tp || '---') : (tp || '---')}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -165,9 +191,28 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                         <p className="text-[8px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">
                             {status === 'LOST' ? 'CLOSED AT' : 'SAFETY LOSS'}
                         </p>
-                        <p className={`text-base lg:text-xl font-black tracking-widest ${status === 'LOST' ? 'text-red-600' : 'text-red-600'}`}>
-                            {status === 'LOST' ? (exitPrice || sl || '--- ---') : (sl || '--- ---')}
-                        </p>
+                        {isActive && isAdmin && (broker === 'BM' || broker === 'WELTRADE') ? (
+                            <div className="flex items-center gap-2 justify-end">
+                                <button
+                                    onClick={handleUpdateValues}
+                                    disabled={isSaving}
+                                    className="p-1.5 bg-purple-600/20 hover:bg-purple-600 text-purple-400 hover:text-white transition-all rounded"
+                                    title="Guardar SL"
+                                >
+                                    {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Clock size={12} />}
+                                </button>
+                                <input
+                                    type="text"
+                                    value={manualSL}
+                                    onChange={(e) => setManualSL(e.target.value)}
+                                    className="w-24 bg-white/5 border border-white/20 p-1 text-red-600 text-base lg:text-xl font-black text-right outline-none focus:border-red-600 transition-colors"
+                                />
+                            </div>
+                        ) : (
+                            <p className={`text-base lg:text-xl font-black tracking-widest ${status === 'LOST' ? 'text-red-600' : 'text-red-600'}`}>
+                                {status === 'LOST' ? (exitPrice || sl || '--- ---') : (sl || '--- ---')}
+                            </p>
+                        )}
                     </div>
 
                     {/* Admin Actions */}
