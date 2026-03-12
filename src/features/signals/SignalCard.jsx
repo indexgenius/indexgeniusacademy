@@ -122,8 +122,12 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
             <div className="flex justify-between items-start mb-4 lg:mb-8 relative z-10">
                 <div className="space-y-1 lg:space-y-2">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[8px] font-black uppercase px-1.5 py-0.5 tracking-[0.1em] bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.5)]">
-                            BRIDGE MARKETS
+                        <span className={`text-[8px] font-black uppercase px-2 py-1 tracking-[0.1em] text-white shadow-lg ${
+                            broker === 'WELTRADE' ? 'bg-blue-600 shadow-blue-500/50' :
+                            broker === 'DERIV' ? 'bg-red-600 shadow-red-500/50' :
+                            'bg-purple-600 shadow-purple-600/50'
+                        }`}>
+                            {broker === 'BM' ? 'BRIDGE MARKETS' : (broker || 'BRIDGE MARKETS')}
                         </span>
                     </div>
                     <h3 className="text-xl lg:text-4xl font-black italic uppercase text-white tracking-tighter leading-none">
@@ -154,94 +158,69 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                 <div className="space-y-6">
                     <div>
                         <p className="text-[8px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">ENTRY POINT</p>
-                        <p className="text-3xl lg:text-5xl font-black text-white tracking-tight">{entry}</p>
-                    </div>
-                    <div>
-                        <p className="text-[8px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">
-                            {status === 'WON' ? 'CLOSED AT' : 'TARGET PROFIT'}
-                        </p>
-                        {isActive && isAdmin && (broker === 'BM' || broker === 'WELTRADE') ? (
+                        {isActive && isAdmin ? (
                             <div className="flex items-center gap-2">
                                 <input
                                     type="text"
-                                    value={manualTP}
-                                    onChange={(e) => setManualTP(e.target.value)}
-                                    className="w-24 bg-white/5 border border-white/20 p-1 text-[#00ff41] text-base lg:text-xl font-black outline-none focus:border-[#00ff41] transition-colors"
+                                    value={manualEntryState}
+                                    onChange={(e) => setManualEntryState(e.target.value)}
+                                    className="bg-transparent border-none p-0 text-3xl lg:text-5xl font-black text-white tracking-tight outline-none focus:ring-0 w-full"
                                 />
                                 <button
                                     onClick={handleUpdateValues}
                                     disabled={isSaving}
-                                    className="p-1.5 bg-purple-600/20 hover:bg-purple-600 text-purple-400 hover:text-white transition-all rounded"
-                                    title="Guardar TP"
+                                    className="p-1.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all rounded"
                                 >
                                     {isSaving ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                                 </button>
                             </div>
                         ) : (
-                            <p className={`text-base lg:text-xl font-black tracking-widest ${status === 'WON' ? 'text-[#00ff41]' : 'text-[#00ff41]'}`}>
-                                {status === 'WON' ? (exitPrice || tp || '---') : (tp || '---')}
-                            </p>
+                            <p className="text-3xl lg:text-5xl font-black text-white tracking-tight">{entry}</p>
                         )}
                     </div>
                 </div>
 
-                {/* Right Column: SL & Actions */}
-                <div className="flex flex-col justify-between items-end">
-                    <div className="text-right">
-                        <p className="text-[8px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">
-                            {status === 'LOST' ? 'CLOSED AT' : 'SAFETY LOSS'}
-                        </p>
-                        {isActive && isAdmin && (broker === 'BM' || broker === 'WELTRADE') ? (
-                            <div className="flex items-center gap-2 justify-end">
-                                <button
-                                    onClick={handleUpdateValues}
-                                    disabled={isSaving}
-                                    className="p-1.5 bg-purple-600/20 hover:bg-purple-600 text-purple-400 hover:text-white transition-all rounded"
-                                    title="Guardar SL"
-                                >
-                                    {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Clock size={12} />}
-                                </button>
-                                <input
-                                    type="text"
-                                    value={manualSL}
-                                    onChange={(e) => setManualSL(e.target.value)}
-                                    className="w-24 bg-white/5 border border-white/20 p-1 text-red-600 text-base lg:text-xl font-black text-right outline-none focus:border-red-600 transition-colors"
-                                />
-                            </div>
-                        ) : (
-                            <p className={`text-base lg:text-xl font-black tracking-widest ${status === 'LOST' ? 'text-red-600' : 'text-red-600'}`}>
-                                {status === 'LOST' ? (exitPrice || sl || '--- ---') : (sl || '--- ---')}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Admin Actions */}
-                    {isAdmin && isActive && (
-                        <div className="flex flex-col items-end gap-3 mt-4">
-                            {(broker === 'WELTRADE' || broker === 'BM' || pair === 'BOOM 300' || pair === 'CRASH 300') && (
-                                <div className="flex gap-2 mb-2">
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">TP PRICE</label>
+                {/* Right Column: SL & Actions */}                <div className="flex flex-col justify-between items-end">
+                    <div className="flex flex-col items-end gap-3">
+                        <div className="flex gap-2 mb-2">
+                            <div className="flex flex-col gap-1">
+                                <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">TP PRICE</label>
+                                <div className="w-20 bg-white/5 border border-white/10 p-1.5 min-h-[28px] flex items-center">
+                                    {isActive && isAdmin ? (
                                         <input
                                             type="text"
-                                            placeholder="HIT TP"
+                                            placeholder="TP"
                                             value={manualTP}
                                             onChange={(e) => setManualTP(e.target.value)}
-                                            className="w-20 bg-white/5 border border-white/10 p-1.5 text-white text-[10px] uppercase font-black outline-none focus:border-[#00ff41]/50 transition-colors"
+                                            onBlur={handleUpdateValues}
+                                            className="w-full bg-transparent border-none p-0 text-[#00ff41] text-[10px] uppercase font-black outline-none focus:ring-0"
                                         />
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">SL PRICE</label>
+                                    ) : (
+                                        <span className="text-[#00ff41] text-[10px] font-black">{status === 'WON' ? (exitPrice || tp || '---') : (tp || '---')}</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">SL PRICE</label>
+                                <div className="w-20 bg-white/5 border border-white/10 p-1.5 min-h-[28px] flex items-center">
+                                    {isActive && isAdmin ? (
                                         <input
                                             type="text"
-                                            placeholder="HIT SL"
+                                            placeholder="SL"
                                             value={manualSL}
                                             onChange={(e) => setManualSL(e.target.value)}
-                                            className="w-20 bg-white/5 border border-white/10 p-1.5 text-white text-[10px] uppercase font-black outline-none focus:border-red-600/50 transition-colors"
+                                            onBlur={handleUpdateValues}
+                                            className="w-full bg-transparent border-none p-0 text-red-600 text-[10px] uppercase font-black outline-none focus:ring-0"
                                         />
-                                    </div>
+                                    ) : (
+                                        <span className="text-red-600 text-[10px] font-black">{status === 'LOST' ? (exitPrice || sl || '---') : (sl || '---')}</span>
+                                    )}
                                 </div>
-                            )}
+                            </div>
+                        </div>
+
+                        {/* Admin Actions */}
+                        {isAdmin && isActive && (
                             <div className="flex gap-2 lg:gap-3">
                                 <button
                                     onClick={() => handleStatusUpdate('WON')}
@@ -268,8 +247,8 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                                     )}
                                 </button>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 
