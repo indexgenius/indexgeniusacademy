@@ -120,13 +120,13 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
                         onClick={() => { setBroker('DERIV'); setSelectedIndex(DERIV_INDICES[0]); }}
                         className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white shadow-[0_0_10px_rgba(220,38,38,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BRIDGE DERIV
+                        DERIV
                     </button>
                     <button
                         onClick={() => { setBroker('WELTRADE'); setSelectedIndex(WELTRADE_INDICES[0]); }}
                         className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-blue-600 text-white shadow-[0_0_10px_rgba(37,99,235,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BRIDGE WELTRADE
+                        WELTRADE
                     </button>
                     <button
                         onClick={() => { setBroker('BM'); setSelectedIndex(BM_INDICES[0]); }}
