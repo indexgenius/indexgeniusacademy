@@ -118,21 +118,21 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
                 <div className="flex gap-2 p-1 bg-white/5 border border-white/10 scale-90 lg:scale-100 origin-right">
                     <button
                         onClick={() => { setBroker('DERIV'); setSelectedIndex(DERIV_INDICES[0]); }}
-                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'text-gray-500 hover:text-white'}`}
+                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'DERIV' ? 'bg-red-600 text-white shadow-[0_0_10px_rgba(220,38,38,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BRIDGE MARKETS (D)
+                        BRIDGE DERIV
                     </button>
                     <button
                         onClick={() => { setBroker('WELTRADE'); setSelectedIndex(WELTRADE_INDICES[0]); }}
-                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'text-gray-500 hover:text-white'}`}
+                        className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'WELTRADE' ? 'bg-blue-600 text-white shadow-[0_0_10px_rgba(37,99,235,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BRIDGE MARKETS (W)
+                        BRIDGE WELTRADE
                     </button>
                     <button
                         onClick={() => { setBroker('BM'); setSelectedIndex(BM_INDICES[0]); }}
                         className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${broker === 'BM' ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(147,51,234,0.3)]' : 'text-gray-500 hover:text-white'}`}
                     >
-                        BRIDGE MARKETS (BM)
+                        BRIDGE MARKETS
                     </button>
                 </div>
             </div>
@@ -165,11 +165,23 @@ const QuickBroadcaster = ({ broadcastSignal }) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                    {['MAIN', 'REENTRY'].map(act => (
-                        <button key={act} disabled={loadingIndex === selectedIndex.name} onClick={() => sendSignal(act, selectedIndex)} className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${act === 'MAIN' ? 'bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.4)]' : 'bg-white/5 text-gray-400 hover:text-white'} text-white`}>
-                            {loadingIndex === selectedIndex.name ? <Loader2 className="animate-spin mx-auto" size={12} /> : (act === 'MAIN' ? (selectedIndex.type === 'BOOM' ? 'BUY' : 'SELL') : act)}
-                        </button>
-                    ))}
+                    {['MAIN', 'REENTRY'].map(act => {
+                        const isMain = act === 'MAIN';
+                        const themeColor = broker === 'DERIV' ? 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 
+                                         broker === 'WELTRADE' ? 'bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.4)]' : 
+                                         'bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.4)]';
+                        
+                        return (
+                            <button 
+                                key={act} 
+                                disabled={loadingIndex === selectedIndex.name} 
+                                onClick={() => sendSignal(act, selectedIndex)} 
+                                className={`py-4 text-[9px] font-black uppercase tracking-tighter transition-all border ${isMain ? themeColor : 'bg-white/5 text-gray-400 hover:text-white'} text-white`}
+                            >
+                                {loadingIndex === selectedIndex.name ? <Loader2 className="animate-spin mx-auto" size={12} /> : (isMain ? (selectedIndex.type === 'BOOM' ? 'BUY' : 'SELL') : act)}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
         </div>
