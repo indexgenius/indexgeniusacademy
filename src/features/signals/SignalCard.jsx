@@ -185,7 +185,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                         <div className="flex gap-2 mb-2">
                             <div className="flex flex-col gap-1">
                                 <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">TP PRICE</label>
-                                <div className="w-20 bg-white/5 border border-white/10 p-1.5 min-h-[28px] flex items-center">
+                                <div className={`w-20 flex items-center ${isActive ? 'bg-white/5 border border-white/10 p-1.5 min-h-[28px]' : ''}`}>
                                     {isActive && isAdmin ? (
                                         <input
                                             type="text"
@@ -202,7 +202,7 @@ const SignalCard = ({ id, symbol, type, pair, timeframe, status, entry, tp, sl, 
                             </div>
                             <div className="flex flex-col gap-1">
                                 <label className="text-[7px] font-black text-gray-500 uppercase tracking-widest">SL PRICE</label>
-                                <div className="w-20 bg-white/5 border border-white/10 p-1.5 min-h-[28px] flex items-center">
+                                <div className={`w-20 flex items-center ${isActive ? 'bg-white/5 border border-white/10 p-1.5 min-h-[28px]' : ''}`}>
                                     {isActive && isAdmin ? (
                                         <input
                                             type="text"
