@@ -18,40 +18,22 @@ const checkPaymentStatus = async (forcedId) => {
             return;
         }
 
-        console.log("🔥 UID enviado:", currentUser.uid);
+        console.log("🔥 UID detectado:", currentUser.uid);
 
-        // 🔥 SI YA ESTÁ PAGADO → ACTIVAMOS
+        // 🔥 SI YA ESTÁ PAGADO → SOLO ESPERAMOS WEBHOOK
         if (currentStatus === 'finished' || currentStatus === 'confirmed') {
 
-            console.log("🔥 Pago confirmado → activando usuario...");
-
-            const res = await fetch('/api/verify-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    paymentId: paymentId,
-                    uid: currentUser.uid // 🔥 FIX CLAVE
-                })
-            });
-
-            const data = await res.json();
-            console.log("Respuesta backend:", data);
+            console.log("🔥 Pago confirmado → esperando activación automática...");
 
             if (pollingInterval) clearInterval(pollingInterval);
             setPollingInterval(null);
 
-            // 🔥 VALIDAR RESPUESTA REAL
-            if (data.success) {
-                alert("✅ PAGO CONFIRMADO - MEMBRESÍA ACTIVADA");
+            alert("✅ PAGO CONFIRMADO - ACTIVANDO MEMBRESÍA...");
 
-                // 🔥 REDIRIGE O REFRESCA
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-
-            } else {
-                console.warn("⚠️ Pago detectado pero no activado aún");
-            }
+            // 🔥 damos tiempo al webhook
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
         }
 
     } catch (err) {
