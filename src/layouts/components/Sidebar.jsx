@@ -28,6 +28,10 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, onClose, canBroadc
     const userPlan = user?.planId || 'index-one';
     const hasAccess = (tabId) => {
         if (isAdminOrSupreme) return true;
+        
+        // Custom overrides for specific access flags
+        if (tabId === 'templates' && user?.hasTemplateAccess) return true;
+        
         const allowed = PLAN_ACCESS[userPlan] || PLAN_ACCESS['index-one'];
         return allowed.includes(tabId);
     };
