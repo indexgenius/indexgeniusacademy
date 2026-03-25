@@ -1,9 +1,28 @@
-﻿node_modules/
+﻿# node
+node_modules/
 **/node_modules/
-.firebase/
+
+# build
 dist/
 build/
+
+# firebase
+.firebase/
+
+# env (CLAVES 🔐)
 .env
+.env.*
+
+# JSON sensibles (service accounts)
+*.json
+
+# sistema
 .DS_Store
-.next/
+
+# cache
 .cache/
+.next/
+
+# logs
+npm-debug.log*
+.vercel
