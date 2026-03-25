@@ -1,3 +1,4 @@
+// CAMBIO REAL PARA DEPLOY 🔥🔥🔥
 const checkPaymentStatus = async (forcedId) => {
     const paymentId = forcedId || paymentDetails?.payment_id;
     if (!paymentId) return;
