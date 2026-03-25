@@ -6,10 +6,13 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { paymentId, userId } = req.body;
+        // 🔥 ACEPTA uid O userId
+        const { paymentId, uid, userId } = req.body;
 
-        if (!paymentId || !userId) {
-            return res.status(400).json({ error: "Missing paymentId or userId" });
+        const finalUid = uid || userId;
+
+        if (!paymentId || !finalUid) {
+            return res.status(400).json({ error: "Missing paymentId or uid" });
         }
 
         const apiKey = process.env.NOWPAYMENTS_API_KEY;
@@ -23,6 +26,7 @@ export default async function handler(req, res) {
         const status = npData.payment_status;
 
         console.log(`Payment ${paymentId} status: ${status}`);
+        console.log(`Activating UID: ${finalUid}`);
 
         // 🔐 2. Token Firebase
         const token = await getFirestoreAccessToken(
@@ -32,12 +36,17 @@ export default async function handler(req, res) {
 
         const projectId = "indexgeniusacademy";
 
+        // 📝 Log del pago
         await updatePaymentLog(token, projectId, paymentId, status);
 
         const successStatuses = ["finished", "confirmed", "confirming"];
 
+        // 🔥 3. ACTIVAR USUARIO
         if (successStatuses.includes(status)) {
-            await activateUser(token, projectId, userId);
+
+            await activateUser(token, projectId, finalUid);
+
+            console.log("✅ Usuario activado correctamente");
 
             return res.status(200).json({
                 success: true,
