@@ -211,27 +211,36 @@ const TemplatesPage = ({ user }) => {
         }
     };
 
-    const handleSelectCurrency = async (currency) => {
-        setLoading(true);
-        setSelectedCurrency(currency);
-        try {
-            const orderId = `TEMP_${user.uid}_${Date.now()}`;
-            const payment = await nowPaymentsService.createPayment({
-                price_amount: finalPrice,
-                pay_currency: currency,
-                order_id: orderId,
-                order_description: `PLANTILLA: ${planName} - ${user.email}`,
-            });
-            setPaymentDetails(payment);
-            setModalStep(3);
-        } catch (err) {
-            console.error(err);
-            alert("Error al generar dirección: " + err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+const handleSelectCurrency = async (currency) => {
+    setLoading(true);
+    setSelectedCurrency(currency);
 
+    try {
+        if (!user?.uid) {
+            throw new Error("Usuario no autenticado");
+        }
+
+        const orderId = `${user.uid}_${Date.now()}`;
+
+        const payment = await nowPaymentsService.createPayment({
+            price_amount: finalPrice,
+            pay_currency: currency,
+            order_id: orderId,
+            order_description: `UID:${user.uid}|EMAIL:${user.email}|PLAN:${planName}`
+        });
+
+        console.log("✅ PAYMENT CREADO:", payment);
+
+        setPaymentDetails(payment);
+        setModalStep(3);
+
+    } catch (err) {
+        console.error("❌ ERROR:", err);
+        alert("Error al generar dirección: " + err.message);
+    } finally {
+        setLoading(false);
+    }
+};
     const generateAccessKey = () => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let key = 'IDX-';
