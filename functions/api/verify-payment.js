@@ -1,5 +1,3 @@
-// Cloudflare Pages Function: Verify NowPayments + Auto Activate (IMPROVED)
-
 export async function onRequestPost(context) {
     const { request, env } = context;
 
@@ -22,7 +20,6 @@ export async function onRequestPost(context) {
 
         console.log(`Payment ${paymentId} status: ${status}`);
 
-        // 2. Get Firestore token
         const token = await getFirestoreAccessToken(
             env.FIREBASE_CLIENT_EMAIL,
             env.FIREBASE_PRIVATE_KEY
@@ -30,10 +27,8 @@ export async function onRequestPost(context) {
 
         const projectId = "ingenius-f33a6";
 
-        // 3. Update payment_logs (si existe)
         await updatePaymentLog(token, projectId, paymentId, status);
 
-        // 4. ACTIVACIÓN INTELIGENTE
         const successStatuses = ["finished", "confirmed", "confirming"];
 
         if (successStatuses.includes(status)) {
@@ -46,7 +41,6 @@ export async function onRequestPost(context) {
             });
         }
 
-        // 🔥 NO ES ERROR → SOLO PENDIENTE
         return json({
             success: false,
             pending: true,
@@ -123,7 +117,8 @@ async function updatePaymentLog(token, projectId, paymentId, status) {
 }
 
 async function activateUser(token, projectId, userId) {
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}?updateMask.fieldPaths=status&updateMask.fieldPaths=lastPayment&updateMask.fieldPaths=paymentMethod`;
+
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}?updateMask.fieldPaths=status&updateMask.fieldPaths=subscriptionActive&updateMask.fieldPaths=lastPayment&updateMask.fieldPaths=paymentMethod`;
 
     await fetch(url, {
         method: 'PATCH',
@@ -133,7 +128,8 @@ async function activateUser(token, projectId, userId) {
         },
         body: JSON.stringify({
             fields: {
-                status: { stringValue: "approved" },
+                status: { stringValue: "active" }, // 🔥 CORREGIDO
+                subscriptionActive: { booleanValue: true }, // 🔥 CLAVE
                 paymentMethod: { stringValue: "NowPayments" },
                 lastPayment: { timestampValue: new Date().toISOString() }
             }
@@ -205,8 +201,6 @@ async function getFirestoreAccessToken(email, privateKey) {
     const data = await res.json();
     return data.access_token;
 }
-
-// ================= OPTIONS =================
 
 export async function onRequestOptions() {
     return new Response(null, {
