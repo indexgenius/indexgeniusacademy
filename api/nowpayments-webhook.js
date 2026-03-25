@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   try {
     const data = req.body;
 
-    const { payment_status, order_id, payment_id } = data;
+    const { payment_status, order_id } = data;
 
     console.log("🔥 Webhook recibido:", JSON.stringify(data, null, 2));
 
@@ -18,13 +18,12 @@ export default async function handler(req, res) {
 
     console.log("👤 UID extraído:", userId);
 
-    // ❌ Validar UID real
     if (!userId || userId.length < 20) {
       console.log("❌ UID inválido:", userId);
       return res.status(400).json({ error: "Invalid UID in order_id" });
     }
 
-    // 🔥 SOLO ACTIVA SI PAGO COMPLETO
+    // 🔥 SOLO SI PAGO COMPLETADO
     if (payment_status !== "finished" && payment_status !== "confirmed") {
       console.log("⏳ Pago aún no finalizado:", payment_status);
       return res.status(200).json({ status: payment_status });
@@ -40,12 +39,18 @@ export default async function handler(req, res) {
 
     const projectId = "indexgeniusacademy";
 
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}?updateMask.fieldPaths=status&updateMask.fieldPaths=subscriptionActive&updateMask.fieldPaths=lastPayment`;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}?updateMask.fieldPaths=status&updateMask.fieldPaths=subscriptionActive&updateMask.fieldPaths=planId&updateMask.fieldPaths=planName&updateMask.fieldPaths=lastPayment`;
+
+    // 🔥 AQUÍ DEFINES EL PLAN (PUEDES CAMBIARLO)
+    const planId = "index-one";
+    const planName = "INDEX ONE";
 
     const body = {
       fields: {
         status: { stringValue: "active" },
         subscriptionActive: { booleanValue: true },
+        planId: { stringValue: planId },
+        planName: { stringValue: planName },
         lastPayment: { timestampValue: new Date().toISOString() }
       }
     };
