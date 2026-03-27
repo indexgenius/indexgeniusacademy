@@ -15,9 +15,10 @@
 
   <title>Index Genius Academy</title>
 
-  <!-- 🔥 OneSignal -->
+  <!-- 🔥 OneSignal SDK -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
+  <!-- 🔥 CONFIGURACIÓN COMPLETA -->
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
 
@@ -26,52 +27,55 @@
       await OneSignal.init({
         appId: "76180fcf-b0a7-4ac9-a1d6-f06af63e67b2",
 
+        // 🔔 BOTÓN FLOTANTE
         notifyButton: {
           enable: true,
           size: 'large',
-          theme: 'default',
           position: 'bottom-right',
           offset: {
             bottom: '20px',
             right: '20px'
           },
-          prenotify: true,
           showCredit: false,
           text: {
-            'tip.state.unsubscribed': 'Activar notificaciones 🔔',
-            'tip.state.subscribed': 'Notificaciones activadas ✅',
-            'tip.state.blocked': 'Notificaciones bloqueadas ❌',
-            'message.prenotify': 'Activa las señales en tiempo real 🚀',
-            'message.action.subscribed': 'Activadas 🔥',
-            'message.action.resubscribed': 'Reactivadas 🔥',
-            'message.action.unsubscribed': 'Desactivadas ❌'
+            'tip.state.unsubscribed': 'Activar señales 🔔',
+            'tip.state.subscribed': 'Señales activas ✅',
+            'tip.state.blocked': 'Bloqueadas ❌'
           }
         },
 
+        // 🚀 POPUP AUTOMÁTICO (CLAVE)
+        promptOptions: {
+          slidedown: {
+            enabled: true,
+            autoPrompt: true,
+            timeDelay: 2,
+            pageViews: 1
+          }
+        },
+
+        autoRegister: true,
         allowLocalhostAsSecureOrigin: true,
 
         serviceWorkerPath: "/OneSignalSDKWorker.js",
         serviceWorkerUpdaterPath: "/OneSignalSDKUpdaterWorker.js",
       });
 
-      console.log("✅ OneSignal inicializado");
+      console.log("✅ OneSignal ACTIVADO");
 
-      // 🔥 SOLO VERIFICAR (NO FORZAR)
+      // 🔥 FORZAR PERMISO
       const permission = await OneSignal.Notifications.permission;
 
-      if (permission === "granted") {
-
-        await OneSignal.User.PushSubscription.optIn();
-
-        const playerId = await OneSignal.User.PushSubscription.id;
-
-        console.log("📱 PLAYER ID:", playerId);
-
+      if (permission !== "granted") {
+        console.log("🚀 Forzando permisos...");
+        await OneSignal.Notifications.requestPermission();
       } else {
-        console.log("⏳ Esperando que el usuario active desde el botón...");
+        await OneSignal.User.PushSubscription.optIn();
+        const playerId = await OneSignal.User.PushSubscription.id;
+        console.log("📱 PLAYER ID:", playerId);
       }
 
-      // 🔥 TAG USUARIO (email)
+      // 🏷️ TAG USUARIO
       const email = localStorage.getItem("dn_academy_email");
 
       if (email) {
