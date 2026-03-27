@@ -27,7 +27,7 @@
         appId: "76180fcf-b0a7-4ac9-a1d6-f06af63e67b2",
 
         notifyButton: {
-          enable: true,
+          enable: true, // 🔔 BOTÓN FLOTANTE ACTIVADO
         },
 
         allowLocalhostAsSecureOrigin: true,
@@ -41,7 +41,8 @@
       // 🔥 FORZAR PERMISO BIEN
       let permission = await OneSignal.Notifications.permission;
 
-      if (permission !== "granted") {
+      if (permission === "default") {
+        console.log("📢 Pidiendo permiso...");
         permission = await OneSignal.Notifications.requestPermission();
       }
 
@@ -49,7 +50,7 @@
 
         await OneSignal.User.PushSubscription.optIn();
 
-        const playerId = await OneSignal.User.PushSubscription.getId();
+        const playerId = await OneSignal.User.PushSubscription.id;
 
         console.log("📱 PLAYER ID:", playerId);
 
@@ -57,12 +58,13 @@
         console.log("❌ Usuario no aceptó notificaciones");
       }
 
-      // 🔥 TAG USUARIO
+      // 🔥 TAG USUARIO (email)
       const email = localStorage.getItem("dn_academy_email");
 
       if (email) {
         try {
           await OneSignal.User.addTag("email", email);
+          console.log("🏷️ Tag agregado:", email);
         } catch (e) {
           console.log("Tag error:", e);
         }
