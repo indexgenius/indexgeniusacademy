@@ -1,44 +1,65 @@
-// CAMBIO REAL PARA DEPLOY 🔥🔥🔥
-const checkPaymentStatus = async (forcedId) => {
-    const paymentId = forcedId || paymentDetails?.payment_id;
-    if (!paymentId) return;
+import React, { useState } from "react";
+import { auth } from "../../firebase"; // ✅ RUTA CORRECTA
 
-    try {
-        const status = await nowPaymentsService.getPaymentStatus(paymentId);
-        const currentStatus = status.payment_status;
+const PaymentPortal = ({ user, paymentDetails, nowPaymentsService }) => {
+    const [paymentStatus, setPaymentStatus] = useState(null);
+    const [pollingInterval, setPollingInterval] = useState(null);
 
-        console.log(`Estado NowPayments (${paymentId}):`, currentStatus);
+    const checkPaymentStatus = async (forcedId) => {
+        const paymentId = forcedId || paymentDetails?.payment_id;
+        if (!paymentId) return;
 
-        setPaymentStatus(currentStatus);
+        try {
+            const status = await nowPaymentsService.getPaymentStatus(paymentId);
+            const currentStatus = status.payment_status;
 
-        // 🔥 VALIDAR USER
-        const currentUser = user || auth.currentUser;
+            console.log(`Estado NowPayments (${paymentId}):`, currentStatus);
 
-        if (!currentUser || !currentUser.uid) {
-            console.error("❌ UID no disponible");
-            return;
+            setPaymentStatus(currentStatus);
+
+            // 🔥 VALIDAR USER
+            const currentUser = user || auth.currentUser;
+
+            if (!currentUser || !currentUser.uid) {
+                console.error("❌ UID no disponible");
+                return;
+            }
+
+            console.log("🔥 UID detectado:", currentUser.uid);
+
+            // 🔥 SI YA ESTÁ PAGADO
+            if (currentStatus === "finished" || currentStatus === "confirmed") {
+
+                console.log("🔥 Pago confirmado → esperando activación automática...");
+
+                if (pollingInterval) clearInterval(pollingInterval);
+                setPollingInterval(null);
+
+                alert("✅ PAGO CONFIRMADO - ACTIVANDO MEMBRESÍA...");
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            }
+
+        } catch (err) {
+            console.error("Error al verificar estado:", err);
         }
+    };
 
-        console.log("🔥 UID detectado:", currentUser.uid);
+    return (
+        <div>
+            <h2>Payment Portal</h2>
 
-        // 🔥 SI YA ESTÁ PAGADO → SOLO ESPERAMOS WEBHOOK
-        if (currentStatus === 'finished' || currentStatus === 'confirmed') {
+            <button onClick={() => checkPaymentStatus()}>
+                Verificar Pago
+            </button>
 
-            console.log("🔥 Pago confirmado → esperando activación automática...");
-
-            if (pollingInterval) clearInterval(pollingInterval);
-            setPollingInterval(null);
-
-            alert("✅ PAGO CONFIRMADO - ACTIVANDO MEMBRESÍA...");
-
-            // 🔥 damos tiempo al webhook
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-        }
-
-    } catch (err) {
-        console.error("Error al verificar estado:", err);
-    }
+            {paymentStatus && (
+                <p>Estado: {paymentStatus}</p>
+            )}
+        </div>
+    );
 };
-// trigger deploy
+
+export default PaymentPortal;

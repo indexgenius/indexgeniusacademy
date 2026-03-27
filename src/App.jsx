@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+// 🔥 IMPORT FIREBASE NOTIFICACIONES
+import { activarNotificaciones, escucharNotificaciones } from './firebase';
+
 // Components
-// Core Modules
 import Landing from './features/landing/LandingPage';
 import Login from './features/auth/AuthPage';
 import Dashboard from './features/signals/DashboardPage';
 import Admin from './features/admin/AdminPage';
 import ResetPassword from './features/auth/ResetPasswordPage';
 
-// Modular Feature Components
 import Groups from './features/community/GroupsPage';
 import Announcements from './features/community/AnnouncementsPage';
 import Profile from './features/user/ProfilePage';
@@ -20,9 +22,7 @@ import LiveClasses from './features/live/LiveClassesPage';
 import Affiliate from './features/affiliate/AffiliateDashboard';
 import SupremeDashboard from './features/admin/SupremeDashboard';
 
-// Access & Protection
 import PendingApproval from './features/access/PendingApproval';
-// import SubscriptionExpired from './features/access/SubscriptionExpired';
 import PaymentPortal from './features/access/PaymentPortal';
 import PromoModal from './features/notifications/PromoModal';
 import NotificationPromptModal from './features/notifications/NotificationPromptModal';
@@ -31,7 +31,6 @@ import PhoneCaptureModal from './features/user/PhoneCaptureModal';
 import { db } from './firebase';
 import { onSnapshot, query, orderBy, collection, limit } from "firebase/firestore";
 
-// Hooks & Services
 import { useSignals } from './hooks/useSignals';
 import { useAuth } from './hooks/useAuth';
 import { usePWA } from './hooks/usePWA';
@@ -48,38 +47,36 @@ function App() {
   const [reconnectTrigger, setReconnectTrigger] = useState(0);
   const [upgradeData, setUpgradeData] = useState(null);
 
-  // URL Auth Action Detection
   const urlParams = new URLSearchParams(window.location.search);
   const mode = urlParams.get('mode');
   const oobCode = urlParams.get('oobCode');
   const isResetFlow = mode === 'resetPassword' && oobCode;
 
-  // 1. Auth & Profile
   const { user, login, logout } = useAuth();
-
-  // 1.5. Referral Tracking
   useReferralTracker();
 
-
-  // 2. PWA & Device Status
   const { isStandalone, pushEnabled, adblockDetected, rePromptPush } = usePWA();
 
   const isAdmin = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com' || user?.canBroadcast;
   const isSupreme = user?.email?.toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'steven@ingenius.fx' || user?.email?.toLowerCase() === 'jeilin@jeilin.com';
 
-  // 2. Real-time Signals
   const isAuthorized = user?.status === 'approved' || isAdmin;
   const { lastSignal } = useSignals(appLoadTimeRef.current, isAuthorized);
 
-  // 2.5. Detect when app comes back from background
+  // 🔥 ACTIVAR NOTIFICACIONES AUTOMÁTICAMENTE
+  useEffect(() => {
+    if (user) {
+      activarNotificaciones();
+      escucharNotificaciones();
+    }
+  }, [user]);
+
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         const lastTrigger = parseInt(localStorage.getItem('last_reconnect_trigger') || '0');
         const now = Date.now();
-        // Solo reconectar si han pasado más de 30 segundos para evitar auth/too-many-requests
         if (now - lastTrigger > 30000) {
-          console.log('🔄 App visible - reconectando oyentes de forma segura...');
           setReconnectTrigger(prev => prev + 1);
           localStorage.setItem('last_reconnect_trigger', now.toString());
         }
@@ -90,7 +87,6 @@ function App() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  // 3. Signal Trigger
   useEffect(() => {
     if (lastSignal) triggerLocalNotification(lastSignal);
   }, [lastSignal]);
@@ -119,7 +115,7 @@ function App() {
       setNotifications((prev) => prev.filter(n => n.id !== newNotif.id));
     }, 12000);
   };
-  // 3. Unread Announcements Logic
+
   useEffect(() => {
     if (!user?.uid) return;
     const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
@@ -128,8 +124,6 @@ function App() {
       const readIds = new Set(saved ? JSON.parse(saved) : []);
       const count = snapshot.docs.filter(doc => !readIds.has(doc.id)).length;
       setUnreadAnnouncements(count);
-    }, (error) => {
-      console.error('❌ Announcements listener error:', error);
     });
   }, [user?.uid, reconnectTrigger]);
 
@@ -138,43 +132,9 @@ function App() {
       await signalService.broadcastSignal(signalObj, user.email);
       setCustomMsg('');
     } catch (e) {
-      console.error(e);
       alert("Error: " + e.message);
     }
   };
-
-  // 4. Admin Notification Listener (New Payments)
-  useEffect(() => {
-    if (!isAdmin) return;
-
-    // Listen for unread subscription payments created in the last 5 minutes
-    const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const q = query(
-      collection(db, "notifications"),
-      orderBy("timestamp", "desc"),
-      limit(5)
-    );
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const data = change.doc.data();
-          // Only alert for recent payments (avoid spam on reload)
-          const time = data.timestamp?.toMillis ? data.timestamp.toMillis() : Date.now();
-          if (data.type === 'subscription_payment' && time > Date.now() - 10000) {
-            triggerLocalNotification({
-              message: `💰 PAGO RECIBIDO: ${data.userEmail}`,
-              timestamp: data.timestamp
-            });
-          }
-        }
-      });
-    }, (error) => {
-      console.error('❌ Admin notifications listener error:', error);
-    });
-
-    return () => unsub();
-  }, [isAdmin, reconnectTrigger]);
 
   const [showAuth, setShowAuth] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState('login');
@@ -184,48 +144,22 @@ function App() {
     setShowAuth(true);
   };
 
-  // --- GATING LOGIC ---
-  // 0. If it's a Reset Password flow
   if (isResetFlow) return <ResetPassword oobCode={oobCode} />;
 
-  // 1. If no user, handle Landing vs Login
   if (!user) {
     if (!isStandalone && !showAuth) {
       return <Landing onShowAuth={(mode) => triggerAuth(mode)} />;
     }
-    return <Login
-      initialMode={authInitialMode}
-      onLogin={async (u) => {
-        await login(u);
-        setShowAuth(false);
-        // If user is brand new (created just now or payment_required), 
-        // we might want to flag that they should see the guide
-        if (u.status === 'payment_required') {
-          localStorage.setItem('show_onboarding', 'true');
-        }
-      }} />;
+    return <Login initialMode={authInitialMode} onLogin={async (u) => {
+      await login(u);
+      setShowAuth(false);
+    }} />;
   }
 
-  // 2. If user exists, handle status gating (admins bypass ALL gates)
   if (!isAdmin && !isSupreme) {
     if (user?.status === 'payment_required') return <PaymentPortal user={user} onLogout={logout} />;
     if (user?.status === 'pending' || user?.status === 'rejected') return <PendingApproval onLogout={logout} status={user.status} user={user} />;
-
-    const isExpired = () => {
-      if (user?.status === 'renewal_pending') return true;
-      if (user?.subscriptionEnd) {
-        const end = user.subscriptionEnd.toDate ? user.subscriptionEnd.toDate() : new Date(user.subscriptionEnd);
-        return end < new Date();
-      }
-      return false;
-    };
-
-    if (isExpired()) return <PaymentPortal user={user} onLogout={logout} isExpired={true} />;
   }
-
-
-
-  const handleUpgradeInitiated = (plan, diff) => setUpgradeData({ plan, diff });
 
   return (
     <MainLayout
@@ -241,38 +175,15 @@ function App() {
       broadcastSignal={broadcastSignal}
       customMsg={customMsg}
       setCustomMsg={setCustomMsg}
-      onUpgradeInitiated={handleUpgradeInitiated}
     >
-      {upgradeData && <PaymentPortal
-        user={user}
-        onLogout={logout}
-        isUpgrade={true}
-        upgradePlanId={upgradeData.plan}
-        upgradeDiff={upgradeData.diff}
-        onClose={() => setUpgradeData(null)}
-      />}
       {activeTab === 'dashboard' && <Dashboard user={user} broadcastSignal={broadcastSignal} />}
-      {activeTab === 'live-classes' && <LiveClasses user={user} />}
-      {activeTab === 'announcements' && <Announcements user={user} />}
-      {activeTab === 'charts' && <Charts />}
-      {activeTab === 'trading-history' && <TradingHistory user={user} />}
-      {activeTab === 'monthly-history' && <MonthlyHistory />}
-      {activeTab === 'academy' && <Academy user={user} />}
-      {activeTab === 'templates' && <Templates user={user} />}
-      {activeTab === 'affiliate' && <Affiliate user={user} />}
-      {activeTab === 'supreme' && isSupreme && <SupremeDashboard user={user} />}
-      {activeTab === 'admin' && (user?.canBroadcast || isAdmin) && <Admin user={user} broadcastSignal={broadcastSignal} />}
+      {activeTab === 'admin' && isAdmin && <Admin user={user} broadcastSignal={broadcastSignal} />}
       {activeTab === 'groups' && <Groups user={user} />}
-      {activeTab === 'profile' && <Profile user={user} onUpgradeInitiated={handleUpgradeInitiated} />}
+      {activeTab === 'profile' && <Profile user={user} />}
       <PhoneCaptureModal user={user} />
-      {/* Global persistent container for ReCaptcha - Posicionarlo fuera de pantalla en lugar de display:none evita errores de Google script */}
-      <div id="recaptcha-container-phone" style={{ position: 'fixed', left: '-9999px', bottom: '0', pointerEvents: 'none' }}></div>
       {user?.status === 'approved' && <PromoModal />}
       {user?.status === 'approved' && (
-        <NotificationPromptModal
-          pushEnabled={pushEnabled}
-          onEnable={rePromptPush}
-        />
+        <NotificationPromptModal pushEnabled={pushEnabled} onEnable={rePromptPush} />
       )}
     </MainLayout>
   );

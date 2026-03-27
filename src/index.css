@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+/* 🔥 FUENTES CORREGIDAS (ESTO ERA EL PROBLEMA) */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;700&family=Archivo+Black&display=swap');
 
 @theme {
   --color-primary: #ff0000;
@@ -23,32 +25,14 @@
     --shadow-color: #000000;
     --border-color: rgba(255, 255, 255, 0.1);
     --hero-overlay: rgba(0, 0, 0, 0.2);
-    /* Reduced overlay for clearer video */
     --glass-bg: rgba(0, 0, 0, 0.65);
     --glass-border: rgba(255, 255, 255, 0.2);
-  }
-
-  .light-mode {
-    --bg-primary: #ffffff;
-    --text-primary: #000000;
-    --text-secondary: #4a4a4a;
-    /* Improved contrast for subtexts */
-    --card-bg: #f9f9f9;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --border-color: rgba(0, 0, 0, 0.08);
-    --hero-overlay: rgba(255, 255, 255, 0.05);
-    /* Minimal overlay */
-    --glass-bg: rgba(255, 255, 255, 0.8);
-    --glass-border: rgba(0, 0, 0, 0.1);
   }
 
   html,
   body,
   #root {
     height: 100%;
-    /* Standard for desktop */
-    height: -webkit-fill-available;
-    /* Hack for mobile chrome/safari */
     width: 100%;
     margin: 0;
     padding: 0;
@@ -56,81 +40,41 @@
   }
 
   body {
-    @apply font-space;
+    font-family: "Oswald", sans-serif; /* 🔥 FORZAMOS LA FONT */
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
     min-height: 100vh;
-    /* Fallback */
-    min-height: 100dvh;
-    /* Dynamic viewport height */
     display: flex;
     flex-direction: column;
   }
 
-  /* Force dark styles on native select elements */
-  select {
-    cursor: pointer;
-  }
-
-  option,
-  optgroup {
+  option {
     background-color: #0f0f0f;
     color: white;
     font-family: "Oswald", sans-serif;
-    padding: 10px;
-  }
-
-  select:focus {
-    outline: none;
   }
 }
 
-@layer components {
-  .text-gradient-silver {
-    @apply bg-silver-gradient bg-clip-text text-transparent;
-  }
-
-  .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
-  }
-
-  .btn-brutal {
-    @apply bg-red-gradient text-white px-6 py-3 rounded-none font-semibold italic uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-red-glow;
-  }
-
-  .text-red-gradient-text {
-    @apply bg-red-gradient bg-clip-text text-transparent;
-  }
-
-  .card-brutal {
-    @apply bg-card border border-white/10 p-6 rounded-none transition-all hover:border-red-600/50 hover:bg-black/40;
-  }
-
-  .tactical-select {
-    @apply appearance-none bg-white/5 border border-white/10 p-4 text-xs font-bold text-white outline-none cursor-pointer transition-all;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    padding-right: 3rem;
-  }
-
-  .tactical-select:hover {
-    @apply border-red-600/50 bg-white/10;
-  }
-
-  .tactical-select option {
-    @apply bg-[#050505] text-white p-4;
-  }
+.diseno-futurista {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(1.4rem, 8vw, 72px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.85;
+  font-style: italic;
+  transform: skewX(-12deg);
 }
 
-/* Custom Scrollbar */
+.subtitulo-rojo {
+  font-family: 'Inter', sans-serif;
+  color: #ff0000;
+  letter-spacing: 6px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: #050505;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -139,204 +83,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #ff0000;
-}
-
-/* Custom Scrollbar for dropdown */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 0, 0, 0.5);
-  border-radius: 2px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 0, 0, 0.8);
-}
-
-/* Payment Methods Carousel Animation */
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-scroll {
-  animation: scroll 15s linear infinite;
-}
-
-.animate-scroll:hover {
-  animation-play-state: paused;
-}
-
-@keyframes scan {
-  0% {
-    transform: translateY(-100%);
-  }
-
-  100% {
-    transform: translateY(1000%);
-  }
-}
-
-.animate-scan {
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.5), transparent);
-  animation: scan 3s linear infinite;
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    opacity: 0.3;
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-  }
-
-  50% {
-    opacity: 1;
-    text-shadow: 0 0 20px rgba(255, 0, 0, 1);
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-/* Marquee Animations */
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes marquee-reverse {
-  0% {
-    transform: translateX(-50%);
-  }
-
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-.animate-marquee-reverse {
-  animation: marquee-reverse 30s linear infinite;
-}
-
-.diseno-futurista {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: clamp(1.4rem, 8vw, 72px);
-  font-weight: 950;
-  text-transform: uppercase;
-  line-height: 0.85;
-  color: var(--text-primary);
-  font-style: italic;
-  transform: skewX(-12deg);
-  letter-spacing: -1px;
-  margin: 0;
-  display: inline-block;
-  padding-right: 15px;
-  /* Reduced for mobile */
-}
-
-@media (min-width: 768px) {
-  .diseno-futurista {
-    padding-right: 40px;
-    letter-spacing: -2px;
-  }
-}
-
-.light-mode .diseno-futurista {
-  text-shadow: none;
-  /* Removed black shadows */
-}
-
-.sinteticos-rojo {
-  color: #ff0000;
-  text-shadow: none;
-}
-
-.light-mode .sinteticos-rojo {
-  color: #ff0000;
-  text-shadow: none;
-}
-
-@media (min-width: 1024px) {
-  .diseno-futurista {
-    letter-spacing: -5px;
-  }
-}
-
-.subtitulo-rojo {
-  font-family: 'Inter', sans-serif;
-  color: #ff0000;
-  letter-spacing: 8px;
-  font-size: 14px;
-  text-transform: uppercase;
-  margin-top: 10px;
-}
-
-.subtitulo-futurista {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: clamp(2rem, 6vw, 64px);
-  font-weight: 900;
-  text-transform: uppercase;
-  line-height: 0.9;
-  color: var(--text-primary);
-  font-style: italic;
-  transform: skewX(-5deg);
-  letter-spacing: -1px;
-  margin: 0;
-  display: inline-block;
-}
-
-/* TACTICAL TERMINAL EFFECTS - CLEAN */
-.vignette {
-  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
-  pointer-events: none;
-}
-
-@keyframes breathe {
-
-  0%,
-  100% {
-    transform: scale(1) translateY(0);
-  }
-
-  50% {
-    transform: scale(1.02) translateY(-10px);
-  }
-}
-
-.animate-breathe {
-  animation: breathe 8s ease-in-out infinite;
-}
-
-.tactical-border-left {
-  border-left: 4px solid #ff0000;
-}
-
-.mask-radial-faded {
-  -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
-  mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
 }

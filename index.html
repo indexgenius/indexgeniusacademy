@@ -3,184 +3,72 @@
 
 <head>
   <meta charset="UTF-8" />
+
   <link rel="icon" type="image/png" href="/img/logos/IMG_5208.PNG" />
+
   <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="/img/logos/IMG_5208.PNG">
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&family=Oswald:wght@200..700&display=swap"
-    rel="stylesheet">
-
-  <!-- Google Identity Services (Required for Drive Upload) -->
-  <script src="https://accounts.google.com/gsi/client"></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-
-  <!-- SEO Tags -->
-  <title>Index Genius Academy | Academia de Trading Elite y Señales en Tiempo Real</title>
-  <meta name="title" content="Index Genius Academy | Academia de Trading Elite y Señales en Tiempo Real" />
-  <meta name="description"
-    content="Domina los índices sintéticos con la academia de trading más avanzada. Señales en tiempo real, formación institucional y tecnología de grado táctico." />
-  <meta name="keywords"
-    content="trading, índices sintéticos, señales de trading, academia de trading, forex, señales en vivo, trading avanzado, latinoamérica trading" />
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.indexgeniusacademy.com/" />
-  <meta property="og:title" content="Index Genius Academy | Trading de Alto Nivel" />
-  <meta property="og:description"
-    content="Únete a la élite del trading. Señales en tiempo real y formación avanzada en índices sintéticos." />
-  <meta property="og:image" content="/img/logos/IMG_5208.PNG" />
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://www.indexgeniusacademy.com/" />
-  <meta property="twitter:title" content="Index Genius Academy | Trading de Alto Nivel" />
-  <meta property="twitter:description" content="Señales tácticas y formación de grado institucional para traders." />
-  <meta property="twitter:image" content="/img/logos/IMG_5208.PNG" />
-
-  <!-- PWA Manifest -->
+  <!-- 🔥 PWA -->
   <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#000000" />
 
-  <!-- OneSignal SDK (Official Setup) -->
-  <style>
-    /* Force OneSignal bell to be on top of everything */
-    .onesignal-bell-container,
-    #onesignal-bell-container,
-    .onesignal-slidedown-container,
-    #onesignal-slidedown-container {
-      z-index: 999999999 !important;
-    }
-  </style>
-  <script>
-    window.OS_BLOCKED_BY_ADBLOCK = false;
+  <title>Index Genius Academy</title>
 
-    // Inyección dinámica de OneSignal para evitar errores de dominio en dev
-    const isApprovedOneSignalDomain = window.location.hostname === 'indexgeniusacademy.com' ||
-      window.location.hostname === 'www.indexgeniusacademy.com';
+  <!-- 🔥 OneSignal -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
-    if (isApprovedOneSignalDomain) {
-      const script = document.createElement('script');
-      script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
-      script.defer = true;
-      script.onerror = () => { window.OS_BLOCKED_BY_ADBLOCK = true; };
-      document.head.appendChild(script);
-    }
-  </script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
 
-    // Solo inicializar OneSignal si estamos en el dominio oficial de producción
-    const isApprovedDomain = window.location.hostname === 'indexgeniusacademy.com' ||
-      window.location.hostname === 'www.indexgeniusacademy.com';
+    OneSignalDeferred.push(async function (OneSignal) {
 
-    if (isApprovedDomain) {
-      OneSignalDeferred.push(async function (OneSignal) {
-        await OneSignal.init({
-          appId: "04046e2f-a035-4a88-9842-147cf501c938",
-          safari_web_id: "web.onesignal.auto.44737891-769a-4856-a052-0f3c94719003",
-          notifyButton: {
-            enable: true,
-            size: 'medium',
-            theme: 'default',
-            position: 'bottom-right',
-            offset: {
-              bottom: '40px',
-              right: '20px'
-            },
-            colors: {
-              'circle.background': '#ff0000',
-              'circle.foreground': 'white',
-              'badge.background': '#ff0000',
-              'badge.foreground': 'white',
-              'badge.bordercolor': 'white',
-              'pulse.color': 'white',
-            },
-            text: {
-              'tip.state.unsubscribed': 'Suscribirse a notificaciones',
-              'tip.state.subscribed': 'Estás suscrito',
-              'tip.state.blocked': 'Has bloqueado las notificaciones',
-              'message.prenotify': 'Haz clic para activar señales tácticas',
-              'message.action.subscribed': '¡Gracias por suscribirte!',
-              'message.action.resubscribed': 'Estás suscrito de nuevo',
-              'message.action.unsubscribed': 'No recibirás más señales',
-              'dialog.main.title': 'Gestionar Notificaciones',
-              'dialog.main.button.subscribe': 'SUSCRIBIRSE',
-              'dialog.main.button.unsubscribe': 'DAR DE BAJA',
-              'dialog.blocked.title': 'Desbloquear Notificaciones',
-              'dialog.blocked.message': 'Haz clic aquí para ver cómo permitir notificaciones en tu navegador'
-            }
-          },
-          allowLocalhostAsSecureOrigin: true,
-          promptOptions: {
-            slidedown: {
-              prompts: [
-                {
-                  type: 'push',
-                  autoPrompt: true,
-                  text: {
-                    actionMessage: "¿Deseas recibir alertas tácticas y señales en tiempo real?",
-                    acceptButton: "ACTIVAR",
-                    cancelButton: "LUEGO"
-                  },
-                  delay: {
-                    pageViews: 1,
-                    timeDelay: 25
-                  }
-                }
-              ]
-            }
-          }
-        });
+      await OneSignal.init({
+        appId: "76180fcf-b0a7-4ac9-a1d6-f06af63e67b2",
 
-        // Auto-tag users when they login
-        // This listens for user email stored in localStorage
-        let lastTaggedEmail = null; // Track the last email we tagged to avoid redundant calls
+        notifyButton: {
+          enable: true,
+        },
 
-        const checkAndTagUser = async () => {
-          const userEmail = localStorage.getItem('dn_academy_email');
+        allowLocalhostAsSecureOrigin: true,
 
-          // Only tag if we have an email AND it's different from the last one we tagged
-          if (userEmail && userEmail !== lastTaggedEmail) {
-            console.log('🏷️ [OneSignal] Tagging user with email:', userEmail);
-            try {
-              await OneSignal.User.addTag('email', userEmail);
-              lastTaggedEmail = userEmail; // Remember this email
-              console.log('✅ [OneSignal] User tagged successfully');
-            } catch (err) {
-              console.error('❌ [OneSignal] Failed to tag user:', err);
-            }
-          }
-        };
-
-        // Check immediately
-        checkAndTagUser();
-
-        // Reliable Adblock detection check
-        setTimeout(() => {
-          if (!window.OneSignal && !window.OneSignalDeferred?.length) {
-            console.warn('⚠️ [OneSignal] SDK potentialy blocked by AdBlock or Network');
-            window.OS_BLOCKED_BY_ADBLOCK = true;
-            window.dispatchEvent(new Event('focus')); // Trigger re-check in usePWA
-          }
-        }, 3000);
-
-        // Also check when storage changes (e.g., after login)
-        window.addEventListener('storage', checkAndTagUser);
-
-        // Check periodically ALWAYS (every 5 seconds) to catch any email changes
-        setInterval(() => {
-          checkAndTagUser();
-        }, 5000); // Check every 5 seconds continuously
-
-        console.log('🔔 [OneSignal] Continuous email monitoring active');
+        serviceWorkerPath: "/OneSignalSDKWorker.js",
+        serviceWorkerUpdaterPath: "/OneSignalSDKUpdaterWorker.js",
       });
-    }
+
+      console.log("✅ OneSignal inicializado");
+
+      // 🔥 FORZAR PERMISO BIEN
+      let permission = await OneSignal.Notifications.permission;
+
+      if (permission !== "granted") {
+        permission = await OneSignal.Notifications.requestPermission();
+      }
+
+      if (permission === "granted") {
+
+        await OneSignal.User.PushSubscription.optIn();
+
+        const playerId = await OneSignal.User.PushSubscription.getId();
+
+        console.log("📱 PLAYER ID:", playerId);
+
+      } else {
+        console.log("❌ Usuario no aceptó notificaciones");
+      }
+
+      // 🔥 TAG USUARIO
+      const email = localStorage.getItem("dn_academy_email");
+
+      if (email) {
+        try {
+          await OneSignal.User.addTag("email", email);
+        } catch (e) {
+          console.log("Tag error:", e);
+        }
+      }
+
+    });
   </script>
 
 </head>

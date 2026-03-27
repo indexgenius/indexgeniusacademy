@@ -41,3 +41,48 @@ if (typeof window !== 'undefined') {
 }
 
 export { app, analytics, db, auth, messaging, googleProvider };
+import { getToken, onMessage } from "firebase/messaging";
+
+export const activarNotificaciones = async () => {
+    try {
+        const permission = await Notification.requestPermission();
+
+        if (permission !== "granted") {
+            console.log("Permiso denegado");
+            return;
+        }
+
+        const token = await getToken(messaging, {
+            vapidKey: "BD_yaPglTL-4cv6M3xhlbFCDEbfb-mDKQIFDW1PRj4RQRgabJdAwCzUfz4SLQJ6ErVxwEt5yeyvqKTUCFQmn9Ro"
+        });
+
+        console.log("TOKEN:", token);
+
+        // 🔥 GUARDAR TOKEN EN FIREBASE
+        await fetch("/api/save-token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ token })
+        });
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+};
+
+
+// 👂 ESCUCHAR NOTIFICACIONES EN PRIMER PLANO
+export const escucharNotificaciones = () => {
+    if (!messaging) return;
+
+    onMessage(messaging, (payload) => {
+        console.log("Notificación recibida:", payload);
+
+        new Notification(payload.notification.title, {
+            body: payload.notification.body,
+            icon: "/img/logos/IMG_5208.PNG"
+        });
+    });
+};
